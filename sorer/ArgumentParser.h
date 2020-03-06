@@ -68,4 +68,52 @@ public:
 			}
 		}
 	}
+
+	/**
+	 * Gee the file name.
+	 * @return the file name.
+	 */
+	char *getFilename() {
+		return filename_;
+	}
+
+	/**
+	 * Get the -len argument.
+	 * @return the len argument.
+	 */
+	size_t getLen() {
+		return len_;
+	}
+
+	/**
+	 * Get the -from argument.
+	 * @return the from argument.
+	 */
+	size_t getFrom() {
+		return from_;
+	}
+
+	/**
+	 * Get the command to execute.
+	 * @return the command to execute.
+	 */
+	char *getCommand() {
+		return command_;
+	}
+
+	/**
+	 * Get the first input value for the command to execute.
+	 * @return the first input of the command.
+	 */
+	size_t getVal1() {
+		return val1_;
+	}
+
+	/**
+	 * Get the second input value for the command to execute.
+	 * @return the second input of the command.
+	 */
+	size_t getVal2() {
+		return val2_;
+	}
 };
