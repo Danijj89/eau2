@@ -9,6 +9,7 @@
 
 /**
  * Resizable array of types.
+ * @authors zhan.d@husky.neu.edu & yuan.cao@husky.neu.edu
  */
 class TypesArray : public Array {
 public:
