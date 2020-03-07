@@ -19,46 +19,25 @@
  *
  * If no -len or no -from options are given, we assume the whole file must be read.
  */
-
-
 int main(int argc, char **argv) {
 
 	ArgumentParser p = ArgumentParser();
+	// get argument inputs
 	p.parse(argc, argv);
 
 	Sorer s = Sorer();
+	// parse file using sorer
 	s.initialize_sorer(p.getFilename(), p.getFrom(), p.getLen());
 
+	// execute user requested command
     char* command = p.getCommand();
     if (strcmp(command, "-print_col_type") == 0) {
         s.printColType(p.getVal1());
-    } else {
-        size_t field_start = columnar[uint1]->get_start(uint2);
-        size_t field_end = columnar[uint1]->get_end(uint2);
-        if (strcmp(output_arg, "-is_missing_idx") == 0) {
-            if (field_end - field_start < 2) {
-                std::cout << 1 << '\n';
-            } else {
-                std::cout << 0 << '\n';
-            }
-        } else {
-            print_field(file, field_start, field_end, schema->get(uint1));
-        }
+    } else if (strcmp(command, "-is_missing_idx") == 0) {
+    	s.printIsMissing(p.getVal1(), p.getVal2());
+	} else if (strcmp(command, "-print_col_idx") == 0) {
+    	s.printField(p.getVal1(), p.getVal2());
     }
 
-	// If none of the three flags that require an output
-	// is given, return directly.
-	if (!output_arg) {
-		return 0;
-	}
-    // delete everything
-	size_t num_col = schema->len();
-    for (size_t k = 0; k < num_col; ++k) {
-        delete columnar[k];
-    }
-    delete[] columnar;
-    delete schema;
-    munmap(file, ask);
-    close(fd);
     return 0;
 }
