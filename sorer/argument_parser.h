@@ -4,7 +4,7 @@
 
 #include "../util/object.h"
 #include "../util/helper.h"
-#include "constants.h"
+#include "../util/constants.h"
 
 /**
  * Argument parser used to parse command line inputs for the sorer application.
@@ -75,7 +75,7 @@ public:
 	}
 
 	void print_usage() {
-		printf("%s\n", USAGE);
+		printf("%s\n", SORER_USAGE);
 	}
 
 	/**

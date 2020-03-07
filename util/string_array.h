@@ -1,8 +1,8 @@
 #pragma once
 
 
-#include "../util/string.h"
-#include "../util/array.h"
+#include "string.h"
+#include "array.h"
 
 /**
  * String array takes ownership of all the values that get added.

@@ -10,7 +10,7 @@
 #include "../util/object.h"
 #include "types_array.h"
 #include "field_array.h"
-#include "constants.h"
+#include "../util/constants.h"
 #include "../dataframe/column.h"
 #include "../util/string.h"
 

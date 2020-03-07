@@ -7,7 +7,7 @@
 #include <cstdlib>
 
 
-const char* USAGE = "Usage: ./sorer [-f] [-from] [-len] [-print_col_type] " \
+const char* SORER_USAGE = "Usage: ./sorer [-f] [-from] [-len] [-print_col_type] " \
              "[-print_col_idx] [-is_missing_idx]\n" \
              "\n" \
              "\t-f [filename] must be the first argument\n" \
@@ -18,3 +18,9 @@ const char* USAGE = "Usage: ./sorer [-f] [-from] [-len] [-print_col_type] " \
              "Only one option of each kind can be used.\n";
 
 const size_t INFER_SCHEMA_LINES = 500;
+
+const unsigned int MAX_BUFF_SIZE = 400;
+const unsigned int MAX_MESSAGE_SIZE = 4096;
+const unsigned int MAX_NUM_THREADS = 24;
+const char SERVER_IP[10] = "127.0.0.1";
+const unsigned int PORT = 9000;
