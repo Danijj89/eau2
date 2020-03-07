@@ -21,6 +21,6 @@ inline size_t parse_uint(char* val) {
 	char *endptr = nullptr;
 	size_t length = strlen(val);
 	size_t uint = strtoul(val, &endptr, 10);
-	assert(length != (size_t) (endptr - val));
+	assert(length == (size_t) (endptr - val));
 	return uint;
 }

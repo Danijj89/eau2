@@ -31,11 +31,6 @@ public:
 		this->val2_ = 0;
 	}
 
-	~ArgumentParser() override {
-		delete[] this->filename_;
-		delete[] this->command_;
-	}
-
 	/**
 	 * Parses the inputs to the program given the argc and argv.
 	 * @param argc the argc

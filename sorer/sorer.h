@@ -4,8 +4,9 @@
 
 #include <fcntl.h>
 #include <sys/stat.h>
-#include <zconf.h>
 #include <sys/mman.h>
+#include <unistd.h>
+#include <stdlib.h>
 #include "../util/object.h"
 #include "types_array.h"
 #include "field_array.h"
@@ -40,7 +41,7 @@ public:
 		this->fileSize_ = 0;
 		this->file_ = nullptr;
 		this->schema_ = nullptr;
-		this->schema_ = nullptr;
+		this->columnar_ = nullptr;
 		this->data_ = nullptr;
 	}
 
@@ -127,7 +128,8 @@ public:
 		// if the file size is smaller than the bytes we are supposed to read,
 		// we just read the whole file
 		this->end_ = this->from_ + len;
-		if (this->end_ >= this->fileSize_) {
+
+		if (this->end_ >= this->fileSize_ || len == 0) {
 			this->end_ = this->fileSize_;
 		} else {
 			// else we discard the last line
@@ -146,7 +148,7 @@ public:
  	 * less restrictive fields are found, is this result array ever changed.
  	 * CREDIT: to SnowySong team for the schema parsing algorithm.
 	 */
-	void *inferSchema_() {
+	void inferSchema_() {
 		// stores the schema state so far
 		this->schema_ = new TypesArray();
 		size_t start = 0;
@@ -451,7 +453,9 @@ public:
 		// removes empty spaces in front and back
 		size_t new_start = this->triml_(start, end);
 		size_t new_end = this->trimr_(start, end);
-		assert(new_start == new_end);
+		// either they point to same byte or the end has gone
+		// over because the field is missing value
+		assert(new_end - new_start == 0 || new_start - new_end == 1);
 		return this->file_[new_start] == '1';
 	}
 
