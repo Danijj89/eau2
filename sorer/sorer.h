@@ -60,9 +60,19 @@ public:
 			munmap(this->file_, this->ask_);
 			close(this->fd_);
 		}
-		delete this->schema_;
+		if (this->columnar_ != nullptr) {
+			for (size_t i = 0; i < this->schema_->len(); i++) {
+				delete this->columnar_[i];
+			}
+		}
 		delete[] this->columnar_;
+		if (this->data_ != nullptr) {
+			for (size_t i = 0; i < this->schema_->len(); i++) {
+				delete this->data_[i];
+			}
+		}
 		delete[] this->data_;
+		delete this->schema_;
 	}
 
 	/**
