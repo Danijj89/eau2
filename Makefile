@@ -2,11 +2,20 @@ DOCKER := docker run -ti -v `pwd`:/test w2-gtest:0.1 bash -c
 CXXFLAGS := --std=c++11 -Wall --pedantic -O3
 COMPILER := g++
 
-sorer:
+
+local:
 	cd sorer; $(COMPILER) $(CXXFLAGS) main.cpp -o sorer
 
-dsorer:
+
+docker:
 	$(DOCKER) "cd /test/sorer; $(COMPILER) $(CXXFLAGS) main.cpp -o sorer"
+
+
+test_setup:
+	$(DOCKER) "cd /test/tests; cmake ."
+
+test: test_setup
+	$(DOCKER) "cd /test/tests; make"
 
 test_sorer:
 #	- $(DOCKER) "cd /test/sorer; ./sorer -f ../tests/sorer/0.sor -print_col_type 0"
@@ -38,6 +47,6 @@ test_sorer:
 	- $(DOCKER) "cd /test/sorer; ./sorer -f ../tests/sorer/100mb.sor -print_col_idx 1 400"
 
 clean:
-	- rm sorer/sorer
+	sudo git clean -df
 
 .PHONY: sorer clean

@@ -14,6 +14,7 @@
 #include "../dataframe/column.h"
 #include "../util/string.h"
 #include "../dataframe/dataframe.h"
+#include "../dataframe/schema.h"
 
 /**
  * Class that encapsulate all logic to parse a schema on read file.

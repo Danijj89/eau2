@@ -3,8 +3,8 @@
 
 #include "../util/object.h"
 #include "column.h"
-#include "schema.h"
 #include "fielder.h"
+#include "schema.h"
 
 /**
  * Row ::
@@ -19,14 +19,13 @@ public:
     Column** vals_; // owned, and individual col are also owned
     Schema* schema_; // owned
     size_t index_;
-    size_t ncols_;
+    size_t nCols_;
 
     /** Build a row following a schema. */
     explicit Row(Schema& scm) {
-		this->ncols_ = scm.width();
-        this->vals_ = new Column*[this->ncols_];
+        this->vals_ = new Column*[this->nCols_];
 		// Each case push back once to create a slot in the column
-		for (size_t i = 0; i < this->ncols_; ++i) {
+		for (size_t i = 0; i < this->nCols_; ++i) {
 			switch (scm.col_type(i)) {
 				case 'B':
 					this->vals_[i] = new BoolColumn();
@@ -47,13 +46,13 @@ public:
 				default: exit(2);
 			}
 		}
-        this->schema_ = new Schema(scm);
+        this->schema_ = &scm;
         this->index_ = SIZE_MAX;
     }
 
     /** Destroys a row. */
     ~Row() override {
-		for (size_t i = 0; i < this->schema_->width(); ++i) {
+		for (size_t i = 0; i < this->nCols_; ++i) {
 			delete this->vals_[i];
 		}
 		delete[] this->vals_;
@@ -66,7 +65,7 @@ public:
      * Strings are not acquired.
      */
     void set(size_t col, bool val) {
-        assert(this->col_type(col) == 'B');
+        assert(this->schema_->col_type(col) == 'B');
 		this->vals_[col]->as_bool()->set(0, val);
     }
 
@@ -137,7 +136,7 @@ public:
      * Number of fields in the row.
      */
     size_t width() {
-        return this->schema_->width();
+        return this->nCols_;
     }
 
     /**
@@ -157,7 +156,7 @@ public:
             exit(1);
         }
         f.start(idx);
-        for (size_t i = 0; i < this->ncols_; ++i) {
+        for (size_t i = 0; i < this->nCols_; ++i) {
             switch(this->schema_->col_type(i)) {
                 case 'B':
                     f.accept(this->vals_[i]->as_bool()->get(0));

@@ -4,10 +4,10 @@
 
 #include <thread>
 #include "../util/object.h"
-#include "schema.h"
 #include "column.h"
 #include "row.h"
 #include "rower.h"
+#include "schema.h"
 
 /**
  * ModifiedDataFrame::
@@ -30,11 +30,12 @@ public:
      * @param df the ModifiedDataFrame
      */
     DataFrame(DataFrame& df) {
-        this->schema_ = new Schema(df.get_schema());
+        this->schema_ = new Schema(*df.get_schema());
         this->ncols_ = this->schema_->width();
+
         this->nrows_ = 0;
         this->vals_ = new Column*[this->ncols_];
-        for (size_t i = 0; i < this->schema_->width(); ++i) {
+        for (size_t i = 0; i < this->ncols_; ++i) {
             switch(this->schema_->col_type(i)) {
                 case 'B':
                     this->vals_[i] = new BoolColumn();
@@ -66,7 +67,7 @@ public:
         this->ncols_ = this->schema_->width();
         this->nrows_ = 0;
         this->vals_ = new Column*[this->ncols_];
-        for (size_t i = 0; i < this->schema_->width(); ++i) {
+        for (size_t i = 0; i < this->ncols_; ++i) {
             switch(this->schema_->col_type(i)) {
                 case 'B':
                     this->vals_[i] = new BoolColumn();
@@ -101,8 +102,8 @@ public:
      * has been created in undefined.
      * @return the schema of this ModifiedDataFrame
      */
-    Schema& get_schema() {
-        return *this->schema_;
+    Schema* get_schema() {
+        return this->schema_;
     }
 
     /**
@@ -164,7 +165,6 @@ public:
         || this->schema_->col_type(col) != 'I') {
             exit(1);
         }
-
         return this->vals_[col]->as_int()->get(row);
     }
 
@@ -180,7 +180,6 @@ public:
             || this->schema_->col_type(col) != 'B') {
             exit(1);
         }
-
         return this->vals_[col]->as_bool()->get(row);
     }
 
@@ -196,7 +195,6 @@ public:
             || this->schema_->col_type(col) != 'F') {
             exit(1);
         }
-
         return this->vals_[col]->as_float()->get(row);
     }
 
