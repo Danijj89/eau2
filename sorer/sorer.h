@@ -13,6 +13,7 @@
 #include "../util/constants.h"
 #include "../dataframe/column.h"
 #include "../util/string.h"
+#include "../dataframe/dataframe.h"
 
 /**
  * Class that encapsulate all logic to parse a schema on read file.
@@ -609,5 +610,13 @@ public:
 		}
 	}
 
-
+	DataFrame* getAsDF() {
+		Schema* s = new Schema();
+		DataFrame* df = new DataFrame(*s);
+		for (size_t i = 0; i < this->schema_->len(); i++) {
+			df->add_column(this->data_[i]);
+		}
+		delete s;
+		return df;
+	}
 };

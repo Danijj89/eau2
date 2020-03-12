@@ -16,7 +16,7 @@
  * holds values of the same type (I, S, B, F). A ModifiedDataFrame has a schema that
  * describes it.
  */
-class ModifiedDataFrame : public Object {
+class DataFrame : public Object {
 public:
     Schema* schema_;
     Column** vals_;
@@ -29,7 +29,7 @@ public:
      *
      * @param df the ModifiedDataFrame
      */
-    ModifiedDataFrame(ModifiedDataFrame& df) {
+    DataFrame(DataFrame& df) {
         this->schema_ = new Schema(df.get_schema());
         this->ncols_ = this->schema_->width();
         this->nrows_ = 0;
@@ -61,7 +61,7 @@ public:
      * the columns do not match the schema.
      * @param schema the schema
      */
-    ModifiedDataFrame(Schema& schema) {
+    DataFrame(Schema& schema) {
         this->schema_ = new Schema(schema);
         this->ncols_ = this->schema_->width();
         this->nrows_ = 0;
@@ -88,7 +88,7 @@ public:
         }
     }
 
-    ~ModifiedDataFrame() {
+    ~DataFrame() {
         delete this->schema_;
         for (size_t i = 0; i < this->ncols_; ++i) {
             delete this->vals_[i];
@@ -107,16 +107,14 @@ public:
 
     /**
      * Adds a column to this ModifiedDataFrame, updates the schema, the new column
-     * is external, and appears as the last column of the ModifiedDataFrame, the
-     * name is optional and external.
+     * is external, and appears as the last column of the ModifiedDataFrame.
      * If the given column is a nullptr or if the size of the column
      * does not match the number of rows in this ModifiedDataFrame,
      * we throw an error and exit.
      *
      * @param col the column to be added
-     * @param name the name of the column
      */
-    void add_column(Column* col, String* name) {
+    void add_column(Column* col) {
         assert(col != nullptr && (col->size() == this->nrows_ || this->nrows_ == 0));
         this->grow_();
         char t = col->get_type();
@@ -136,7 +134,7 @@ public:
             default:
                 exit(1);
         }
-        this->schema_->add_column(t, name);
+        this->schema_->add_column(t);
         this->nrows_ = col->size();
     }
 
@@ -216,26 +214,6 @@ public:
         }
 
         return this->vals_[col]->as_string()->get(row);
-    }
-
-
-    /**
-     * Return the offset of the given column name or -1 if no such col.
-     * @param col the column name
-     * @return the column offset or -1 if it doesn't exist
-     */
-    int get_col(String& col) {
-        return this->schema_->col_idx(col.c_str());
-    }
-
-
-    /**
-     * Return the offset of the given row name or -1 if no such row.
-     * @param row the row name
-     * @return the row offset or -1 if it doesn't exist
-     */
-    int get_row(String& row) {
-        return this->schema_->row_idx(row.c_str());
     }
 
     /**
@@ -401,8 +379,8 @@ public:
      * @param r the visitor
      * @return a new ModifiedDataFrame
      */
-    ModifiedDataFrame* filter(Rower& r) {
-        ModifiedDataFrame* result = new ModifiedDataFrame(*this->schema_);
+    DataFrame* filter(Rower& r) {
+        DataFrame* result = new DataFrame(*this->schema_);
         Row* row = new Row(*this->schema_);
         for (size_t i = 0; i < this->nrows_; ++i) {
             if (r.accept(*row)) {
@@ -498,7 +476,7 @@ public:
 
         // start threads with the appropriate work
         for (size_t i = 0; i < this->nthreads_; ++i) {
-            pool[i] = new std::thread(&ModifiedDataFrame::rangeMap_, this, work_chucks[i], work_chucks[i + 1], rowers[i]);
+            pool[i] = new std::thread(&DataFrame::rangeMap_, this, work_chucks[i], work_chucks[i + 1], rowers[i]);
         }
 
         // wait for all threads to finish
