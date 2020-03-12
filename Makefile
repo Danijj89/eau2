@@ -47,6 +47,6 @@ test_sorer:
 	- $(DOCKER) "cd /test/sorer; ./sorer -f ../tests/sorer/100mb.sor -print_col_idx 1 400"
 
 clean:
-	- rm sorer/sorer
+	sudo git clean -df
 
 .PHONY: sorer clean
