@@ -17,7 +17,7 @@ test_setup:
 test: test_setup
 	$(DOCKER) "cd /test/tests; make && ./runTests"
 
-valgrind: test
+valgrind: test_setup
 	$(DOCKER) "cd /test/tests; valgrind ./runTests"
 
 clean:
