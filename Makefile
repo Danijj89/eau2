@@ -15,7 +15,10 @@ test_setup:
 	$(DOCKER) "cd /test/tests; cmake ."
 
 test: test_setup
-	$(DOCKER) "cd /test/tests; make"
+	$(DOCKER) "cd /test/tests; make && ./runTests"
+
+valgrind: test
+	$(DOCKER) "cd /test/tests; valgrind ./runTests"
 
 test_sorer:
 #	- $(DOCKER) "cd /test/sorer; ./sorer -f ../tests/sorer/0.sor -print_col_type 0"
