@@ -14,7 +14,7 @@ docker:
 test_setup:
 	$(DOCKER) "cd /test/tests; cmake ."
 
-test: 
+test: test_setup
 	$(DOCKER) "cd /test/tests; make"
 
 test_sorer:
