@@ -16,9 +16,9 @@
  * holds values of the same type (I, S, B, F). A ModifiedDataFrame has a schema that
  * describes it.
  */
-class ModifiedDataFrame : public Object {
+class DataFrame : public Object {
 public:
-    Schema* schema_;
+    char* schema_;
     Column** vals_;
     size_t ncols_;
     size_t nrows_;
@@ -29,13 +29,15 @@ public:
      *
      * @param df the ModifiedDataFrame
      */
-    ModifiedDataFrame(ModifiedDataFrame& df) {
-        this->schema_ = new Schema(df.get_schema());
-        this->ncols_ = this->schema_->width();
+    DataFrame(DataFrame& df) {
+        this->schema_ = new char[df.ncols() + 1];
+        memcpy(this->schema_, df.get_schema(), df.ncols());
+        this->schema_[df.ncols() + 1] = '\0';
+        this->ncols_ = df.ncols();
         this->nrows_ = 0;
         this->vals_ = new Column*[this->ncols_];
-        for (size_t i = 0; i < this->schema_->width(); ++i) {
-            switch(this->schema_->col_type(i)) {
+        for (size_t i = 0; i < this->ncols_; ++i) {
+            switch(this->schema_[i]) {
                 case 'B':
                     this->vals_[i] = new BoolColumn();
                     break;
@@ -61,9 +63,12 @@ public:
      * the columns do not match the schema.
      * @param schema the schema
      */
-    ModifiedDataFrame(Schema& schema) {
-        this->schema_ = new Schema(schema);
-        this->ncols_ = this->schema_->width();
+    DataFrame(char* schema) {
+    	size_t nCols = strlen(schema);
+		this->schema_ = new char[nCols + 1];
+		memcpy(this->schema_, schema, nCols);
+		this->schema_[nCols + 1] = '\0';
+        this->ncols_ = nCols;
         this->nrows_ = 0;
         this->vals_ = new Column*[this->ncols_];
         for (size_t i = 0; i < this->schema_->width(); ++i) {
@@ -88,7 +93,7 @@ public:
         }
     }
 
-    ~ModifiedDataFrame() {
+    ~DataFrame() {
         delete this->schema_;
         for (size_t i = 0; i < this->ncols_; ++i) {
             delete this->vals_[i];
@@ -101,8 +106,8 @@ public:
      * has been created in undefined.
      * @return the schema of this ModifiedDataFrame
      */
-    Schema& get_schema() {
-        return *this->schema_;
+    char* get_schema() {
+        return this->schema_;
     }
 
     /**
@@ -401,8 +406,8 @@ public:
      * @param r the visitor
      * @return a new ModifiedDataFrame
      */
-    ModifiedDataFrame* filter(Rower& r) {
-        ModifiedDataFrame* result = new ModifiedDataFrame(*this->schema_);
+    DataFrame* filter(Rower& r) {
+        DataFrame* result = new DataFrame(*this->schema_);
         Row* row = new Row(*this->schema_);
         for (size_t i = 0; i < this->nrows_; ++i) {
             if (r.accept(*row)) {
@@ -498,7 +503,7 @@ public:
 
         // start threads with the appropriate work
         for (size_t i = 0; i < this->nthreads_; ++i) {
-            pool[i] = new std::thread(&ModifiedDataFrame::rangeMap_, this, work_chucks[i], work_chucks[i + 1], rowers[i]);
+            pool[i] = new std::thread(&DataFrame::rangeMap_, this, work_chucks[i], work_chucks[i + 1], rowers[i]);
         }
 
         // wait for all threads to finish
