@@ -4,7 +4,6 @@
 
 #include <thread>
 #include "../util/object.h"
-#include "schema.h"
 #include "column.h"
 #include "row.h"
 #include "rower.h"
@@ -71,8 +70,8 @@ public:
         this->ncols_ = nCols;
         this->nrows_ = 0;
         this->vals_ = new Column*[this->ncols_];
-        for (size_t i = 0; i < this->schema_->width(); ++i) {
-            switch(this->schema_->col_type(i)) {
+        for (size_t i = 0; i < nCols; ++i) {
+            switch(this->schema_[i]) {
                 case 'B':
                     this->vals_[i] = new BoolColumn();
                     break;
@@ -141,7 +140,6 @@ public:
             default:
                 exit(1);
         }
-        this->schema_->add_column(t, name);
         this->nrows_ = col->size();
     }
 
@@ -168,10 +166,9 @@ public:
      */
     int get_int(size_t col, size_t row) {
         if (col >= this->ncols_ || row >= this->nrows_
-        || this->schema_->col_type(col) != 'I') {
+        || this->schema_[col] != 'I') {
             exit(1);
         }
-
         return this->vals_[col]->as_int()->get(row);
     }
 
@@ -184,10 +181,9 @@ public:
      */
     bool get_bool(size_t col, size_t row) {
         if (col >= this->ncols_ || row >= this->nrows_
-            || this->schema_->col_type(col) != 'B') {
+            || this->schema_[col] != 'B') {
             exit(1);
         }
-
         return this->vals_[col]->as_bool()->get(row);
     }
 
@@ -200,10 +196,9 @@ public:
      */
     float get_float(size_t col, size_t row) {
         if (col >= this->ncols_ || row >= this->nrows_
-            || this->schema_->col_type(col) != 'F') {
+            || this->schema_[col] != 'F') {
             exit(1);
         }
-
         return this->vals_[col]->as_float()->get(row);
     }
 
@@ -216,31 +211,11 @@ public:
      */
     String*  get_string(size_t col, size_t row) {
         if (col >= this->ncols_ || row >= this->nrows_
-            || this->schema_->col_type(col) != 'S') {
+            || this->schema_[col] != 'S') {
             exit(1);
         }
 
         return this->vals_[col]->as_string()->get(row);
-    }
-
-
-    /**
-     * Return the offset of the given column name or -1 if no such col.
-     * @param col the column name
-     * @return the column offset or -1 if it doesn't exist
-     */
-    int get_col(String& col) {
-        return this->schema_->col_idx(col.c_str());
-    }
-
-
-    /**
-     * Return the offset of the given row name or -1 if no such row.
-     * @param row the row name
-     * @return the row offset or -1 if it doesn't exist
-     */
-    int get_row(String& row) {
-        return this->schema_->row_idx(row.c_str());
     }
 
     /**
@@ -253,7 +228,7 @@ public:
      */
     void set(size_t col, size_t row, int val) {
         if (col >= this->ncols_ || row >= this->nrows_
-            || this->schema_->col_type(col) != 'I') {
+            || this->schema_[col] != 'I') {
             exit(1);
         }
         this->vals_[col]->as_int()->set(row, val);
@@ -269,7 +244,7 @@ public:
      */
     void set(size_t col, size_t row, bool val) {
         if (col >= this->ncols_ || row >= this->nrows_
-            || this->schema_->col_type(col) != 'B') {
+            || this->schema_[col] != 'B') {
             exit(1);
         }
         this->vals_[col]->as_bool()->set(row, val);
@@ -285,7 +260,7 @@ public:
      */
     void set(size_t col, size_t row, float val) {
         if (col >= this->ncols_ || row >= this->nrows_
-            || this->schema_->col_type(col) != 'F') {
+            || this->schema_[col] != 'F') {
             exit(1);
         }
         this->vals_[col]->as_float()->set(row, val);
@@ -301,7 +276,7 @@ public:
      */
     void set(size_t col, size_t row, String* val) {
         if (col >= this->ncols_ || row >= this->nrows_
-            || this->schema_->col_type(col) != 'S') {
+            || this->schema_[col] != 'S') {
             exit(1);
         }
         this->vals_[col]->as_string()->set(row, val);
@@ -317,7 +292,7 @@ public:
     void fill_row(size_t idx, Row& row) {
         row.set_idx(idx);
         for (size_t i = 0; i < this->ncols_; ++i) {
-            char t = this->schema_->col_type(i);
+            char t = this->schema_[i];
             switch(t) {
                 case 'B':
                     row.set(i, this->vals_[i]->as_bool()->get(idx));
@@ -346,12 +321,12 @@ public:
         assert(row.width() == this->ncols_);
         // check row matches the schema before starting to insert
         for (size_t i = 0; i < this->ncols_; ++i) {
-            if (row.col_type(i) != this->schema_->col_type(i)) {
+            if (row.col_type(i) != this->schema_[i]) {
                 exit(1);
             }
         }
         for (size_t i = 0; i < this->ncols_; ++i) {
-            char t = this->schema_->col_type(i);
+            char t = this->schema_[i];
             switch(t) {
                 case 'B':
                     this->vals_[i]->as_bool()->push_back(row.get_bool(i));
@@ -393,7 +368,7 @@ public:
      * @param r the visitor
      */
     void map(Rower& r) {
-        Row* row = new Row(*this->schema_);
+        Row* row = new Row(this->schema_);
         for (size_t i = 0; i < this->nrows_; ++i) {
             fill_row(i, *row);
             r.accept(*row);
@@ -407,8 +382,8 @@ public:
      * @return a new ModifiedDataFrame
      */
     DataFrame* filter(Rower& r) {
-        DataFrame* result = new DataFrame(*this->schema_);
-        Row* row = new Row(*this->schema_);
+        DataFrame* result = new DataFrame(this->schema_);
+        Row* row = new Row(this->schema_);
         for (size_t i = 0; i < this->nrows_; ++i) {
             if (r.accept(*row)) {
                 result->add_row(*row);
@@ -427,7 +402,7 @@ public:
         for (size_t i = 0; i < this->nrows_; ++i) {
             for (size_t j = 0; j < this->ncols_; ++j) {
                 sb->c("<");
-                switch(this->schema_->col_type(j)) {
+                switch(this->schema_[j]) {
                     case 'B':
                         sb->c(this->vals_[j]->as_bool()->get(i));
                         break;
@@ -465,7 +440,7 @@ public:
      * @param r the rower
      */
     void rangeMap_(size_t from, size_t to, Rower* r) {
-        Row* row = new Row(*this->schema_);
+        Row* row = new Row(this->schema_);
         for (size_t i = from; i < to; ++i) {
             fill_row(i, *row);
             r->accept(*row);

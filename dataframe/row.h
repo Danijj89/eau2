@@ -3,7 +3,6 @@
 
 #include "../util/object.h"
 #include "column.h"
-#include "schema.h"
 #include "fielder.h"
 
 /**
@@ -17,17 +16,17 @@
 class Row : public Object {
 public:
     Column** vals_; // owned, and individual col are also owned
-    Schema* schema_; // owned
+    char* schema_; // owned
     size_t index_;
-    size_t ncols_;
+    size_t nCols_;
 
     /** Build a row following a schema. */
-    explicit Row(Schema& scm) {
-		this->ncols_ = scm.width();
-        this->vals_ = new Column*[this->ncols_];
+    explicit Row(char* scm) {
+		this->nCols_ = strlen(scm);
+        this->vals_ = new Column*[this->nCols_];
 		// Each case push back once to create a slot in the column
-		for (size_t i = 0; i < this->ncols_; ++i) {
-			switch (scm.col_type(i)) {
+		for (size_t i = 0; i < this->nCols_; ++i) {
+			switch (scm[i]) {
 				case 'B':
 					this->vals_[i] = new BoolColumn();
 					this->vals_[i]->as_bool()->push_back(false);
@@ -47,13 +46,14 @@ public:
 				default: exit(2);
 			}
 		}
-        this->schema_ = new Schema(scm);
+        this->schema_ = new char[this->nCols_ + 1];
+		memcpy(this->schema_, scm, this->nCols_);
         this->index_ = SIZE_MAX;
     }
 
     /** Destroys a row. */
     ~Row() override {
-		for (size_t i = 0; i < this->schema_->width(); ++i) {
+		for (size_t i = 0; i < this->nCols_; ++i) {
 			delete this->vals_[i];
 		}
 		delete[] this->vals_;
@@ -66,22 +66,22 @@ public:
      * Strings are not acquired.
      */
     void set(size_t col, bool val) {
-        assert(this->col_type(col) == 'B');
+        assert(this->schema_[col] == 'B');
 		this->vals_[col]->as_bool()->set(0, val);
     }
 
     void set(size_t col, int val) {
-        assert(this->schema_->col_type(col) == 'I');
+        assert(this->schema_[col] == 'I');
 		this->vals_[col]->as_int()->set(0, val);
     }
 
     void set(size_t col, float val) {
-        assert(this->schema_->col_type(col) == 'F');
+        assert(this->schema_[col] == 'F');
 		this->vals_[col]->as_float()->set(0, val);
     }
 
     void set(size_t col, String* val) {
-        assert(this->schema_->col_type(col) == 'S');
+        assert(this->schema_[col] == 'S');
 		this->vals_[col]->as_string()->set(0, val);
     }
 
@@ -102,7 +102,7 @@ public:
      * of the requested type, the result is undefined.
      */
     bool get_bool(size_t col) {
-        if (this->schema_->col_type(col) != 'B') {
+        if (this->schema_[col] != 'B') {
 			exit(1);
 		}
 		BoolColumn* b = dynamic_cast<BoolColumn*>(this->vals_[col]);
@@ -110,7 +110,7 @@ public:
     }
 
     int get_int(size_t col) {
-        if (this->schema_->col_type(col) != 'I') {
+        if (this->schema_[col] != 'I') {
 			exit(1);
 		}
 		IntColumn* i = dynamic_cast<IntColumn*>(this->vals_[col]);
@@ -118,7 +118,7 @@ public:
     }
 
     float get_float(size_t col) {
-        if (this->schema_->col_type(col) != 'F') {
+        if (this->schema_[col] != 'F') {
 			exit(1);
 		}
 		FloatColumn* f = dynamic_cast<FloatColumn*>(this->vals_[col]);
@@ -126,7 +126,7 @@ public:
     }
 
     String* get_string(size_t col) {
-        if (this->schema_->col_type(col) != 'S') {
+        if (this->schema_[col] != 'S') {
 			exit(1);
 		}
 		StringColumn* s = dynamic_cast<StringColumn*>(this->vals_[col]);
@@ -137,14 +137,14 @@ public:
      * Number of fields in the row.
      */
     size_t width() {
-        return this->schema_->width();
+        return this->nCols_;
     }
 
     /**
      * Type of the field at the given position. An idx >= width is undefined.
      */
     char col_type(size_t idx) {
-        return this->schema_->col_type(idx);
+        return this->schema_[idx];
     }
 
     /**
@@ -157,8 +157,8 @@ public:
             exit(1);
         }
         f.start(idx);
-        for (size_t i = 0; i < this->ncols_; ++i) {
-            switch(this->schema_->col_type(i)) {
+        for (size_t i = 0; i < this->nCols_; ++i) {
+            switch(this->schema_[i]) {
                 case 'B':
                     f.accept(this->vals_[i]->as_bool()->get(0));
                     break;
