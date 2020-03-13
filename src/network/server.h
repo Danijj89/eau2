@@ -3,7 +3,6 @@
 #pragma once
 
 #include <arpa/inet.h>
-#include "helper.h"
 #include "node.h"
 #include "message.h"
 

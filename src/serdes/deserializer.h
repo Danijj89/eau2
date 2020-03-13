@@ -1,11 +1,10 @@
 #pragma once
 
 
-#include "../util/string.h"
-#include "../util/string_array.h"
 #include "../network/node_info.h"
-#include "../util/helper.h"
 #include "../network/NodeInfoArray.h"
+#include "../util/string_array.h"
+#include "../util/helper.h"
 
 /**
  * Deserializer: This class will contain all the methods for

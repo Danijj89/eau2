@@ -1,10 +1,10 @@
 #pragma once
 
 
-#include "../util/object.h"
 #include "msg_kind.h"
-#include "../util/constants.h"
 #include "../serdes/serdes_types.h"
+#include "../util/object.h"
+#include "../util/constants.h"
 
 class Message : public Object {
 public:

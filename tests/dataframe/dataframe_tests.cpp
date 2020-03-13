@@ -5,9 +5,9 @@
 
 #include <gtest/gtest.h>
 
-#include "../../dataframe/schema.h"
-#include "../../dataframe/row.h"
-#include "../../dataframe/dataframe.h"
+#include "../../src/dataframe/schema.h"
+#include "../../src/dataframe/row.h"
+#include "../../src/dataframe/dataframe.h"
 
 
 #define CS4500_ASSERT_TRUE(a)  \

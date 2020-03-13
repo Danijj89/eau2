@@ -7,7 +7,6 @@
 #include <cassert>
 #include <netinet/in.h>
 #include <arpa/inet.h>
-#include "../util/string.h"
 #include "node_info.h"
 #include "message.h"
 

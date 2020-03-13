@@ -8,12 +8,12 @@
 #include <thread>
 #include <pthread.h>
 #include <mutex>
-#include "helper.h"
 #include "NodeInfoArray.h"
 #include "message.h"
 #include "network.h"
 #include "command_parser.h"
 #include "../serdes/serializer.h"
+#include "../serdes/deserializer.h"
 
 
 /**

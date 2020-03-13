@@ -1,8 +1,8 @@
 #include <gtest/gtest.h>
 
 
-#include "../sorer/sorer.h"
-#include "../dataframe/dataframe.h"
+#include "../src/sorer/sorer.h"
+#include "../src/dataframe/dataframe.h"
 #include "dataframe/dataframe_tests.cpp"
 
 

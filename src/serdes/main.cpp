@@ -13,6 +13,7 @@
 
 
 #include "serializer.h"
+#include "deserializer.h"
 
 
 int main() {
@@ -92,8 +93,8 @@ int main() {
 	NodeInfo* demo_node_info1 = new NodeInfo(ip1, port1);
 	NodeInfo* demo_node_info2 = new NodeInfo(ip2, port2);
 	NodeInfoArray* demo_node_info_array = new NodeInfoArray();
-	demo_node_info_array->push_back(demo_node_info1);
-	demo_node_info_array->push_back(demo_node_info2);
+	demo_node_info_array->pushBack(demo_node_info1);
+	demo_node_info_array->pushBack(demo_node_info2);
 	s.serialize_node_info_array(demo_node_info_array);
 	NodeInfoArray* result_node_info_array = d.deserialize_node_info_array(s.get_buff(), 2);
 	assert (result_node_info_array->get(0)->to_string()->equals(demo_node_info1->to_string()));

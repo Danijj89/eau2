@@ -17,11 +17,9 @@
 
 #include <cstdint>
 #include <cstdlib>
-#include "../util/string.h"
-#include "../util/string_array.h"
 #include "../network/node_info.h"
 #include "../network/NodeInfoArray.h"
-#include "../util/helper.h"
+#include "../util/string_array.h"
 
 
 class Serializer {

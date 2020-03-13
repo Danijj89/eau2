@@ -4,7 +4,7 @@
 #pragma once
 
 
-#include "../util/array.h"
+
 
 /**
  * FieldArray: represents a vector storing the starting and ending bytes of

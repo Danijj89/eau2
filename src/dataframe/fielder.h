@@ -1,10 +1,7 @@
-
+//lang:CwC
 
 #pragma once
 
-
-#include "../util/object.h"
-#include "../util/string.h"
 
 /*
  * Fielder::

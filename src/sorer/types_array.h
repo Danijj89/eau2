@@ -1,11 +1,11 @@
-//lang::Cpp
+//lang::CwC
 
 
 #pragma once
 
 
-#include "../util/array.h"
 #include "types.h"
+#include "../util/array.h"
 
 /**
  * Resizable array of types.
