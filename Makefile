@@ -6,10 +6,8 @@ COMPILER := g++
 local:
 	cd sorer; $(COMPILER) $(CXXFLAGS) main.cpp -o sorer
 
-
 docker:
 	$(DOCKER) "cd /test/sorer; $(COMPILER) $(CXXFLAGS) main.cpp -o sorer"
-
 
 test_setup:
 	$(DOCKER) "cd /test/tests; cmake ."

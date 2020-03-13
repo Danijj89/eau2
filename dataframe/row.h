@@ -23,6 +23,7 @@ public:
 
     /** Build a row following a schema. */
     explicit Row(Schema& scm) {
+    	this->nCols_ = scm.width();
         this->vals_ = new Column*[this->nCols_];
 		// Each case push back once to create a slot in the column
 		for (size_t i = 0; i < this->nCols_; ++i) {
@@ -46,7 +47,7 @@ public:
 				default: exit(2);
 			}
 		}
-        this->schema_ = &scm;
+        this->schema_ = new Schema(scm);
         this->index_ = SIZE_MAX;
     }
 

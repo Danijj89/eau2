@@ -15,7 +15,6 @@
 class Schema : public Object {
 public:
     size_t clen_;
-    size_t rlen_;
     IntColumn* types_; // using int array to store chars
 
     /**
@@ -35,7 +34,6 @@ public:
      */
     Schema() {
         this->clen_ = 0;
-        this->rlen_ = 0;
         this->types_ = new IntColumn();
     }
 
@@ -47,7 +45,6 @@ public:
      */
     Schema(const char* types) {
         if (!types) exit(1);
-        this->rlen_ = 0;
         this->types_ = new IntColumn();
         size_t len = strlen(types);
         this->clen_ = len;

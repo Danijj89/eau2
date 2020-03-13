@@ -484,7 +484,7 @@ public:
 		size_t new_start = this->triml_(start, end);
 		size_t new_end = this->trimr_(start, end);
 
-		if (new_start < new_end) {
+		if (new_start <= new_end) {
 			char *endptr;
 			long candidate = strtol(&this->file_[new_start], &endptr, 10);
 			// Make sure we get a number back and that it consume all of the relevant field characters.
