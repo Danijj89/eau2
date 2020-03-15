@@ -27,7 +27,7 @@ Among the key functionality that it will support, we have:
 ### System Configuration
 
 To configure the underlying system that gets started, the Application will take in 
-command line arguments at the start-up of the application. Among the configuration, 
+command line arguments at the start-up of the application. Among the configurations, 
 we have the number of nodes in the cluster, max chunk sizes, max number of chunks.
 
 ### Loading Data
@@ -47,8 +47,10 @@ of elements (last chuck might be smaller)
 out all column 1 chunks before moving to column 2), 
 send the max number of chucks that a node can hold to each node
 
-The reason the order of data is as described is to attempt to 
-keep as much data in the same place as possible to reduce network traffic when fetching.
+The reason the order of data is as described is to attempt to keep as much data
+in the same place as possible to reduce network traffic when fetching, respect
+NUMA nature of current systems, and lay ground work for effective distributed
+computing.
 
 ### Store & Retrieve Data
 
@@ -136,10 +138,10 @@ The Distributed Array manages the distributed nature of a Dataframe.
 The fields in a DA are:
 ```c
 // an ordered array of keys that is a subset of all keys in the Key-Value Store
-KeyArray** keys;
+KeyArray* keys;
 
 // the Key-Value Store of the node
-KVStore store;
+KVStore* store;
 
 // the types of each column in the dataframe to retrieve data with correct type
 TypesArray* Schema;
@@ -253,6 +255,7 @@ void execute() override {
         case 1:
             this->sum();
             break;
+	case 2:
             this->compare();
             break;
         default:
