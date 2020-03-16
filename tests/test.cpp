@@ -3,6 +3,7 @@
 
 #include "../src/sorer/sorer.h"
 #include "../src/dataframe/dataframe.h"
+#include "../src/kvstore/key.h"
 #include "dataframe/dataframe_tests.cpp"
 
 
@@ -36,6 +37,30 @@ void sorerDFIntegrationTest() {
 TEST(SORER_TO_DF, sorerDFIntegrationTest) {
 	CS4500_ASSERT_EXIT_ZERO(sorerDFIntegrationTest)
 }
+
+
+void keyUnitTests() {
+	Key k1 = Key("test");
+	Key* k2 = new Key(const_cast<char*>("test"));
+	CS4500_ASSERT_TRUE(k1.equals(k2));
+
+	Key k3 = Key(k1.getKey(), 0);
+	CS4500_ASSERT_TRUE(k3.getNodeId() == 0);
+
+	k3.setNodeId(3);
+	CS4500_ASSERT_TRUE(k3.getNodeId() == 3);
+
+	String* str = k3.getKey();
+	CS4500_ASSERT_TRUE(str->equals(k1.getKey()));
+
+	delete k2;
+	exit(0);
+}
+
+TEST(KEY, keyUnitTest) {
+	CS4500_ASSERT_EXIT_ZERO(keyUnitTests)
+}
+
 
 int main(int argc, char **argv) {
 	testing::InitGoogleTest(&argc, argv);
