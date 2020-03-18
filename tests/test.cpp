@@ -4,6 +4,7 @@
 #include "../src/sorer/sorer.h"
 #include "../src/dataframe/dataframe.h"
 #include "../src/kvstore/key.h"
+#include "../src/kvstore/key_array.h"
 #include "dataframe/dataframe_tests.cpp"
 
 
@@ -59,6 +60,22 @@ void keyUnitTests() {
 
 TEST(KEY, keyUnitTest) {
 	CS4500_ASSERT_EXIT_ZERO(keyUnitTests)
+}
+
+
+void keyArrayUnitTests() {
+	Key k1 = Key("test1");
+	Key k2 = Key("test2");
+	KeyArray ka = KeyArray();
+
+	ka.pushBack(&k1);
+	ka.pushBack(&k2);
+
+	exit(0);
+}
+
+TEST(KEYARRAY, keyArrayUnitTests) {
+	CS4500_ASSERT_EXIT_ZERO(keyArrayUnitTests)
 }
 
 
