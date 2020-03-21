@@ -1,30 +1,30 @@
 #pragma once
 
 
-#include "key.h"
+#include "value.h"
 #include "../util/array.h"
 
 
 /**
- * KeyArray: this class represent a vector of Key objects.
- * New keys can only be appended, and no key can be deleted.
+ * ValueArray: this class represent a vector of Value objects.
+ * New Values can only be appended, and no Value can be deleted.
  * Authors: cao.yuan1@husky.neu.edu, zhan.d@husky.neu.edu
  */
-class KeyArray : public Array {
+class ValueArray : public Array {
 public:
-	Key** vals_; //Owned
+	Value** vals_; //Owned
 
 	/**
 	 * Default constructor of this array.
 	 */
-	KeyArray() : Array() {
-		this->vals_ = new Key*[this->capacity_];
+	ValueArray() : Array() {
+		this->vals_ = new Value*[this->capacity_];
 	}
 
 	/**
 	 * The destructor of this array.
 	 */
-	~KeyArray() {
+	~ValueArray() override {
 		for (size_t i = 0; i < this->size_; ++i) {
 			delete this->vals_[i];
 		}
@@ -36,7 +36,7 @@ public:
 	 *
 	 * @param item the given item to be added to the end of this array
 	 */
-	virtual void pushBack(Key* item) {
+	virtual void pushBack(Value* item) {
 		this->resizeIfFull();
 		this->vals_[this->size_] = item;
 		this->size_ += 1;
@@ -47,7 +47,7 @@ public:
 	 */
 	void resize() override {
 		this->capacity_ *= 2;
-		Key** new_vals = new Key*[this->capacity_];
+		Value** new_vals = new Value*[this->capacity_];
 		for (size_t i = 0; i < this->size_; ++i) {
 			new_vals[i] = this->vals_[i];
 		}
@@ -63,7 +63,7 @@ public:
 	 * @param i insertion index
 	 * @param element the element to be inserted at the given index
 	 */
-	virtual void set(size_t i, Key* element) {
+	virtual void set(size_t i, Value* element) {
 		this->assertIndexInBounds(i);
 		this->vals_[i] = element;
 	}
@@ -75,7 +75,7 @@ public:
 	 * @param i the index of the element
 	 * @return the element of the array at the given index
 	 */
-	virtual Key* get(size_t i) {
+	virtual Value* get(size_t i) {
 		if (i >= this->size_) {
 			return nullptr;
 		}
@@ -83,14 +83,14 @@ public:
 	}
 
 	/**
-	 * Finds and returns the index of the given Key.
-	 *
-	 * @param k the key to find
+	 * Finds and returns the index of the given Value.
+	 * 
+	 * @param v the Value to find
 	 * @return the index or SIZE_MAX if not found
 	 */
-	size_t indexOf(Key* k) {
+	size_t indexOf(Value* v) {
 		for (size_t i = 0; i < this->size_; ++i) {
-			if (this->vals_[i]->equals(k)) {
+			if (this->vals_[i]->equals(v)) {
 				return i;
 			}
 		}

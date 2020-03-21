@@ -38,7 +38,7 @@ public:
 		return this->key_;
 	}
 
-	bool setNodeId(int nodeId) {
+	void setNodeId(int nodeId) {
 		this->nodeId_ = nodeId;
 	}
 

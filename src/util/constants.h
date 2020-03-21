@@ -20,7 +20,11 @@ const char* SORER_USAGE = "Usage: ./sorer [-f] [-from] [-len] [-print_col_type] 
 const size_t INFER_SCHEMA_LINES = 500;
 
 const unsigned int MAX_BUFF_SIZE = 400;
-const unsigned int MAX_MESSAGE_SIZE = 4096;
+const unsigned int MAX_BLOB_SIZE = 16 * 1024;
+const unsigned int MAX_BOOL_ELEMENTS = MAX_BLOB_SIZE;
+const unsigned int MAX_INT_ELEMENTS = MAX_BLOB_SIZE / 4;
+const unsigned int MAX_FLOAT_ELEMENTS = MAX_BLOB_SIZE / 4;
+const unsigned int MAX_STRING_ELEMENTS = MAX_BLOB_SIZE / 256;
 const unsigned int MAX_NUM_THREADS = 24;
 const char SERVER_IP[10] = "127.0.0.1";
 const unsigned int PORT = 9000;

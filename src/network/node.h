@@ -164,6 +164,10 @@ public:
 		}
 	}
 
+	void write_message(int socket, Message* m) {
+		send_message(socket, m);
+	}
+
 	/**
 	 * Starts a connection between the from and the to nodes.
 	 * Spawn a new thread to handle the new connection.

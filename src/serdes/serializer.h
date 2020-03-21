@@ -20,6 +20,7 @@
 #include "../network/node_info.h"
 #include "../network/NodeInfoArray.h"
 #include "../util/string_array.h"
+#include "../kvstore/key.h"
 
 
 class Serializer {
@@ -150,6 +151,11 @@ public:
 		for (size_t i = 0; i < nia->len(); ++i) {
 			this->serialize_node_info(nia->get(i));
 		}
+	}
+
+	void serialize_key(Key* k) {
+		this->serialize_string(k->getKey());
+		this->serialize_int(k->getNodeId());
 	}
 
 	/**
