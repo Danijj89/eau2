@@ -254,6 +254,7 @@ public:
 		connect_to_node(this->info_, server_info);
 		this->add_registration_handler();
 		this->handle_cli();
+		delete server_info;
 		delete this;
 	}
 };
