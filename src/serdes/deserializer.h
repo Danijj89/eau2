@@ -41,6 +41,11 @@ public:
 		return buff[0];
 	}
 
+	size_t deserialize_size_t(char* buff) {
+		size_t* val = (size_t*)buff;
+		return val[0];
+	}
+
 	/**
 	 * This method deserializes a serialized int.
 	 * @method deserialize_int
@@ -91,6 +96,16 @@ public:
 			sa->push_back(s);
 		}
 		return sa;
+	}
+
+	int* deserialize_int_array(char* buff, size_t n) {
+		int* result = new int[n];
+		size_t count = 0;
+		for (size_t i = 0; i < n; ++i) {
+			result[i] = this->deserialize_int(&buff[count]);
+			count += 4;
+		}
+		return result;
 	}
 
 	/**

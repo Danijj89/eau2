@@ -27,7 +27,9 @@ const unsigned int MAX_FLOAT_ELEMENTS = MAX_BLOB_SIZE / 4;
 const unsigned int MAX_STRING_ELEMENTS = MAX_BLOB_SIZE / 256;
 const unsigned int MAX_NUM_THREADS = 24;
 const char SERVER_IP[10] = "127.0.0.1";
+const char APPLICATION_IP[10] = "127.0.0.1";
 const unsigned int PORT = 9000;
+const unsigned int APPLICATION_PORT = 9000;
 
 
 // Design Considerations; ideal capacities

@@ -21,6 +21,8 @@
 #include "../network/NodeInfoArray.h"
 #include "../util/string_array.h"
 #include "../kvstore/key.h"
+#include "../util/constants.h"
+#include "../dataframe/column.h"
 
 
 class Serializer {
@@ -34,7 +36,7 @@ public:
 	 */
 	Serializer() {
 		this->size_ = 0;
-		this->buff_ = new char[2048];
+		this->buff_ = new char[MAX_BLOB_SIZE];
 	}
 
 	/**
@@ -65,6 +67,19 @@ public:
 		this->size_++;
 	}
 
+	void serialize_size_t(size_t val) {
+		size_t s = this->size_;
+		this->buff_[s + 7] = (char) (val >> 56);
+		this->buff_[s + 6] = (char) (val >> 48);
+		this->buff_[s + 5] = (char) (val >> 40);
+		this->buff_[s + 4] = (char) (val >> 32);
+		this->buff_[s + 3] = (char) (val >> 24);
+		this->buff_[s + 2] = (char) (val >> 16);
+		this->buff_[s + 1] = (char) (val >> 8);
+		this->buff_[s] = (char) val;
+		this->size_ += 8;
+	}
+
 	/**
 	 * This method serializes a single int value.
 	 * An int is assumed to be 4 bytes, which is reasonable on x86_64
@@ -81,6 +96,12 @@ public:
 		this->buff_[s + 1] = (char) (val >> 8);
 		this->buff_[s] = (char) val;
 		this->size_ += 4;
+	}
+
+	void serialize_int_array(int* vals, size_t n) {
+		for (size_t i = 0; i < n; ++i) {
+			this->serialize_int(vals[i]);
+		}
 	}
 
 	/**
@@ -156,6 +177,19 @@ public:
 	void serialize_key(Key* k) {
 		this->serialize_string(k->getKey());
 		this->serialize_int(k->getNodeId());
+	}
+
+	void serialize_key_array(KeyArray* a) {
+		for (size_t i = 0; i < a->len(); ++i) {
+			this->serialize_key(a->get(i));
+		}
+	}
+
+	void serialize_column(Column* col) {
+		this->serialize_string(col->getId());
+		this->serialize_char(col->get_type());
+		this->serialize_size_t(col->size());
+		this->serialize_key_array(col->getKeys());
 	}
 
 	/**

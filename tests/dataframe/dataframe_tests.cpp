@@ -114,10 +114,10 @@ void pushBackAndGrow() {
     IntColumn* col = new IntColumn();
     CS4500_ASSERT_TRUE(col->size() == 0);
     for (size_t i = 0; i < rlen; ++i) {
-        col->push_back(i);
+		col->pushBack(i);
     }
     CS4500_ASSERT_TRUE(col->size() == 100);
-    col->push_back(1000);
+	col->pushBack(1000);
     CS4500_ASSERT_TRUE(col->size() == 101);
     CS4500_ASSERT_TRUE(col->get(100) == 1000);
     delete col;

@@ -21,6 +21,11 @@ public:
 		this->key_ = new String(key);
 	}
 
+	Key(const char* key, int nodeId) {
+		this->key_ = new String(key);
+		this->nodeId_ = nodeId;
+	}
+
 	// This constructor steals key.
 	Key(String* key) {
 		this->key_ = key;	

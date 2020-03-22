@@ -23,6 +23,13 @@ public:
     size_t nrows_;
     const size_t nthreads_ = std::thread::hardware_concurrency();
 
+    DataFrame() {
+        this->schema_ = new Schema();
+        this->ncols_ = 0;
+        this->nrows_ = 0;
+        this->vals_ = nullptr;
+    }
+
     /**
      * Create a data frame with the same columns as the give df but no rows.
      *
@@ -120,16 +127,16 @@ public:
         char t = col->get_type();
         switch(t) {
             case 'B':
-                this->vals_[this->ncols_ - 1] = col->as_bool()->clone();
+                this->vals_[this->ncols_ - 1] = col->asBool()->asBool();
                 break;
             case 'I':
-                this->vals_[this->ncols_ - 1] = col->as_int()->clone();
+                this->vals_[this->ncols_ - 1] = col->asInt()->asInt();
                 break;
             case 'F':
-                this->vals_[this->ncols_ - 1] = col->as_float()->clone();
+                this->vals_[this->ncols_ - 1] = col->asFloat()->asFloat();
                 break;
             case 'S':
-                this->vals_[this->ncols_ - 1] = col->as_string()->clone();
+                this->vals_[this->ncols_ - 1] = col->asString()->asString();
                 break;
             default:
                 exit(1);
@@ -164,7 +171,7 @@ public:
         || this->schema_->col_type(col) != 'I') {
             exit(1);
         }
-        return this->vals_[col]->as_int()->get(row);
+        return this->vals_[col]->asInt()->get(row);
     }
 
     /**
@@ -179,7 +186,7 @@ public:
             || this->schema_->col_type(col) != 'B') {
             exit(1);
         }
-        return this->vals_[col]->as_bool()->get(row);
+        return this->vals_[col]->asBool()->get(row);
     }
 
     /**
@@ -194,7 +201,7 @@ public:
             || this->schema_->col_type(col) != 'F') {
             exit(1);
         }
-        return this->vals_[col]->as_float()->get(row);
+        return this->vals_[col]->asFloat()->get(row);
     }
 
     /**
@@ -210,7 +217,7 @@ public:
             exit(1);
         }
 
-        return this->vals_[col]->as_string()->get(row);
+        return this->vals_[col]->asString()->get(row);
     }
 
     /**
@@ -226,7 +233,7 @@ public:
             || this->schema_->col_type(col) != 'I') {
             exit(1);
         }
-        this->vals_[col]->as_int()->set(row, val);
+		this->vals_[col]->asInt()->set(row, val);
     }
 
     /**
@@ -242,7 +249,7 @@ public:
             || this->schema_->col_type(col) != 'B') {
             exit(1);
         }
-        this->vals_[col]->as_bool()->set(row, val);
+		this->vals_[col]->asBool()->set(row, val);
     }
 
     /**
@@ -258,7 +265,7 @@ public:
             || this->schema_->col_type(col) != 'F') {
             exit(1);
         }
-        this->vals_[col]->as_float()->set(row, val);
+		this->vals_[col]->asFloat()->set(row, val);
     }
 
     /**
@@ -274,7 +281,7 @@ public:
             || this->schema_->col_type(col) != 'S') {
             exit(1);
         }
-        this->vals_[col]->as_string()->set(row, val);
+		this->vals_[col]->asString()->set(row, val);
     }
 
     /**
@@ -290,16 +297,16 @@ public:
             char t = this->schema_->col_type(i);
             switch(t) {
                 case 'B':
-                    row.set(i, this->vals_[i]->as_bool()->get(idx));
+                    row.set(i, this->vals_[i]->asBool()->get(idx));
                     break;
                 case 'I':
-                    row.set(i, this->vals_[i]->as_int()->get(idx));
+                    row.set(i, this->vals_[i]->asInt()->get(idx));
                     break;
                 case 'F':
-                    row.set(i, this->vals_[i]->as_float()->get(idx));
+                    row.set(i, this->vals_[i]->asFloat()->get(idx));
                     break;
                 case 'S':
-                    row.set(i, this->vals_[i]->as_string()->get(idx));
+                    row.set(i, this->vals_[i]->asString()->get(idx));
                     break;
                 default:
                     exit(1);
@@ -324,16 +331,16 @@ public:
             char t = this->schema_->col_type(i);
             switch(t) {
                 case 'B':
-                    this->vals_[i]->as_bool()->push_back(row.get_bool(i));
+					this->vals_[i]->asBool()->push_back(row.get_bool(i));
                     break;
                 case 'I':
-                    this->vals_[i]->as_int()->push_back(row.get_int(i));
+					this->vals_[i]->asInt()->pushBack(row.get_int(i));
                     break;
                 case 'F':
-                    this->vals_[i]->as_float()->push_back(row.get_float(i));
+					this->vals_[i]->asFloat()->push_back(row.get_float(i));
                     break;
                 case 'S':
-                    this->vals_[i]->as_string()->push_back(row.get_string(i));
+					this->vals_[i]->asString()->push_back(row.get_string(i));
                     break;
                 default:
                     exit(1);
@@ -399,20 +406,20 @@ public:
                 sb->c("<");
                 switch(this->schema_->col_type(j)) {
                     case 'B':
-                        sb->c(this->vals_[j]->as_bool()->get(i));
+                        sb->c(this->vals_[j]->asBool()->get(i));
                         break;
                     case 'I':
-                        len = sprintf(buff, "%d", this->vals_[j]->as_int()->get(i));
+                        len = sprintf(buff, "%d", this->vals_[j]->asInt()->get(i));
                         buff[len] = '\0';
                         sb->c(buff);
                         break;
                     case 'F':
-                        len = sprintf(buff, "%e", this->vals_[j]->as_float()->get(i));
+                        len = sprintf(buff, "%e", this->vals_[j]->asFloat()->get(i));
                         buff[len] = '\0';
                         sb->c(buff);
                         break;
                     case 'S':
-                        sb->c(*this->vals_[j]->as_string()->get(i));
+                        sb->c(*this->vals_[j]->asString()->get(i));
                         break;
                     default:
                         exit(1);

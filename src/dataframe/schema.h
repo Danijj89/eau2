@@ -25,7 +25,7 @@ public:
         this->clen_ = from.width();
         this->types_ = new IntColumn();
         for (size_t i = 0; i < this->clen_; ++i) {
-            this->types_->push_back(from.col_type(i));
+			this->types_->pushBack(from.col_type(i));
         }
     }
 
@@ -50,7 +50,7 @@ public:
         this->clen_ = len;
         for (size_t i = 0; i < len; ++i) {
             if (is_valid_type_(types[i])) {
-                this->types_->push_back(types[i]);
+				this->types_->pushBack(types[i]);
             } else {
                 exit(1);
             }
@@ -86,7 +86,7 @@ public:
         if (!is_valid_type_(typ)) {
             exit(1);
         }
-        this->types_->push_back(typ);
+		this->types_->pushBack(typ);
         this->clen_ += 1;
     }
 

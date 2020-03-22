@@ -7,15 +7,25 @@
 
 class Value : public Object {
 public:
-	SerDesTypes type_;
 	char blob_[MAX_BLOB_SIZE];
+	size_t size_;
 
-	Value() {}
+	Value(char* blob, size_t size) {
+		this->size_ = size;
+		memcpy(&this->blob_, blob, MAX_BLOB_SIZE);
+	}
 
 	~Value() {}
 
-	void setBlob(char* blob, size_t size) {
-		assert(size <= MAX_BLOB_SIZE);
-		memcpy(&this->blob_, blob, size);
+	void setBlob(char* blob) {
+		memcpy(&this->blob_, blob, MAX_BLOB_SIZE);
+	}
+
+	char* getBlob() {
+		return this->blob_;
+	}
+
+	size_t getSize() {
+		return this->size_;
 	}
 };

@@ -416,7 +416,7 @@ public:
 					for (size_t j = 0; j < numRows; ++j) {
 						start = this->columnar_[i]->getStart(j);
 						end = this->columnar_[i]->getEnd(j);
-						this->data_[i]->as_bool()->push_back(this->parseBool(start, end));
+						this->data_[i]->asBool()->push_back(this->parseBool(start, end));
 					}
 					break;
 				case Types::INT:
@@ -424,7 +424,7 @@ public:
 					for (size_t j = 0; j < numRows; ++j) {
 						start = this->columnar_[i]->getStart(j);
 						end = this->columnar_[i]->getEnd(j);
-						this->data_[i]->as_int()->push_back(this->parseInt(start, end));
+						this->data_[i]->asInt()->pushBack(this->parseInt(start, end));
 					}
 					break;
 				case Types::FLOAT:
@@ -432,7 +432,7 @@ public:
 					for (size_t j = 0; j < numRows; ++j) {
 						start = this->columnar_[i]->getStart(j);
 						end = this->columnar_[i]->getEnd(j);
-						this->data_[i]->as_float()->push_back(this->parseFloat(start, end));
+						this->data_[i]->asFloat()->push_back(this->parseFloat(start, end));
 					}
 					break;
 				case Types::STRING:
@@ -441,7 +441,7 @@ public:
 						start = this->columnar_[i]->getStart(j);
 						end = this->columnar_[i]->getEnd(j);
 						String *s = this->parseString(start, end);
-						this->data_[i]->as_string()->push_back(s);
+						this->data_[i]->asString()->push_back(s);
 						delete s;
 					}
 					break;
@@ -552,16 +552,16 @@ public:
 		Types type = this->schema_->get(col);
 		switch (type) {
 			case Types::BOOL:
-				printf("%d\n", this->data_[col]->as_bool()->get(row));
+				printf("%d\n", this->data_[col]->asBool()->get(row));
 				break;
 			case Types::INT:
-				printf("%d\n", this->data_[col]->as_int()->get(row));
+				printf("%d\n", this->data_[col]->asInt()->get(row));
 				break;
 			case Types::FLOAT:
-				printf("%f\n", this->data_[col]->as_float()->get(row));
+				printf("%f\n", this->data_[col]->asFloat()->get(row));
 				break;
 			case Types::STRING:
-				printf("%s\n", this->data_[col]->as_string()->get(row)->c_str());
+				printf("%s\n", this->data_[col]->asString()->get(row)->c_str());
 				break;
 			default:
 				assert(false);

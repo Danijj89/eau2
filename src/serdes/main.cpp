@@ -27,6 +27,13 @@ int main() {
 	assert (demo_bool == result_bool);
 	s.clear();
 
+	// size_t
+	size_t demo_size_t = 12345;
+	s.serialize_int(demo_size_t);
+	size_t result_size_t = d.deserialize_size_t(s.get_buff());
+	assert (demo_size_t == result_size_t);
+	s.clear();
+
 	// Demonstrate the ability to serialize an int
 	int demo_int = -12345;
 	s.serialize_int(demo_int);

@@ -5,6 +5,9 @@
 #include "../util/object.h"
 #include "../util/string.h"
 #include "../util/string_array.h"
+#include "../kvstore/key_array.h"
+#include "../kvstore/value.h"
+#include "../kvstore/KVStore.h"
 
 
 /* Forward Declaration */
@@ -23,16 +26,41 @@ class StringColumn;
  */
 class Column : public Object {
 public:
+	String* id_;
     char type_;
     size_t size_;
-    size_t nrows_;
-    const size_t rlen_ = 100;
+    KeyArray* keys_;
+    Key* cache_key_;
+    KVStore* store_;
+    Serializer ser_;
+    Deserializer des_;
+
+	/**
+	 * Default constructor
+	 */
+	Column(String* id, KVStore* store) {
+		this->id_ = id; // steals
+		this->size_ = 0;
+		this->keys_ = new KeyArray();
+		this->cache_key_ = nullptr;
+		this->store_ = store; // external
+		this->ser_ = Serializer();
+		this->des_ = Deserializer();
+	}
+
+	/**
+     * Default destructor
+     */
+	~Column() override {
+		delete this->id_;
+		delete this->keys_;
+	}
 
     /**
      * Return same column as an IntColumn or nullptr if of the wrong type.
      * @return the IntColumn or nullptr if of the wrong type
      */
-    virtual IntColumn *as_int() {
+    virtual IntColumn *asInt() {
         return nullptr;
     }
 
@@ -40,7 +68,7 @@ public:
      * Return same column as a BoolColumn, or nullptr if of the wrong type.
      * @return the BoolColumn or nullptr if of the wrong type
      */
-    virtual BoolColumn *as_bool() {
+    virtual BoolColumn *asBool() {
         return nullptr;
     }
 
@@ -48,7 +76,7 @@ public:
      * Return same column as a FloatColumn, or nullptr if of the wrong type.
      * @return the BoolColumn or nullptr if of the wrong type
      */
-    virtual FloatColumn *as_float() {
+    virtual FloatColumn *asFloat() {
         return nullptr;
     }
 
@@ -56,7 +84,7 @@ public:
      * Return same column as a StringColumn, or nullptr if of the wrong type.
      * @return the BoolColumn or nullptr if of the wrong type
      */
-    virtual StringColumn *as_string() {
+    virtual StringColumn *asString() {
         return nullptr;
     }
 
@@ -65,28 +93,28 @@ public:
      * NOTE: calling this method on a wrong typed column is
      * @param val the value to push
      */
-    virtual void push_back(int val) {}
+    virtual void pushBack(int* val, size_t n) {}
 
     /**
      * Adds the given bool value at the end of this column.
      * Calling this method on a wrong typed column is undefined behavior.
      * @param val the value to push
      */
-    virtual void push_back(bool val) {}
+    virtual void pushBack(bool* val, size_t n) {}
 
     /**
      * Adds the given float value at the end of this column.
      * Calling this method on a wrong typed column is undefined behavior.
      * @param val the value to push
      */
-    virtual void push_back(float val) {}
+    virtual void pushBack(float* val, size_t n) {}
 
     /**
      * Adds the given String value at the end of this column.
      * Calling this method on a wrong typed column is undefined behavior.
      * @param val the value to push
      */
-    virtual void push_back(String *val) {}
+    virtual void pushBack(StringArray* val, size_t n) {}
 
     /**
      * Returns the number of elements in the column.
@@ -104,12 +132,16 @@ public:
         return this->type_;
     }
 
-    size_t getRowIdx_(size_t idx) {
-        return (size_t) (idx / this->rlen_);
-    }
+    virtual size_t getKeyIdx(size_t idx) {}
 
-    size_t getColIdx_(size_t idx) {
-        return idx % this->rlen_;
+    virtual size_t getElementIdx(size_t idx) {}
+
+    virtual Key* getNextKey() {
+    	StrBuff s = StrBuff();
+    	s.c(*this->id_);
+    	s.c("_");
+    	s.c(this->keys_->size_);
+    	return new Key(s.get());
     }
 
 };
@@ -122,62 +154,52 @@ public:
 class IntColumn : public Column {
 
 public:
-    int **vals_;
+	int* cache_value_;
 
     /**
      * Default constructor
      */
-    IntColumn() {
+    IntColumn(String* id, KVStore* store) : Column(id, store) {
         this->type_ = 'I';
-        this->size_ = 0;
-        this->nrows_ = 1;
-        this->vals_ = new int *[this->nrows_];
-        this->vals_[0] = new int[this->rlen_];
+        this->cache_value_ = nullptr;
     }
 
-    /**
-     * Constructs a new IntColumn from the given variable number n of integers.
-     * @param n the number of integers
-     * @param ... the integers
-     */
-    IntColumn(int n, ...) {
-        this->type_ = 'I';
-        this->size_ = n;
-        // number of inner arrays that will be initialized
-        this->nrows_ = (size_t) n / this->rlen_ + 1;
-        this->vals_ = new int*[this->nrows_];
+//    /**
+//     * Constructs a new IntColumn from the given variable number n of integers.
+//     * @param n the number of integers
+//     * @param ... the integers
+//     */
+//    IntColumn(char* id, int n, ...) : IntColumn(id) {
+//        this->size_ = n;
+//
+//        va_list args;
+//        va_start(args, n);
+//
+//        // creates all inner arrays - 1
+//        for (size_t i = 0; i < this->nrows_ - 1; ++i) {
+//            for (size_t j = 0; j < this->rlen_; ++j) {
+//                this->vals_[i][j] = va_arg(args, int);
+//            }
+//        }
+//        // the length of the last row
+//        size_t last_row_len = this->getColIdx_(n);
+//        for (size_t i = 0; i < last_row_len; ++i) {
+//            this->vals_[this->nrows_ - 1][i] = va_arg(args, int);
+//        }
+//
+//        va_end(args);
+//    }
 
-        for (size_t i = 0; i < this->nrows_; ++i) {
-            this->vals_[i] = new int[this->rlen_];
-        }
-
-        va_list args;
-        va_start(args, n);
-
-        // creates all inner arrays - 1
-        for (size_t i = 0; i < this->nrows_ - 1; ++i) {
-            for (size_t j = 0; j < this->rlen_; ++j) {
-                this->vals_[i][j] = va_arg(args, int);
-            }
-        }
-        // the length of the last row
-        size_t last_row_len = this->getColIdx_(n);
-        for (size_t i = 0; i < last_row_len; ++i) {
-            this->vals_[this->nrows_ - 1][i] = va_arg(args, int);
-        }
-
-        va_end(args);
+	~IntColumn() {
+    	delete[] this->cache_value_;
     }
 
-    /**
-     * Default destructor
-     */
-    ~IntColumn() override {
-        // delete the inner arrays
-        for (size_t i = 0; i < this->nrows_; ++i) {
-            delete[] this->vals_[i];
-        }
-        delete[] this->vals_;
+    size_t getKeyIdx(size_t idx) override {
+    	return idx / MAX_INT_ELEMENTS;
+    }
+
+    size_t getElementIdx(size_t idx) override {
+    	return idx % MAX_INT_ELEMENTS;
     }
 
     /**
@@ -186,50 +208,27 @@ public:
      * @return the value or exits the program if index is out of bound
      */
     int get(size_t idx) {
-        if (idx >= this->size_) {
-            exit(1);
+    	assert(idx < this->size_);
+        int keyIdx = this->getKeyIdx(idx);
+        int eleIdx = this->getElementIdx(idx);
+        Key* k = this->keys_->get(keyIdx);
+        if (k->equals(this->cache_key_)) {
+        	return this->cache_value_[eleIdx];
         }
-        int rowIdx = this->getRowIdx_(idx);
-        int colIdx = this->getColIdx_(idx);
-        return this->vals_[rowIdx][colIdx];
+        Value* val = this->store_->get(k);
+        assert(val != nullptr);
+		delete this->cache_value_;
+		this->cache_key_ = k;
+        this->cache_value_ = this->des_.deserialize_int_array(val->getBlob(), val->getSize());
+        return this->cache_value_[eleIdx];
     }
 
     /**
      * Returns this column as an IntColumn.
      * @return this IntColumn
      */
-    IntColumn *as_int() override {
+    IntColumn *asInt() override {
         return this;
-    }
-
-    /**
-     * Sets the value at the given index with the given value
-     * @param idx the index
-     * @param val the value or exits the program if index is out of bound
-     */
-    void set(size_t idx, int val) {
-        if (idx >= this->size_) {
-            exit(1);
-        }
-        int rowIdx = this->getRowIdx_(idx);
-        int colIdx = this->getColIdx_(idx);
-        this->vals_[rowIdx][colIdx] = val;
-    }
-
-    /**
-     * Grows the inner number of arrays by 1.
-     */
-    void grow_() {
-        int** new_rows = new int*[this->nrows_ + 1];
-        // copy over the pointers to the old rows
-        for (size_t i = 0; i < this->nrows_; ++i) {
-            new_rows[i] = this->vals_[i];
-        }
-        // add in new row
-        new_rows[this->nrows_] = new int[this->rlen_];
-        delete[] this->vals_;
-        this->vals_ = new_rows;
-        this->nrows_++;
     }
 
     /**
@@ -240,28 +239,15 @@ public:
      *            is != 0 and it is 0 when mod our rlen_, in which case we grow
      *            the number of inner arrays
      */
-    void push_back(int val) override {
-        size_t colIdx = this->getColIdx_(this->size_);
-        // check if we need to add a new inner array to hold this new value
-        if (this->size_ != 0 && colIdx == 0) {
-            // pass in the current number of rows
-            this->grow_();
-        }
-
-        this->vals_[this->nrows_ - 1][colIdx] = val;
-        this->size_++;
-    }
-
-    /**
-     * Returns a clone of this IntColumn
-     * @return the clone
-     */
-    IntColumn* clone() override {
-        IntColumn* clone = new IntColumn();
-        for (size_t i = 0; i < this->size_; ++i) {
-            clone->push_back(this->get(i));
-        }
-        return clone;
+    void pushBack(int* val, size_t n) override {
+    	Key* k = this->getNextKey();
+    	this->ser_.serialize_int_array(val, n);
+    	Value* v = new Value(this->ser_.get_buff(), n);
+    	this->keys_->pushBack(k);
+    	this->size_ += n;
+    	this->store_->put(k, v);
+    	delete k;
+    	delete v;
     }
 };
 
@@ -345,7 +331,7 @@ public:
      * Returns this column as an BoolColumn.
      * @return this BoolColumn
      */
-    BoolColumn *as_bool() override {
+    BoolColumn *asBool() override {
         return this;
     }
 
@@ -492,7 +478,7 @@ public:
      * Returns this column as an FloatColumn.
      * @return this FloatColumn
      */
-    FloatColumn *as_float() override {
+    FloatColumn *asFloat() override {
         return this;
     }
 
@@ -625,7 +611,7 @@ public:
      * Returns this column as a StringColumn.
      * @return this StringColumn
      */
-    StringColumn *as_string() override {
+    StringColumn *asString() override {
         return this;
     }
 

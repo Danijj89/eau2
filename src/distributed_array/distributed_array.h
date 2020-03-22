@@ -1,26 +1,33 @@
 #pragma once
 
 
+#include "../util/object.h"
+#include "../kvstore/key_array.h"
+#include "../kvstore/value_array.h"
+
 class DistributedArray : public Object {
 public:
+	char type_;
 	KeyArray keys_; // Owned
-	ValueArray myValues_; // Owned 
-	Value buffer_; // Owned
+	ValueArray myValues_; // Owned
 
-	// For storing values not yet enough for 1 Value object
-	size_t localSize_;
-	bool boolValues_[BOOL_COUNT];
-	int intValues_[INT_COUNT];
-	float floatValues_[FLOAT_COUNT];
-	String* StringValues_[STRING_COUNT];
-	
-	// elements in DistributedArray
-	size_t size_;
-	size_t capacity_; // Do I need this?
+//	Value buffer_; // Owned
 
-	DistributedArray() {}
+//	// For storing values not yet enough for 1 Value object
+//	size_t localSize_;
+//	bool boolValues_[MAX_BOOL_ELEMENTS];
+//	int intValues_[MAX_INT_ELEMENTS];
+//	float floatValues_[MAX_FLOAT_ELEMENTS];
+//	String* StringValues_[MAX_STRING_ELEMENTS];
+//
+//	// elements in DistributedArray
+//	size_t size_;
+//	size_t capacity_; // Do I need this?
 
-	~DistributedArray() {}
+	DistributedArray(char type, float) {
+		this->type_ = type;
+
+	}
 
 	bool getBool(size_t index) {}
 	int getInt(size_t index) {}

@@ -30,19 +30,19 @@ public:
 			switch (scm.col_type(i)) {
 				case 'B':
 					this->vals_[i] = new BoolColumn();
-					this->vals_[i]->as_bool()->push_back(false);
+					this->vals_[i]->asBool()->push_back(false);
 					break;
 				case 'I':
 					this->vals_[i] = new IntColumn();
-					this->vals_[i]->as_int()->push_back(0);
+					this->vals_[i]->asInt()->pushBack(0);
 					break;
 				case 'F':
 					this->vals_[i] = new FloatColumn();
-					this->vals_[i]->as_float()->push_back(0.0);
+					this->vals_[i]->asFloat()->push_back(0.0);
 					break;
 				case 'S':
 					this->vals_[i] = new StringColumn();
-					this->vals_[i]->as_string()->push_back(nullptr);
+					this->vals_[i]->asString()->push_back(nullptr);
 					break;
 				default: exit(2);
 			}
@@ -67,22 +67,22 @@ public:
      */
     void set(size_t col, bool val) {
         assert(this->schema_->col_type(col) == 'B');
-		this->vals_[col]->as_bool()->set(0, val);
+		this->vals_[col]->asBool()->set(0, val);
     }
 
     void set(size_t col, int val) {
         assert(this->schema_->col_type(col) == 'I');
-		this->vals_[col]->as_int()->set(0, val);
+		this->vals_[col]->asInt()->set(0, val);
     }
 
     void set(size_t col, float val) {
         assert(this->schema_->col_type(col) == 'F');
-		this->vals_[col]->as_float()->set(0, val);
+		this->vals_[col]->asFloat()->set(0, val);
     }
 
     void set(size_t col, String* val) {
         assert(this->schema_->col_type(col) == 'S');
-		this->vals_[col]->as_string()->set(0, val);
+		this->vals_[col]->asString()->set(0, val);
     }
 
     /**
@@ -160,16 +160,16 @@ public:
         for (size_t i = 0; i < this->nCols_; ++i) {
             switch(this->schema_->col_type(i)) {
                 case 'B':
-                    f.accept(this->vals_[i]->as_bool()->get(0));
+                    f.accept(this->vals_[i]->asBool()->get(0));
                     break;
                 case 'I':
-                    f.accept(this->vals_[i]->as_int()->get(0));
+                    f.accept(this->vals_[i]->asInt()->get(0));
                     break;
                 case 'F':
-                    f.accept(this->vals_[i]->as_float()->get(0));
+                    f.accept(this->vals_[i]->asFloat()->get(0));
                     break;
                 case 'S':
-                    f.accept(this->vals_[i]->as_string()->get(0));
+                    f.accept(this->vals_[i]->asString()->get(0));
                     break;
                 default:
                     exit(1);
