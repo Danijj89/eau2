@@ -8,8 +8,9 @@
 class KVStore : public Node {
 public:
 	int id_;
-	std::vector<Key> keys_;
-	std::vector<Value> values_;
+	KeyArray keys_;
+	ValueArray values_;
+	Value buffer_;
 
 	Value* get(Key* k) {
 		if (k->getNodeId() == this->id_) {
@@ -23,7 +24,15 @@ public:
 	}
 
 	void put(Key* k, Value* v) {
-
+		if (k->getKey() == this->id_) {
+			keys_.pushBack(k);
+			values_.pushBack(v);
+			this->broadcastKey(k);
+		} else {
+			Pair p = make_pair(k, v);
+			int fd = this->node_infos_->get(k->getKey())->get_fd();
+			send_pair(fd, p);
+		}
 	}
 
 	Value* requestValue(Key* k) {
@@ -40,5 +49,39 @@ public:
 		}
 	}
 
+	void joinKVS() {
+		size_t n = this->node_infos_->len();
+		for (size_t i = 0; i < n; ++i) {
+			this->connect_to_node(this->info_, this->node_infos_->get(i));
+		}
+	}
 
+	void broadcastKey(Key* k) {
+		Message* m = new Message(MsgKind::KEY);
+		Serializer* s = new Serializer();
+		s->serialize_key(k);
+		m->back_body(s->get_buff(), s->get_size(), SerDesTypes::KEY, 1);
+		size_t n = this->node_infos_->len();
+		for (size_t i = 0; i < n; ++i) {
+			send_message(this->node_infos_->get(i)->get_fd(), m);
+		}
+		delete m;
+		delete s;
+	}
+
+	//Need to add handle key broadcast
+	// e.g.
+	void handle_messages() {
+		...
+		switch(m.type) {
+		...
+		case MsgKind::KEY:
+			// Get the key from the serialization
+			this->keys_.pushBack(key);
+			this->values_.pushBack(nullptr);
+			break;
+		...
+		}
+		...
+	}
 };
