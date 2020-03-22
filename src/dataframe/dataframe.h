@@ -30,71 +30,6 @@ public:
         this->vals_ = nullptr;
     }
 
-    /**
-     * Create a data frame with the same columns as the give df but no rows.
-     *
-     * @param df the ModifiedDataFrame
-     */
-    DataFrame(DataFrame& df) {
-        this->schema_ = new Schema(*df.get_schema());
-        this->ncols_ = this->schema_->width();
-
-        this->nrows_ = 0;
-        this->vals_ = new Column*[this->ncols_];
-        for (size_t i = 0; i < this->ncols_; ++i) {
-            switch(this->schema_->col_type(i)) {
-                case 'B':
-                    this->vals_[i] = new BoolColumn();
-                    break;
-                case 'I':
-                    this->vals_[i] = new IntColumn();
-                    break;
-                case 'F':
-                    this->vals_[i] = new FloatColumn();
-                    break;
-                case 'S':
-                    this->vals_[i] = new StringColumn();
-                    break;
-                default:
-                    // a schema should always contain correct types
-                    // so this should never happen
-                    exit(1);
-            }
-        }
-    }
-
-    /**
-     * Create a data frame from a schema. Columns are created empty. Results are undefined if
-     * the columns do not match the schema.
-     * @param schema the schema
-     */
-    DataFrame(Schema& schema) {
-        this->schema_ = new Schema(schema);
-        this->ncols_ = this->schema_->width();
-        this->nrows_ = 0;
-        this->vals_ = new Column*[this->ncols_];
-        for (size_t i = 0; i < this->ncols_; ++i) {
-            switch(this->schema_->col_type(i)) {
-                case 'B':
-                    this->vals_[i] = new BoolColumn();
-                    break;
-                case 'I':
-                    this->vals_[i] = new IntColumn();
-                    break;
-                case 'F':
-                    this->vals_[i] = new FloatColumn();
-                    break;
-                case 'S':
-                    this->vals_[i] = new StringColumn();
-                    break;
-                default:
-                    // a schema should always contain correct types
-                    // so this should never happen
-                    exit(1);
-            }
-        }
-    }
-
     ~DataFrame() {
         delete this->schema_;
         for (size_t i = 0; i < this->ncols_; ++i) {
@@ -125,22 +60,7 @@ public:
         assert(col != nullptr && (col->size() == this->nrows_ || this->nrows_ == 0));
         this->grow_();
         char t = col->get_type();
-        switch(t) {
-            case 'B':
-                this->vals_[this->ncols_ - 1] = col->asBool()->asBool();
-                break;
-            case 'I':
-                this->vals_[this->ncols_ - 1] = col->asInt()->asInt();
-                break;
-            case 'F':
-                this->vals_[this->ncols_ - 1] = col->asFloat()->asFloat();
-                break;
-            case 'S':
-                this->vals_[this->ncols_ - 1] = col->asString()->asString();
-                break;
-            default:
-                exit(1);
-        }
+        this->vals_[this->ncols_ - 1] = col;
         this->schema_->add_column(t);
         this->nrows_ = col->size();
     }
@@ -221,70 +141,6 @@ public:
     }
 
     /**
-     * Set the int value at the given column and row to the given value.
-     * If the column is not of the right type or the indices are out of
-     * bound the program exits.
-     * @param col the column index
-     * @param row the row index
-     * @param val the value to set
-     */
-    void set(size_t col, size_t row, int val) {
-        if (col >= this->ncols_ || row >= this->nrows_
-            || this->schema_->col_type(col) != 'I') {
-            exit(1);
-        }
-		this->vals_[col]->asInt()->set(row, val);
-    }
-
-    /**
-     * Set the bool value at the given column and row to the given value.
-     * If the column is not of the right type or the indices are out of
-     * bound, the program exits
-     * @param col the column index
-     * @param row the row index
-     * @param val the value to set
-     */
-    void set(size_t col, size_t row, bool val) {
-        if (col >= this->ncols_ || row >= this->nrows_
-            || this->schema_->col_type(col) != 'B') {
-            exit(1);
-        }
-		this->vals_[col]->asBool()->set(row, val);
-    }
-
-    /**
-     * Set the float value at the given column and row to the given value.
-     * If the column is not of the right type or the indices are out of
-     * bound, the program exits.
-     * @param col the column index
-     * @param row the row index
-     * @param val the value to set
-     */
-    void set(size_t col, size_t row, float val) {
-        if (col >= this->ncols_ || row >= this->nrows_
-            || this->schema_->col_type(col) != 'F') {
-            exit(1);
-        }
-		this->vals_[col]->asFloat()->set(row, val);
-    }
-
-    /**
-     * Set the string value at the given column and row to the given value.
-     * If the column is not of the right type or the indices are out of
-     * bound, the result is undefined.
-     * @param col the column index
-     * @param row the row index
-     * @param val the value to set
-     */
-    void set(size_t col, size_t row, String* val) {
-        if (col >= this->ncols_ || row >= this->nrows_
-            || this->schema_->col_type(col) != 'S') {
-            exit(1);
-        }
-		this->vals_[col]->asString()->set(row, val);
-    }
-
-    /**
      * Set the fields of the given row object with values from the columns at
      * the given offset.  If the row is not from the same schema as the
      * ModifiedDataFrame, results are undefined.
@@ -315,41 +171,6 @@ public:
     }
 
     /**
-     * Add a row at the end of this ModifiedDataFrame. The row is expected to have
-     * the right schema and be filled with values, otherwise undefined.
-     * @param row the row to add
-     */
-    void add_row(Row& row) {
-        assert(row.width() == this->ncols_);
-        // check row matches the schema before starting to insert
-        for (size_t i = 0; i < this->ncols_; ++i) {
-            if (row.col_type(i) != this->schema_->col_type(i)) {
-                exit(1);
-            }
-        }
-        for (size_t i = 0; i < this->ncols_; ++i) {
-            char t = this->schema_->col_type(i);
-            switch(t) {
-                case 'B':
-					this->vals_[i]->asBool()->pushBack(row.get_bool(i));
-                    break;
-                case 'I':
-					this->vals_[i]->asInt()->pushBack(row.get_int(i));
-                    break;
-                case 'F':
-                    this->vals_[i]->asFloat()->pushBack(row.get_float(i));
-                    break;
-                case 'S':
-                    this->vals_[i]->asString()->pushBack(row.get_string(i));
-                    break;
-                default:
-                    exit(1);
-            }
-        }
-        this->nrows_ += 1;
-    }
-
-    /**
      * The number of rows in the ModifiedDataFrame.
      * @return the number of rows.
      */
@@ -375,23 +196,6 @@ public:
             fill_row(i, *row);
             r.accept(*row);
         }
-    }
-
-    /**
-     * Create a new ModifiedDataFrame, constructed from rows for which the given Rower
-     * returned true from its accept method.
-     * @param r the visitor
-     * @return a new ModifiedDataFrame
-     */
-    DataFrame* filter(Rower& r) {
-        DataFrame* result = new DataFrame(*this->schema_);
-        Row* row = new Row(*this->schema_);
-        for (size_t i = 0; i < this->nrows_; ++i) {
-            if (r.accept(*row)) {
-                result->add_row(*row);
-            }
-        }
-        return result;
     }
 
     /**
