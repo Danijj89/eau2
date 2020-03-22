@@ -331,16 +331,16 @@ public:
             char t = this->schema_->col_type(i);
             switch(t) {
                 case 'B':
-					this->vals_[i]->asBool()->push_back(row.get_bool(i));
+					this->vals_[i]->asBool()->pushBack(row.get_bool(i));
                     break;
                 case 'I':
 					this->vals_[i]->asInt()->pushBack(row.get_int(i));
                     break;
                 case 'F':
-					this->vals_[i]->asFloat()->push_back(row.get_float(i));
+                    this->vals_[i]->asFloat()->pushBack(row.get_float(i));
                     break;
                 case 'S':
-					this->vals_[i]->asString()->push_back(row.get_string(i));
+                    this->vals_[i]->asString()->pushBack(row.get_string(i));
                     break;
                 default:
                     exit(1);

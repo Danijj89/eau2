@@ -108,6 +108,24 @@ public:
 		return result;
 	}
 
+	bool* deserialize_bool_array(char* buff, size_t n) {
+		bool* result = new bool[n];
+		for (size_t i = 0; i < n; ++i) {
+			result[i] = this->deserialize_bool(&buff[i]);
+		}
+		return result;
+	}
+
+	float* deserialize_float_array(char* buff, size_t n) {
+		float* result = new float[n];
+		size_t count = 0;
+		for (size_t i = 0; i < n; ++i) {
+			result[i] = this->deserialize_float(&buff[count]);
+			count += 4;
+		}
+		return result;
+	}
+
 	/**
 	 * This method deserializes a serialized NodeInfo.
 	 * @method deserialize_node_info
