@@ -28,3 +28,15 @@ const unsigned int MAX_STRING_ELEMENTS = MAX_BLOB_SIZE / 256;
 const unsigned int MAX_NUM_THREADS = 24;
 const char SERVER_IP[10] = "127.0.0.1";
 const unsigned int PORT = 9000;
+
+
+// Design Considerations; ideal capacities
+// const unsigned int MAX_ROWS = 1000 * 1000 * 1000;
+// const unsigned int MAX_COLS = 100;
+
+// Testing will be performed on a single computer, assume we have a little more
+// than 8 GB of main memory.
+const unsigned int MAX_BYTES = 8 * 1024 * 1024 * 1024;
+const unsigned int NODES = 4;
+const unsigned int MAX_BYTES_PER_NODE = MAX_BYTES / NODES;
+const unsigned int MAX_BLOBS_PER_NODE = MAX_BYTES_PER_NODE / MAX_BLOB_SIZE;
