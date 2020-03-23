@@ -38,7 +38,7 @@ const unsigned int APPLICATION_PORT = 9000;
 
 // Testing will be performed on a single computer, assume we have a little more
 // than 8 GB of main memory.
-const unsigned int MAX_BYTES = 8 * 1024 * 1024 * 1024;
-const unsigned int NODES = 4;
-const unsigned int MAX_BYTES_PER_NODE = MAX_BYTES / NODES;
-const unsigned int MAX_BLOBS_PER_NODE = MAX_BYTES_PER_NODE / MAX_BLOB_SIZE;
+//const unsigned int MAX_BYTES = 8 * 1024 * 1024 * 1024;
+//const unsigned int NODES = 4;
+//const unsigned int MAX_BYTES_PER_NODE = MAX_BYTES / NODES;
+//const unsigned int MAX_BLOBS_PER_NODE = MAX_BYTES_PER_NODE / MAX_BLOB_SIZE;

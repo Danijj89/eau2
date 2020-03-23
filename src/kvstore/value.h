@@ -7,12 +7,12 @@
 
 class Value : public Object {
 public:
-	char blob_[MAX_BLOB_SIZE];
+	char blob_[MAX_BLOB_SIZE] = {0};
 	size_t size_;
 
 	Value(char* blob, size_t size) {
 		this->size_ = size;
-		memcpy(&this->blob_, blob, MAX_BLOB_SIZE);
+		memcpy(this->blob_, blob, MAX_BLOB_SIZE);
 	}
 
 	~Value() {}

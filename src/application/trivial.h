@@ -6,7 +6,7 @@
 class Trivial : public Application {
 public:
 
-	Trivial(int idx) : Application(idx, new String(APPLICATION_IP), APPLICATION_PORT) {}
+	explicit Trivial(int idx) : Application(idx) {}
 
 	void run_() override {
 		size_t SZ = 1000;
@@ -19,6 +19,7 @@ public:
 		DataFrame* df2 = this->get(&k);
 		for (size_t i = 0; i < SZ; ++i) sum -= df2->get_float(0,i);
 		assert(sum==0);
+		delete[] vals;
 		delete df;
 		delete df2;
 	}

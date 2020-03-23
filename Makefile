@@ -4,10 +4,13 @@ COMPILER := g++
 
 
 local:
-	cd sorer; $(COMPILER) $(CXXFLAGS) main.cpp -o sorer
+	cd sorer; $(COMPILER) $(CXXFLAGS) main.cpp -o main
 
-docker:
-	$(DOCKER) "cd /test/sorer; $(COMPILER) $(CXXFLAGS) main.cpp -o sorer"
+docker_build:
+	$(DOCKER) "cd /test; $(COMPILER) $(CXXFLAGS) main.cpp -o main"
+
+vmain:
+	$(DOCKER) "cd /test; valgrind --leak-check=full ./main"
 
 test_setup:
 	$(DOCKER) "cd /test/tests; cmake ."

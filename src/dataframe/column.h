@@ -45,6 +45,7 @@ public:
 	 */
 	Column(String* id, KVStore* store) {
 		this->id_ = id; // steals
+		this->type_ = '\0';
 		this->size_ = 0;
 		this->keys_ = new KeyArray();
 		this->cache_key_ = nullptr;

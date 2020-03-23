@@ -1,6 +1,7 @@
 #pragma once
 
 
+#include <cstring>
 #include "../util/string.h"
 
 
@@ -33,6 +34,15 @@ public:
 
 	Key(String* key, int nodeId) : Key(key) {
 		this->nodeId_ = nodeId;	
+	}
+
+	Key(Key* k) {
+		size_t len = k->getKey()->size();
+		char* str = new char[len + 1];
+		memcpy(str, k->getKey()->c_str(), len);
+		str[len] = '\0';
+		this->key_ = new String(true, str, len);
+		this->nodeId_ = k->getNodeId();
 	}
 
 	~Key() {

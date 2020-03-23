@@ -6,7 +6,7 @@
 #include "key_array.h"
 #include "value_array.h"
 
-class KVStore : public Node {
+class KVStore {
 public:
 	int id_;
 	KeyArray* keys_;
@@ -14,7 +14,7 @@ public:
 	Key* cache_key_;
 	Value* cache_value_;
 
-	KVStore(int id, String* ip, int port) : Node(ip, port) {
+	KVStore(int id) {
 		this->id_ = id;
 		this->keys_ = new KeyArray();
 		this->values_ = new ValueArray();
@@ -22,49 +22,42 @@ public:
 		this->cache_value_ = nullptr;
 	}
 
+	~KVStore() {
+		delete this->keys_;
+		delete this->values_;
+		delete this->cache_key_;
+		delete this->cache_value_;
+	}
+
 	Value* get(Key* k) {
-		if (k->getNodeId() == this->id_) {
-			size_t i = this->keys_->indexOf(k);
-			if (i == -1) return nullptr;
-			return this->values_->get(i);
-		} else {
-			// Won't come here until it is distribuited
-			// return this->requestValue(k);
-		}
+		size_t i = this->keys_->indexOf(k);
+		if (i == SIZE_MAX) return nullptr;
+		return this->values_->get(i);
 	}
 
 	void put(Key* k, Value* v) {
-		if (k->getNodeId() < 0) {
-			k->setNodeId(this->id_);
-		}
-		if (k->getNodeId() == this->id_) {
-			this->keys_->pushBack(k);
-			this->values_->pushBack(v);
-			// this->broadcastKey(k);
-		} else {
-			//
-//			Pair p = make_pair(k, v);
-//			int fd = this->node_infos_->get(k->getKey())->get_fd();
-//			send_pair(fd, p);
-		}
+		k->setNodeId(this->id_);
+		this->keys_->pushBack(new Key(k));
+		this->values_->pushBack(v);
+		// this->broadcastKey(k);
 	}
 
-	Value* waitAndGet(Key* k) {
-		while (this->running_) {
-			Value* v = this->requestValue(k);
-			if (v != nullptr) {
-				return v;
-			}
-		}
-	}
+//	Value* waitAndGet(Key* k) {
+//		while (this->running_) {
+//			Value* v = this->requestValue(k);
+//			if (v != nullptr) {
+//				return v;
+//			}
+//		}
+//	}
 
-	Value* requestValue(Key* k) {
+//	Value* requestValue(Key* k) {
 //		int fd = this->node_infos_->get(k->getNodeId())->get_fd();
 //		Message m = Message(MsgKind::Get);
 //		Serializer s = Serializer();
 //		s.serialize_key(k);
 //		write_message(fd, &m);
-	}
+//	}
 
 //	void joinKVS() {
 //		size_t n = this->node_infos_->len();
