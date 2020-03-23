@@ -7,6 +7,10 @@ distributing storage across several storage nodes. The distributed nature (memor
 users, who primarily work with dataframes and save intermediate results by
 assigning keys to the resulting dataframes.
 
+To run the prepared example program that comes with the repository, please use
+`make docker_run`. To run the tests and memory check, please use
+`make valgrind`.
+
 # Architecture
 
 We envisioned a three-layered architecture:
@@ -87,6 +91,10 @@ addition, it has a pushBack method to append new values to the column during
 the creation of the DataFrame. Updates are not support to simplify
 implementation. A column also includes a cache to mitigate the impact of its
 distributed nature.
+
+To support flexible use of DataFrame objects, we created a number of ways for
+users to create DataFrame objects (from an array of allowable objects,
+from reading in data from a SOR file, etc).
 
 ## Key-Value Store
 
@@ -206,12 +214,11 @@ Value* waitAndGet(Key* k);
 
 # Use Cases
 
-To use our program, the user will create a class that extends our Application class
-and override the its execute() method.
-In the execute method the user will put the business logic that he/she wants to perform
-on the data.
-The flow of the execute method depends on if the user wants the computation to be
-distribuited or on a single node.
+To use our program, the user will create a class that extends our Application
+class and override the its execute() method. In the execute method the user
+will put the business logic that he/she wants to perform on the data.
+The flow of the execute method depends on if the user wants the computation to
+be distribuited or on a single node.
 
 Single node computation example:
 ```c
@@ -272,65 +279,6 @@ void compare() {
 }
 ```
 
-Rower + Fielder example:
-```c
-#include "rower.h"
-#include "fielder.h"
-
-class SumAllFielder : public Fielder {
-public:
-    long long int* sum_;
-
-    SumAllFielder(long long int& sum) {
-        this->sum_ = &sum;
-    }
-
-    void accept(int f) {
-        this->sum_ += f;
-    }
-
-};
-
-class SumAllRower : public Rower {
-public:
-    long long int sum_;
-    SumAllFielder* fielder;
-
-    SumAllRower() {
-        this->sum_ = 0;
-        this->fielder = new SumAllFielder(this->sum_);
-    }
-
-    bool accept(Row& row) override {
-        row.visit(row.get_idx(), *this->fielder);
-        return true;
-    }
-
-    void join_delete(Rower* other) override {
-        SumAllRower* o = dynamic_cast<SumAllRower*>(other);
-        this->sum_ += o->get();
-        delete other;
-    }
-
-    long long int get() {
-        return this->sum_;
-    }
-
-    SumAllRower* clone() override {
-        return new SumAllRower();
-    }
-};
-
-void execute() override {
-    Dataframe* df = this->createDataframeFromSor("test.sor", "df");
-	SumAllRower r = new SumAllRower();
-    df->map(r)
-    printf("sum: %lld", r->get());
-    delete df;
-	delete r;
-}
-```
-
 # Open Questions
 
 - Do we need to handle both distributed storage and distributed computation?
@@ -341,13 +289,13 @@ implement a system to check it?
 
 # Status
 
-We currently have a working version of the our sorer parses and dataframe, as
+We currently have a working version of the our sorer parser and dataframe, as
 well as the adapter. We also have some basic networking layer implemented. The
 work that remains to be done includes:
 - building the KV store and the networking logic associated with it
 (being able to handle large size of data is likely the most difficult part of it)
-- building the distributed array which contains many arithmetic logic to properly fetch
-the correct data
+- building the distributed array which contains many arithmetic logic to
+properly fetch the correct data
 - modify the Dataframe class to incorporate distributed array
 - implement the application layer
 - create a demo to test our program
@@ -361,7 +309,7 @@ Implementing DA & Dataframe modifications: 40~ hours
 
 Application layer implementation + demo: 30~ hours
 
-Possible ML algorithms (random forest): 20~ hours
+Possible ML algorithms (random forest)/ 7 Degrees of Linus: 20~ hours
 
 Overall, the amount of work will be around 140 hours.
 However, since it is usual to underestimate project times,
