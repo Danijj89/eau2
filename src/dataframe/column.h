@@ -11,6 +11,8 @@
 
 
 /* Forward Declaration */
+class Serializer;
+class Deserializer;
 class IntColumn;
 class BoolColumn;
 class FloatColumn;
@@ -45,6 +47,18 @@ public:
 		this->keys_ = new KeyArray();
 		this->cache_key_ = nullptr;
 		this->store_ = store; // external
+		this->ser_ = Serializer();
+		this->des_ = Deserializer();
+		this->max_elements_ = 0;
+	}
+
+	Column(String* id, KVStore* store, char type, size_t size, KeyArray* keys) {
+		this->id_ = id;
+		this->store_ = store;
+		this->type_ = type;
+		this->size_ = size;
+		this->keys_ = keys;
+		this->cache_key_ = nullptr;
 		this->ser_ = Serializer();
 		this->des_ = Deserializer();
 		this->max_elements_ = 0;
@@ -150,6 +164,14 @@ public:
     	return new Key(s.get());
     }
 
+    KeyArray* getKeys() {
+    	return this->keys_;
+    }
+
+    String* getId() {
+    	return this->id_;
+    }
+
 };
 
 /**
@@ -169,6 +191,11 @@ public:
         this->type_ = 'I';
         this->cache_value_ = nullptr;
         this->max_elements_ = MAX_INT_ELEMENTS;
+    }
+
+    IntColumn(String* id, KVStore* store, size_t size, KeyArray* keys) : Column(id, store, 'I', size, keys) {
+    	this->cache_value_ = nullptr;
+    	this->max_elements_ = MAX_INT_ELEMENTS;
     }
 
 //    /**
@@ -250,6 +277,7 @@ public:
     }
 };
 
+
 /**
  * BoolColumn::
  *
@@ -268,6 +296,11 @@ public:
         this->cache_value_ = nullptr;
         this->max_elements_ = MAX_BOOL_ELEMENTS;
     }
+
+	BoolColumn(String* id, KVStore* store, size_t size, KeyArray* keys) : Column(id, store, 'B', size, keys) {
+		this->cache_value_ = nullptr;
+		this->max_elements_ = MAX_BOOL_ELEMENTS;
+	}
 
 //    /**
 //     * Constructs a new BoolColumn from the given variable number n of booleans.
@@ -374,6 +407,11 @@ public:
         this->max_elements_ = MAX_FLOAT_ELEMENTS;
     }
 
+	FloatColumn(String* id, KVStore* store, size_t size, KeyArray* keys) : Column(id, store, 'F', size, keys) {
+		this->cache_value_ = nullptr;
+		this->max_elements_ = MAX_FLOAT_ELEMENTS;
+	}
+
 //    /**
 //     * Constructs a new FloatColumn from the given variable number n of floats.
 //     * @param n the number of floats
@@ -479,6 +517,11 @@ public:
         this->max_elements_ = MAX_STRING_ELEMENTS;
     }
 
+	StringColumn(String* id, KVStore* store, size_t size, KeyArray* keys) : Column(id, store, 'S', size, keys) {
+		this->cache_value_ = nullptr;
+		this->max_elements_ = MAX_STRING_ELEMENTS;
+	}
+
 //    /**
 //     * Constructs a new StringColumn from the given variable number n of string pointers.
 //     * @param n the number of string
@@ -565,3 +608,33 @@ public:
 		delete v;
     }
 };
+
+void Serializer::serialize_column(Column* col) {
+	this->serialize_string(col->getId());
+	this->serialize_char(col->get_type());
+	this->serialize_size_t(col->size());
+	this->serialize_key_array(col->getKeys());
+}
+
+Column* Deserializer::deserialize_column(char* buff, size_t n, KVStore* store) {
+	size_t count = 0;
+	String* id = this->deserialize_string(&buff[count]);
+	count += id->size() + 1;
+	char type = this->deserialize_char(&buff[count]);
+	count += 1;
+	size_t size = this->deserialize_size_t(&buff[count]);
+	count += 8;
+	KeyArray* keys = this->deserialize_key_array(&buff[count], n);
+	switch (type) {
+		case 'B':
+			return new BoolColumn(id, store, size, keys);
+		case 'I':
+			return new IntColumn(id, store, size, keys);
+		case 'F':
+			return new FloatColumn(id, store, size, keys);
+		case 'S':
+			return new StringColumn(id, store, size, keys);
+		default:
+			assert(false);
+	}
+}

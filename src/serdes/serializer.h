@@ -24,6 +24,7 @@
 #include "../util/constants.h"
 #include "../dataframe/column.h"
 
+class Column;
 
 class Serializer {
 public:
@@ -197,12 +198,7 @@ public:
 		}
 	}
 
-	void serialize_column(Column* col) {
-		this->serialize_string(col->getId());
-		this->serialize_char(col->get_type());
-		this->serialize_size_t(col->size());
-		this->serialize_key_array(col->getKeys());
-	}
+	void serialize_column(Column* col);
 
 	/**
 	 * This methods 'clears' the buffer.
@@ -232,5 +228,8 @@ public:
 		return this->size_;
 	}
 };
+
+
+
 
 
