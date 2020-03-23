@@ -416,7 +416,7 @@ public:
 					for (size_t j = 0; j < numRows; ++j) {
 						start = this->columnar_[i]->getStart(j);
 						end = this->columnar_[i]->getEnd(j);
-						this->data_[i]->asBool()->push_back(this->parseBool(start, end));
+						this->data_[i]->asBool()->pushBack(this->parseBool(start, end));
 					}
 					break;
 				case Types::INT:
@@ -432,7 +432,7 @@ public:
 					for (size_t j = 0; j < numRows; ++j) {
 						start = this->columnar_[i]->getStart(j);
 						end = this->columnar_[i]->getEnd(j);
-						this->data_[i]->asFloat()->push_back(this->parseFloat(start, end));
+						this->data_[i]->asFloat()->pushBack(this->parseFloat(start, end));
 					}
 					break;
 				case Types::STRING:
@@ -441,7 +441,7 @@ public:
 						start = this->columnar_[i]->getStart(j);
 						end = this->columnar_[i]->getEnd(j);
 						String *s = this->parseString(start, end);
-						this->data_[i]->asString()->push_back(s);
+						this->data_[i]->asString()->pushBack(s);
 						delete s;
 					}
 					break;

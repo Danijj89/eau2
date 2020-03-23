@@ -30,7 +30,7 @@ public:
 			switch (scm.col_type(i)) {
 				case 'B':
 					this->vals_[i] = new BoolColumn();
-					this->vals_[i]->asBool()->push_back(false);
+					this->vals_[i]->asBool()->pushBack(false);
 					break;
 				case 'I':
 					this->vals_[i] = new IntColumn();
@@ -38,11 +38,11 @@ public:
 					break;
 				case 'F':
 					this->vals_[i] = new FloatColumn();
-					this->vals_[i]->asFloat()->push_back(0.0);
+					this->vals_[i]->asFloat()->pushBack(0.0);
 					break;
 				case 'S':
 					this->vals_[i] = new StringColumn();
-					this->vals_[i]->asString()->push_back(nullptr);
+					this->vals_[i]->asString()->pushBack(nullptr);
 					break;
 				default: exit(2);
 			}

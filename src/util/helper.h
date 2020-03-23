@@ -55,3 +55,11 @@ StringArray* tokenize(char* val, char del) {
 	}
 	return result;
 }
+
+String* getId(String* prefix, size_t idx) {
+	StrBuff s = StrBuff();
+	s.c(*prefix);
+	s.c("_");
+	s.c(idx);
+	return s.get();
+}

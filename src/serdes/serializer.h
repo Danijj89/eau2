@@ -24,6 +24,7 @@
 #include "../util/constants.h"
 #include "../dataframe/column.h"
 
+class Column;
 
 class Serializer {
 public:
@@ -55,6 +56,12 @@ public:
 	void serialize_bool(bool val) {
 		this->buff_[this->size_] = val ? 1 : 0;
 		this->size_++;
+	}
+
+	void serialize_bool_array(bool* vals, size_t n) {
+		for (size_t i = 0; i < n; ++i) {
+			this->serialize_bool(vals[i]);
+		}
 	}
 
 	/**
@@ -118,6 +125,12 @@ public:
 		this->buff_[s + 2] = v[2];
 		this->buff_[s + 3] = v[3];
 		this->size_ += 4;
+	}
+
+	void serialize_float_array(float* vals, size_t n) {
+		for (size_t i = 0; i < n; ++i) {
+			this->serialize_float(vals[i]);
+		}
 	}
 
 	/**
@@ -185,12 +198,7 @@ public:
 		}
 	}
 
-	void serialize_column(Column* col) {
-		this->serialize_string(col->getId());
-		this->serialize_char(col->get_type());
-		this->serialize_size_t(col->size());
-		this->serialize_key_array(col->getKeys());
-	}
+	void serialize_column(Column* col);
 
 	/**
 	 * This methods 'clears' the buffer.
@@ -220,5 +228,8 @@ public:
 		return this->size_;
 	}
 };
+
+
+
 
 

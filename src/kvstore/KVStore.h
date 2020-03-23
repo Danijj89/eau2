@@ -84,20 +84,20 @@ public:
 //		delete m;
 //		delete s;
 //	}
-
-	//Need to add handle key broadcast
-	// e.g.
-	void handle_messages() {
-		...
-		switch(m.type) {
-		...
-		case MsgKind::KEY:
-			// Get the key from the serialization
-			this->keys_.pushBack(key);
-			this->values_.pushBack(nullptr);
-			break;
-		...
-		}
-		...
-	}
+//
+//	//Need to add handle key broadcast
+//	// e.g.
+//	void handle_messages() {
+//		...
+//		switch(m.type) {
+//		...
+//		case MsgKind::KEY:
+//			// Get the key from the serialization
+//			this->keys_.pushBack(key);
+//			this->values_.pushBack(nullptr);
+//			break;
+//		...
+//		}
+//		...
+//	}
 };

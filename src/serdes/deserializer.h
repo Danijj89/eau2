@@ -5,6 +5,7 @@
 #include "../network/NodeInfoArray.h"
 #include "../util/string_array.h"
 #include "../util/helper.h"
+#include "../kvstore/KVStore.h"
 
 /**
  * Deserializer: This class will contain all the methods for
@@ -17,6 +18,8 @@
  * Author: zhan.d@husky.neu.edu, cao.yuan1@husky.neu.edu
  */
 
+
+class KVStore;
 
 class Deserializer {
 public:
@@ -108,6 +111,41 @@ public:
 		return result;
 	}
 
+	bool* deserialize_bool_array(char* buff, size_t n) {
+		bool* result = new bool[n];
+		for (size_t i = 0; i < n; ++i) {
+			result[i] = this->deserialize_bool(&buff[i]);
+		}
+		return result;
+	}
+
+	float* deserialize_float_array(char* buff, size_t n) {
+		float* result = new float[n];
+		size_t count = 0;
+		for (size_t i = 0; i < n; ++i) {
+			result[i] = this->deserialize_float(&buff[count]);
+			count += 4;
+		}
+		return result;
+	}
+
+	Key* deserialize_key(char* buff) {
+		String* key = this->deserialize_string(&buff[0]);
+		int nodeId = this->deserialize_int(&buff[key->size() + 1]);
+		return new Key(key, nodeId);
+	}
+
+	KeyArray* deserialize_key_array(char* buff, size_t n) {
+		KeyArray* result = new KeyArray();
+		size_t count = 0;
+		for (size_t i = 0; i < n; ++i) {
+			Key* k = this->deserialize_key(&buff[count]);
+			// size + 1 is the id with null terminator and 4 is for node id
+			count += k->getKey()->size() + 1 + 4;
+		}
+		return result;
+	}
+
 	/**
 	 * This method deserializes a serialized NodeInfo.
 	 * @method deserialize_node_info
@@ -140,4 +178,6 @@ public:
 		}
 		return nia;
 	}
+
+	Column* deserialize_column(char* buff, size_t n, KVStore* store);
 };

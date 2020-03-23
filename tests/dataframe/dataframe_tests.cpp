@@ -126,11 +126,11 @@ void pushBackAndGrow() {
     CS4500_ASSERT_TRUE(col2->size() == 0);
     String* s0 = new String("hi");
     for (size_t i = 0; i < rlen; ++i) {
-        col2->push_back(s0);
+		col2->pushBack(s0);
     }
     CS4500_ASSERT_TRUE(col2->size() == 100);
     String* s1 = new String("hello");
-    col2->push_back(s1);
+	col2->pushBack(s1);
     CS4500_ASSERT_TRUE(col2->size() == 101);
     String* s2 = new String("hi");
     CS4500_ASSERT_TRUE(col2->get(0)->equals(s2));
@@ -148,7 +148,7 @@ CS4500_ASSERT_EXIT_ZERO(pushBackAndGrow)
 void stringColumnSetOwnership() {
     StringColumn* col = new StringColumn();
     String* s1 = new String("s1");
-    col->push_back(s1);
+	col->pushBack(s1);
     // we clone the s1 since the pointer value of the stored string is != s1
     CS4500_ASSERT_FALSE(col->get(0) == (s1));
     String* s2 = new String("s2");
@@ -175,7 +175,7 @@ void stringColumnFunctionalTest() {
     col->set(0, s3);
     CS4500_ASSERT_TRUE(col->size() == 2);
     CS4500_ASSERT_TRUE(col->get(0)->equals(s3));
-    col->push_back(s1);
+	col->pushBack(s1);
     CS4500_ASSERT_TRUE(col->size() == 3);
     CS4500_ASSERT_TRUE(col->get(2)->equals(s1));
     CS4500_ASSERT_TRUE(col->indexOf("s3") == 0);
