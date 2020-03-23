@@ -9,7 +9,10 @@ local:
 docker_build:
 	$(DOCKER) "cd /test; $(COMPILER) $(CXXFLAGS) main.cpp -o main"
 
-vmain:
+docker_run:
+	$(DOCKER) "cd /test; ./main"
+
+docker_valgrind:
 	$(DOCKER) "cd /test; valgrind --leak-check=full ./main"
 
 test_setup:
