@@ -8,6 +8,8 @@
 #include "../kvstore/key_array.h"
 #include "../kvstore/value.h"
 #include "../kvstore/KVStore.h"
+#include "../serdes/serializer.h"
+#include "../serdes/deserializer.h"
 
 
 /* Forward Declaration */
@@ -17,7 +19,7 @@ class IntColumn;
 class BoolColumn;
 class FloatColumn;
 class StringColumn;
-
+class KVStore;
 
 /**
  * Column ::
@@ -34,8 +36,8 @@ public:
     KeyArray* keys_;
     Key* cache_key_;
     KVStore* store_;
-    Serializer ser_;
-    Deserializer des_;
+    Serializer* ser_;
+    Deserializer* des_;
     size_t max_elements_;
 
 	/**
@@ -47,8 +49,8 @@ public:
 		this->keys_ = new KeyArray();
 		this->cache_key_ = nullptr;
 		this->store_ = store; // external
-		this->ser_ = Serializer();
-		this->des_ = Deserializer();
+		this->ser_ = new Serializer();
+		this->des_ = new Deserializer();
 		this->max_elements_ = 0;
 	}
 
@@ -59,8 +61,8 @@ public:
 		this->size_ = size;
 		this->keys_ = keys;
 		this->cache_key_ = nullptr;
-		this->ser_ = Serializer();
-		this->des_ = Deserializer();
+		this->ser_ = new Serializer();
+		this->des_ = new Deserializer();
 		this->max_elements_ = 0;
 	}
 
@@ -70,6 +72,8 @@ public:
 	~Column() override {
 		delete this->id_;
 		delete this->keys_;
+		delete this->ser_;
+		delete this->des_;
 	}
 
     /**
@@ -245,7 +249,7 @@ public:
         assert(val != nullptr);
 		delete[] this->cache_value_;
 		this->cache_key_ = k;
-        this->cache_value_ = this->des_.deserialize_int_array(val->getBlob(), val->getSize());
+        this->cache_value_ = this->des_->deserialize_int_array(val->getBlob(), val->getSize());
         return this->cache_value_[eleIdx];
     }
 
@@ -267,8 +271,8 @@ public:
      */
     void pushBack(int* val, size_t n) override {
     	Key* k = this->getNextKey();
-    	this->ser_.serialize_int_array(val, n);
-    	Value* v = new Value(this->ser_.get_buff(), n);
+    	this->ser_->serialize_int_array(val, n);
+    	Value* v = new Value(this->ser_->get_buff(), n);
     	this->keys_->pushBack(k);
     	this->size_ += n;
     	this->store_->put(k, v);
@@ -356,7 +360,7 @@ public:
 		assert(val != nullptr);
 		delete[] this->cache_value_;
 		this->cache_key_ = k;
-		this->cache_value_ = this->des_.deserialize_bool_array(val->getBlob(), val->getSize());
+		this->cache_value_ = this->des_->deserialize_bool_array(val->getBlob(), val->getSize());
 		return this->cache_value_[eleIdx];
     }
 
@@ -378,8 +382,8 @@ public:
      */
     void pushBack(bool* val, size_t n) override {
 		Key* k = this->getNextKey();
-		this->ser_.serialize_bool_array(val, n);
-		Value* v = new Value(this->ser_.get_buff(), n);
+		this->ser_->serialize_bool_array(val, n);
+		Value* v = new Value(this->ser_->get_buff(), n);
 		this->keys_->pushBack(k);
 		this->size_ += n;
 		this->store_->put(k, v);
@@ -466,7 +470,7 @@ public:
 		assert(val != nullptr);
 		delete[] this->cache_value_;
 		this->cache_key_ = k;
-		this->cache_value_ = this->des_.deserialize_float_array(val->getBlob(), val->getSize());
+		this->cache_value_ = this->des_->deserialize_float_array(val->getBlob(), val->getSize());
 		return this->cache_value_[eleIdx];
     }
 
@@ -488,13 +492,11 @@ public:
      */
     void pushBack(float* val, size_t n) override {
 		Key* k = this->getNextKey();
-		this->ser_.serialize_float_array(val, n);
-		Value* v = new Value(this->ser_.get_buff(), n);
+		this->ser_->serialize_float_array(val, n);
+		Value* v = new Value(this->ser_->get_buff(), n);
 		this->keys_->pushBack(k);
 		this->size_ += n;
 		this->store_->put(k, v);
-		delete k;
-		delete v;
     }
 };
 
@@ -541,13 +543,13 @@ public:
 //        // creates all inner arrays - 1
 //        for (size_t i = 0; i < this->nrows_ - 1; ++i) {
 //            for (size_t j = 0; j < this->rlen_; ++j) {
-//                this->vals_[i]->push_back(va_arg(args, String*)->clone());
+//                this->vals_[i]->pushBack(va_arg(args, String*)->clone());
 //            }
 //        }
 //        // the length of the last row
 //        size_t last_row_len = this->getColIdx_(n);
 //        for (size_t i = 0; i < last_row_len; ++i) {
-//            this->vals_[this->nrows_ - 1]->push_back(va_arg(args, String*)->clone());
+//            this->vals_[this->nrows_ - 1]->pushBack(va_arg(args, String*)->clone());
 //        }
 //        va_end(args);
 //    }
@@ -584,7 +586,7 @@ public:
 		assert(val != nullptr);
 		delete this->cache_value_;
 		this->cache_key_ = k;
-		this->cache_value_ = this->des_.deserialize_string_array(val->getBlob(), val->getSize());
+		this->cache_value_ = this->des_->deserialize_string_array(val->getBlob(), val->getSize());
 		return this->cache_value_->get(eleIdx);
     }
 
@@ -599,8 +601,8 @@ public:
     void pushBack(StringArray* val) override {
 		Key* k = this->getNextKey();
 		size_t n = val->len();
-		this->ser_.serialize_string_array(val);
-		Value* v = new Value(this->ser_.get_buff(), n);
+		this->ser_->serialize_string_array(val);
+		Value* v = new Value(this->ser_->get_buff(), n);
 		this->keys_->pushBack(k);
 		this->size_ += n;
 		this->store_->put(k, v);

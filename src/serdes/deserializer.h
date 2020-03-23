@@ -6,6 +6,7 @@
 #include "../util/string_array.h"
 #include "../util/helper.h"
 #include "../kvstore/KVStore.h"
+#include "../dataframe/column.h"
 
 /**
  * Deserializer: This class will contain all the methods for
@@ -20,6 +21,7 @@
 
 
 class KVStore;
+class Column;
 
 class Deserializer {
 public:
@@ -96,7 +98,7 @@ public:
 		for (size_t i = 0; i < n; ++i) {
 			String* s = this->deserialize_string(&buff[count]);
 			count += s->size() + 1; // for the '\0'
-			sa->push_back(s);
+			sa->pushBack(s);
 		}
 		return sa;
 	}
@@ -140,6 +142,7 @@ public:
 		size_t count = 0;
 		for (size_t i = 0; i < n; ++i) {
 			Key* k = this->deserialize_key(&buff[count]);
+			result->pushBack(k);
 			// size + 1 is the id with null terminator and 4 is for node id
 			count += k->getKey()->size() + 1 + 4;
 		}

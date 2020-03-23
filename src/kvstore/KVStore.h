@@ -1,6 +1,5 @@
 #pragma once
 
-#include <vector>
 #include "key.h"
 #include "value.h"
 #include "../network/node.h"
@@ -10,24 +9,24 @@
 class KVStore : public Node {
 public:
 	int id_;
-	KeyArray keys_;
-	ValueArray values_;
+	KeyArray* keys_;
+	ValueArray* values_;
 	Key* cache_key_;
 	Value* cache_value_;
 
 	KVStore(int id, String* ip, int port) : Node(ip, port) {
 		this->id_ = id;
-		this->keys_ = KeyArray();
-		this->values_ = ValueArray();
+		this->keys_ = new KeyArray();
+		this->values_ = new ValueArray();
 		this->cache_key_ = nullptr;
 		this->cache_value_ = nullptr;
 	}
 
 	Value* get(Key* k) {
 		if (k->getNodeId() == this->id_) {
-			size_t i = this->keys_.indexOf(k);
+			size_t i = this->keys_->indexOf(k);
 			if (i == -1) return nullptr;
-			return this->values_.get(i);
+			return this->values_->get(i);
 		} else {
 			// Won't come here until it is distribuited
 			// return this->requestValue(k);
@@ -35,10 +34,12 @@ public:
 	}
 
 	void put(Key* k, Value* v) {
-		if (k->getNodeId() == this->id_) {
+		if (k->getNodeId() < 0) {
 			k->setNodeId(this->id_);
-			keys_.pushBack(k);
-			values_.pushBack(v);
+		}
+		if (k->getNodeId() == this->id_) {
+			this->keys_->pushBack(k);
+			this->values_->pushBack(v);
 			// this->broadcastKey(k);
 		} else {
 			//

@@ -11,7 +11,7 @@
 class Key : public Object {
 public:
 	String* key_; //Owned
-	int nodeId_;
+	int nodeId_ = -1;
 
 	Key(const char* key) {
 		this->key_ = new String(key);	

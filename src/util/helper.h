@@ -1,5 +1,5 @@
 //lang:CwC
-
+#pragma once
 /**
  * Collection of helper functions.
  * @authors zhan.d@husky.neu.edu & yuan.cao@husky.neu.edu
@@ -41,7 +41,7 @@ StringArray* tokenize(char* val, char del) {
 	while (val[c] != '\0' && val[c] != '\n') {
 		if (val[c] == del) {
 			buff[i] = '\0';
-			result->push_back(new String(buff));
+			result->pushBack(new String(buff));
 			i = 0;
 		} else {
 			buff[i] = val[c];
@@ -51,7 +51,7 @@ StringArray* tokenize(char* val, char del) {
 	}
 	if (i > 0) {
 		buff[i] = '\0';
-		result->push_back(new String(buff));
+		result->pushBack(new String(buff));
 	}
 	return result;
 }

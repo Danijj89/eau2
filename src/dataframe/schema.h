@@ -1,7 +1,6 @@
 #pragma once
 
-
-#include "column.h"
+#include "../util/int_array.h"
 
 
 /**
@@ -15,7 +14,7 @@
 class Schema : public Object {
 public:
     size_t clen_;
-    IntColumn* types_; // using int array to store chars
+    IntArray* types_; // using int array to store chars
 
     /**
      * Copying constructor.
@@ -23,7 +22,7 @@ public:
      */
     Schema(Schema& from) {
         this->clen_ = from.width();
-        this->types_ = new IntColumn();
+        this->types_ = new IntArray();
         for (size_t i = 0; i < this->clen_; ++i) {
 			this->types_->pushBack(from.col_type(i));
         }
@@ -34,7 +33,7 @@ public:
      */
     Schema() {
         this->clen_ = 0;
-        this->types_ = new IntColumn();
+        this->types_ = new IntArray();
     }
 
     /**
@@ -45,7 +44,7 @@ public:
      */
     Schema(const char* types) {
         if (!types) exit(1);
-        this->types_ = new IntColumn();
+        this->types_ = new IntArray();
         size_t len = strlen(types);
         this->clen_ = len;
         for (size_t i = 0; i < len; ++i) {

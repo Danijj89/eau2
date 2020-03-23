@@ -23,32 +23,32 @@ public:
 
     /** Build a row following a schema. */
     explicit Row(Schema& scm) {
-    	this->nCols_ = scm.width();
-        this->vals_ = new Column*[this->nCols_];
-		// Each case push back once to create a slot in the column
-		for (size_t i = 0; i < this->nCols_; ++i) {
-			switch (scm.col_type(i)) {
-				case 'B':
-					this->vals_[i] = new BoolColumn();
-					this->vals_[i]->asBool()->pushBack(false);
-					break;
-				case 'I':
-					this->vals_[i] = new IntColumn();
-					this->vals_[i]->asInt()->pushBack(0);
-					break;
-				case 'F':
-					this->vals_[i] = new FloatColumn();
-					this->vals_[i]->asFloat()->pushBack(0.0);
-					break;
-				case 'S':
-					this->vals_[i] = new StringColumn();
-					this->vals_[i]->asString()->pushBack(nullptr);
-					break;
-				default: exit(2);
-			}
-		}
-        this->schema_ = new Schema(scm);
-        this->index_ = SIZE_MAX;
+//    	this->nCols_ = scm.width();
+//        this->vals_ = new Column*[this->nCols_];
+//		// Each case push back once to create a slot in the column
+//		for (size_t i = 0; i < this->nCols_; ++i) {
+//			switch (scm.col_type(i)) {
+//				case 'B':
+//					this->vals_[i] = new BoolColumn();
+//					this->vals_[i]->asBool()->pushBack(false);
+//					break;
+//				case 'I':
+//					this->vals_[i] = new IntArray();
+//					this->vals_[i]->asInt()->pushBack(0);
+//					break;
+//				case 'F':
+//					this->vals_[i] = new FloatColumn();
+//					this->vals_[i]->asFloat()->pushBack(0.0);
+//					break;
+//				case 'S':
+//					this->vals_[i] = new StringArray();
+//					this->vals_[i]->asString()->pushBack(nullptr);
+//					break;
+//				default: exit(2);
+//			}
+//		}
+//        this->schema_ = new Schema(scm);
+//        this->index_ = SIZE_MAX;
     }
 
     /** Destroys a row. */
@@ -66,23 +66,23 @@ public:
      * Strings are not acquired.
      */
     void set(size_t col, bool val) {
-        assert(this->schema_->col_type(col) == 'B');
-		this->vals_[col]->asBool()->set(0, val);
+//        assert(this->schema_->col_type(col) == 'B');
+//		this->vals_[col]->asBool()->set(0, val);
     }
 
     void set(size_t col, int val) {
-        assert(this->schema_->col_type(col) == 'I');
-		this->vals_[col]->asInt()->set(0, val);
+//        assert(this->schema_->col_type(col) == 'I');
+//		this->vals_[col]->asInt()->set(0, val);
     }
 
     void set(size_t col, float val) {
-        assert(this->schema_->col_type(col) == 'F');
-		this->vals_[col]->asFloat()->set(0, val);
+//        assert(this->schema_->col_type(col) == 'F');
+//		this->vals_[col]->asFloat()->set(0, val);
     }
 
     void set(size_t col, String* val) {
-        assert(this->schema_->col_type(col) == 'S');
-		this->vals_[col]->asString()->set(0, val);
+//        assert(this->schema_->col_type(col) == 'S');
+//		this->vals_[col]->asString()->set(0, val);
     }
 
     /**

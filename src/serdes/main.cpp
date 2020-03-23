@@ -65,9 +65,9 @@ int main() {
 	String* demo_string_member1 = new String("hello");
 	String* demo_string_member2 = new String("world");
 	String* demo_string_member3 = new String("amigo");
-	demo_string_array->push_back(demo_string_member1);
-	demo_string_array->push_back(demo_string_member2);
-	demo_string_array->push_back(demo_string_member3);
+	demo_string_array->pushBack(demo_string_member1);
+	demo_string_array->pushBack(demo_string_member2);
+	demo_string_array->pushBack(demo_string_member3);
 	s.serialize_string_array(demo_string_array);
 	StringArray* result_string_array = d.deserialize_string_array(s.get_buff(), 3);
 	// These String* borrows

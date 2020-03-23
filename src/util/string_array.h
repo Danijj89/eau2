@@ -78,7 +78,7 @@ public:
      *
      * @param item the given item to be added to the end of this array
      */
-    virtual void push_back(String* s) {
+    virtual void pushBack(String* s) {
         this->resizeIfFull();
         this->vals_[this->size_] = s;
         this->size_++;
