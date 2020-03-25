@@ -3,7 +3,7 @@
 
 // #include <unistd.h>
 #include <poll.h>
-#include <fcntl.h> // for nonblocking
+#include <fcntl.h> // for nonblocking if necessary
 
 
 class Pollfds {
@@ -20,7 +20,7 @@ public:
 		// Set up stdin
 		this->pfds_[0].fd = 0;
 		this->pfds_[0].events = POLLIN;
-		// Make stdin nonblocking
+		// e.g. Make stdin nonblocking
 		// fcntl(0, F_SETFL, O_NONBLOCK);
 
 		// Set up listening
