@@ -112,24 +112,28 @@ public:
 	}
 
 	/**
-	 * This method serializes a single float value.
+	 * This method serializes a single double value.
 	 * The order of the bytes is unchanged.
-	 * @method serialize_float
-	 * @param  val             a float value
+	 * @method serialize_double
+	 * @param  val             a double value
 	 */
-	void serialize_float(float val) {
+	void serialize_double(double val) {
 		size_t s = this->size_;
 		char* v = (char*)&val;
 		this->buff_[s] = v[0];
 		this->buff_[s + 1] = v[1];
 		this->buff_[s + 2] = v[2];
 		this->buff_[s + 3] = v[3];
-		this->size_ += 4;
+		this->buff_[s + 4] = v[4];
+		this->buff_[s + 5] = v[5];
+		this->buff_[s + 6] = v[6];
+		this->buff_[s + 7] = v[7];
+		this->size_ += 8;
 	}
 
-	void serialize_float_array(float* vals, size_t n) {
+	void serialize_double_array(double* vals, size_t n) {
 		for (size_t i = 0; i < n; ++i) {
-			this->serialize_float(vals[i]);
+			this->serialize_double(vals[i]);
 		}
 	}
 

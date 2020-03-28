@@ -258,7 +258,7 @@ public:
 				}
 				strtold(&this->file_[start], &endptr);
 				if ((size_t) (endptr - &this->file_[start]) == end - start + 1) {
-					return Types::FLOAT;
+					return Types::DOUBLE;
 				}
 				for (size_t i = start; i <= end; ++i) {
 					if (isspace(this->file_[i])) {
@@ -427,12 +427,12 @@ public:
 						this->data_[i]->asInt()->pushBack(this->parseInt(start, end));
 					}
 					break;
-				case Types::FLOAT:
-					this->data_[i] = new FloatColumn();
+				case Types::DOUBLE:
+					this->data_[i] = new DoubleColumn();
 					for (size_t j = 0; j < numRows; ++j) {
 						start = this->columnar_[i]->getStart(j);
 						end = this->columnar_[i]->getEnd(j);
-						this->data_[i]->asFloat()->pushBack(this->parseFloat(start, end));
+						this->data_[i]->asDouble()->pushBack(this->parseFloat(start, end));
 					}
 					break;
 				case Types::STRING:
@@ -494,14 +494,14 @@ public:
 	}
 
 	/**
- 	 * Attempts to parse field between start and end into a float.
- 	 * Only call this function on fields that has been determined to be float.
+ 	 * Attempts to parse field between start and end into a double.
+ 	 * Only call this function on fields that has been determined to be double.
  	 *
  	 * @param start is the start of the field in file.
  	 * @param end is the end of the field in file.
- 	 * @return the parsed float.
+ 	 * @return the parsed double.
  	 */
-	float parseFloat(size_t start, size_t end) {
+	double parseFloat(size_t start, size_t end) {
 		// removes empty spaces in front and back
 		size_t new_start = this->triml_(start, end);
 		size_t new_end = this->trimr_(start, end);
@@ -511,7 +511,7 @@ public:
 			long double candidate = strtold(&this->file_[new_start], &endptr);
 			// Make sure we get a number back and that it consume all of the relevant field characters.
 			assert((size_t) (endptr - &this->file_[new_start]) == new_end - new_start + 1);
-			return (float) candidate;
+			return (double) candidate;
 		} else {
 			return 0.0;
 		}
@@ -523,7 +523,7 @@ public:
  	 *
  	 * @param start is the start of the field in file.
  	 * @param end is the end of the field in file.
- 	 * @return the parsed float.
+ 	 * @return the parsed double.
  	 */
 	String *parseString(size_t start, size_t end) {
 		// removes empty spaces in front and back
@@ -557,8 +557,8 @@ public:
 			case Types::INT:
 				printf("%d\n", this->data_[col]->asInt()->get(row));
 				break;
-			case Types::FLOAT:
-				printf("%f\n", this->data_[col]->asFloat()->get(row));
+			case Types::DOUBLE:
+				printf("%f\n", this->data_[col]->asDouble()->get(row));
 				break;
 			case Types::STRING:
 				printf("%s\n", this->data_[col]->asString()->get(row)->c_str());
@@ -597,8 +597,8 @@ public:
 			case Types::INT:
 				printf("INT\n");
 				break;
-			case Types::FLOAT:
-				printf("FLOAT\n");
+			case Types::DOUBLE:
+				printf("DOUBLE\n");
 				break;
 			case Types::STRING:
 				printf("STRING\n");
@@ -610,12 +610,10 @@ public:
 	}
 
 	DataFrame* getAsDF() {
-		Schema* s = new Schema();
-		DataFrame* df = new DataFrame(*s);
+		DataFrame* df = new DataFrame();
 		for (size_t i = 0; i < this->schema_->len(); i++) {
-			df->add_column(this->data_[i]);
+			df->addColumn(this->data_[i]);
 		}
-		delete s;
 		return df;
 	}
 };

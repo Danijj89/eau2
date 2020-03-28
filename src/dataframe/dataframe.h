@@ -43,7 +43,7 @@ public:
      * has been created in undefined.
      * @return the schema of this ModifiedDataFrame
      */
-    Schema* get_schema() {
+    Schema* getSchema() {
         return this->schema_;
     }
 
@@ -56,12 +56,12 @@ public:
      *
      * @param col the column to be added
      */
-    void add_column(Column* col) {
+    void addColumn(Column* col) {
         assert(col != nullptr && (col->size() == this->nrows_ || this->nrows_ == 0));
         this->grow_();
         char t = col->get_type();
         this->vals_[this->ncols_ - 1] = col;
-        this->schema_->add_column(t);
+		this->schema_->addColumn(t);
         this->nrows_ = col->size();
     }
 
@@ -86,9 +86,9 @@ public:
      * @param row the row index
      * @return the value
      */
-    int get_int(size_t col, size_t row) {
+    int getInt(size_t col, size_t row) {
         if (col >= this->ncols_ || row >= this->nrows_
-        || this->schema_->col_type(col) != 'I') {
+        || this->schema_->colType(col) != 'I') {
             exit(1);
         }
         return this->vals_[col]->asInt()->get(row);
@@ -101,27 +101,27 @@ public:
      * @param row the row index
      * @return the value
      */
-    bool get_bool(size_t col, size_t row) {
+    bool getBool(size_t col, size_t row) {
         if (col >= this->ncols_ || row >= this->nrows_
-            || this->schema_->col_type(col) != 'B') {
+            || this->schema_->colType(col) != 'B') {
             exit(1);
         }
         return this->vals_[col]->asBool()->get(row);
     }
 
     /**
-     * Return the float value at the given column and row. Accessing rows or
+     * Return the double value at the given column and row. Accessing rows or
      * columns out of bounds, or request the wrong type exits the program.
      * @param col the column index
      * @param row the row index
      * @return the value
      */
-    float get_float(size_t col, size_t row) {
+    double getDouble(size_t col, size_t row) {
         if (col >= this->ncols_ || row >= this->nrows_
-            || this->schema_->col_type(col) != 'F') {
+            || this->schema_->colType(col) != 'D') {
             exit(1);
         }
-        return this->vals_[col]->asFloat()->get(row);
+        return this->vals_[col]->asDouble()->get(row);
     }
 
     /**
@@ -131,9 +131,9 @@ public:
      * @param row the row index
      * @return the value
      */
-    String*  get_string(size_t col, size_t row) {
+    String*  getString(size_t col, size_t row) {
         if (col >= this->ncols_ || row >= this->nrows_
-            || this->schema_->col_type(col) != 'S') {
+            || this->schema_->colType(col) != 'S') {
             exit(1);
         }
 
@@ -147,10 +147,9 @@ public:
      * @param idx row index in the ModifiedDataFrame
      * @param row the row object to set
      */
-    void fill_row(size_t idx, Row& row) {
-        row.set_idx(idx);
+    void fillRow(size_t idx, Row& row) {
         for (size_t i = 0; i < this->ncols_; ++i) {
-            char t = this->schema_->col_type(i);
+            char t = this->schema_->colType(i);
             switch(t) {
                 case 'B':
                     row.set(i, this->vals_[i]->asBool()->get(idx));
@@ -158,8 +157,8 @@ public:
                 case 'I':
                     row.set(i, this->vals_[i]->asInt()->get(idx));
                     break;
-                case 'F':
-                    row.set(i, this->vals_[i]->asFloat()->get(idx));
+                case 'D':
+                    row.set(i, this->vals_[i]->asDouble()->get(idx));
                     break;
                 case 'S':
                     row.set(i, this->vals_[i]->asString()->get(idx));
@@ -191,9 +190,9 @@ public:
      * @param r the visitor
      */
     void map(Rower& r) {
-        Row* row = new Row(*this->schema_);
+        Row* row = new Row(this->schema_);
         for (size_t i = 0; i < this->nrows_; ++i) {
-            fill_row(i, *row);
+			fillRow(i, *row);
             r.accept(*row);
         }
     }
@@ -208,7 +207,7 @@ public:
         for (size_t i = 0; i < this->nrows_; ++i) {
             for (size_t j = 0; j < this->ncols_; ++j) {
                 sb->c("<");
-                switch(this->schema_->col_type(j)) {
+                switch(this->schema_->colType(j)) {
                     case 'B':
                         sb->c(this->vals_[j]->asBool()->get(i));
                         break;
@@ -217,8 +216,8 @@ public:
                         buff[len] = '\0';
                         sb->c(buff);
                         break;
-                    case 'F':
-                        len = sprintf(buff, "%e", this->vals_[j]->asFloat()->get(i));
+                    case 'D':
+                        len = sprintf(buff, "%e", this->vals_[j]->asDouble()->get(i));
                         buff[len] = '\0';
                         sb->c(buff);
                         break;
@@ -246,9 +245,9 @@ public:
      * @param r the rower
      */
     void rangeMap_(size_t from, size_t to, Rower* r) {
-        Row* row = new Row(*this->schema_);
+        Row* row = new Row(this->schema_);
         for (size_t i = from; i < to; ++i) {
-            fill_row(i, *row);
+			fillRow(i, *row);
             r->accept(*row);
         }
     }
@@ -294,7 +293,7 @@ public:
 
         // join work
         for (size_t i = this->nthreads_ - 1; i > 0; --i) {
-            rowers[i - 1]->join_delete(rowers[i]);
+			rowers[i - 1]->joinDelete(rowers[i]);
         }
     }
 };

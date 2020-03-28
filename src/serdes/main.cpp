@@ -44,8 +44,8 @@ int main() {
 
 	// Demonstrate the ability to serialize a float
 	float demo_float = 3.14159;
-	s.serialize_float(demo_float);
-	float result_float = d.deserialize_float(s.get_buff());
+	s.serialize_double(demo_float);
+	float result_float = d.deserialize_double(s.get_buff());
 	assert (demo_float > result_float - 0.001);
 	assert (demo_float < result_float + 0.001);
 	s.clear();

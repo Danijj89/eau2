@@ -27,18 +27,19 @@ public:
 
 	virtual void run_() {}
 
-	DataFrame* fromArray(Key* k, float* vals, size_t n) {
+	DataFrame* fromArray(Key* k, double* vals, size_t n) {
 		DataFrame* result = new DataFrame();
-		Column* col = new FloatColumn(getId(k->getKey(), 0), this->store_);
-		size_t chunks = n / MAX_FLOAT_ELEMENTS;
-		size_t last_chuck_size = n % MAX_FLOAT_ELEMENTS;
+		Column* col = new DoubleColumn(getId(k->getKey(), 0), this->store_);
+		size_t chunks = n / MAX_DOUBLE_ELEMENTS;
+		size_t last_chuck_size = n % MAX_DOUBLE_ELEMENTS;
 		// pushing all full size chunks
 		for (size_t i = 0; i < chunks; ++i) {
-			col->pushBack(vals + i * MAX_FLOAT_ELEMENTS, MAX_FLOAT_ELEMENTS);
+			col->pushBack(&vals[i * MAX_DOUBLE_ELEMENTS], MAX_DOUBLE_ELEMENTS);
 		}
 		// pushing last chunk that might not be full sized
-		col->pushBack(vals + chunks * MAX_FLOAT_ELEMENTS, last_chuck_size);
-		result->add_column(col);
+		col->pushBack(&vals[chunks * MAX_DOUBLE_ELEMENTS], last_chuck_size);
+		result->addColumn(col);
+		this->ser_->clear();
 		this->ser_->serialize_column(col);
 		Value* v = new Value(this->ser_->get_buff(), col->getKeys()->len());
 		this->store_->put(k, v);
@@ -49,7 +50,7 @@ public:
 		Value* v = this->store_->get(k);
 		Column* col = this->des_->deserialize_column(v->getBlob(), v->getSize(), this->store_);
 		DataFrame* result = new DataFrame();
-		result->add_column(col);
+		result->addColumn(col);
 		return result;
 	}
 

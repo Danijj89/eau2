@@ -229,12 +229,12 @@ void execute() override {
     long long sum = 0;
     for (size_t i = 0; i < df->width(); i++) {
         for (size_t j = 0; j < df->length(); j++) {
-            sum += df->get_int(i, j);
+            sum += df->getInt(i, j);
         }   
     }
     df->storeAs(Key("sum"));
     Dataframe* df2 = Dataframe::fromKey(Key("sum"));
-    assert(sum == df2->get_int(0,0));
+    assert(sum == df2->getInt(0,0));
 }
 ```
 
@@ -260,7 +260,7 @@ void sum() {
     long long sum = 0;
     for (size_t i = 0; i < df->width(); i++) {
     	for (size_t j = 0; j < df->length(); j++) {
-    		sum += df->get_int(i, j);
+    		sum += df->getInt(i, j);
     	}   
     }
     df->storeAs("sum");
@@ -271,7 +271,7 @@ void compare() {
     long long sum2 = 0;
     for (size_t i = 0; i < df->width(); i++) {
     	for (size_t j = 0; j < df->length(); j++) {
-    		sum2 += df->get_int(i, j);
+    		sum2 += df->getInt(i, j);
     	}   
     }
     Dataframe* df2 = Dataframe::fromKey("sum");

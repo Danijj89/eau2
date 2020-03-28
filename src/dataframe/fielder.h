@@ -15,7 +15,7 @@ public:
 	 * the dataframe.
      * @param r the row index
      */
-    virtual void start(size_t r) {};
+    virtual void start() {};
 
     /**
      * Called for fields of type bool with the value of the field.
@@ -30,10 +30,10 @@ public:
 	virtual void accept(int i) {};
 
     /**
-     * Called for fields of type float with the value of the field.
+     * Called for fields of type double with the value of the field.
      * @param b the value
      */
-    virtual void accept(float f) {};
+    virtual void accept(double f) {};
 
     /**
      * Called for fields of type string with the value of the field.

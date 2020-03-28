@@ -9,7 +9,7 @@
  * A schema is a description of the contents of a data frame, the schema
  * knows the number of columns and number of rows, the type of each column,
  * optionally columns and rows can be named by strings.
- * The valid types are represented by the chars 'S', 'B', 'I' and 'F'.
+ * The valid types are represented by the chars 'S', 'B', 'I' and 'D'.
  */
 class Schema : public Object {
 public:
@@ -20,11 +20,11 @@ public:
      * Copying constructor.
      * @param from the schema to copy from.
      */
-    Schema(Schema& from) {
-        this->clen_ = from.width();
+    Schema(Schema* from) {
+        this->clen_ = from->width();
         this->types_ = new IntArray();
         for (size_t i = 0; i < this->clen_; ++i) {
-			this->types_->pushBack(from.col_type(i));
+			this->types_->pushBack(from->colType(i));
         }
     }
 
@@ -34,26 +34,6 @@ public:
     Schema() {
         this->clen_ = 0;
         this->types_ = new IntArray();
-    }
-
-    /**
-     * Create a schema from a string of types. A string that contains
-     * characters other than those identifying the four type results in
-     * undefined behavior. The argument is external, a nullptr argument is undefined.
-     * @param types the schema
-     */
-    Schema(const char* types) {
-        if (!types) exit(1);
-        this->types_ = new IntArray();
-        size_t len = strlen(types);
-        this->clen_ = len;
-        for (size_t i = 0; i < len; ++i) {
-            if (is_valid_type_(types[i])) {
-				this->types_->pushBack(types[i]);
-            } else {
-                exit(1);
-            }
-        }
     }
 
     /**
@@ -68,21 +48,21 @@ public:
      * A valid type is one of the following characters:
      * - I
      * - B
-     * - F
+     * - D
      * - S
      * @param t
      * @return
      */
-    bool is_valid_type_(char t) {
-        return t == 'B' || t == 'I' || t == 'F' || t == 'S';
+    bool isValiType_(char t) {
+        return t == 'B' || t == 'I' || t == 'D' || t == 'S';
     }
 
     /**
      * Add a column of the given type.
      * @param typ type of the column
      */
-    void add_column(char typ) {
-        if (!is_valid_type_(typ)) {
+    void addColumn(char typ) {
+        if (!isValiType_(typ)) {
             exit(1);
         }
 		this->types_->pushBack(typ);
@@ -94,7 +74,7 @@ public:
      * @param idx the index of the column
      * @return the type of the column
      */
-    char col_type(size_t idx) {
+    char colType(size_t idx) {
         if (idx >= this->clen_) exit(1);
         return (char)this->types_->get(idx);
     }

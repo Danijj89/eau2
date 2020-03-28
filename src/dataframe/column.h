@@ -17,7 +17,7 @@ class Serializer;
 class Deserializer;
 class IntColumn;
 class BoolColumn;
-class FloatColumn;
+class DoubleColumn;
 class StringColumn;
 class KVStore;
 
@@ -97,7 +97,7 @@ public:
      * Return same column as a FloatColumn, or nullptr if of the wrong type.
      * @return the BoolColumn or nullptr if of the wrong type
      */
-    virtual FloatColumn *asFloat() {
+    virtual DoubleColumn *asDouble() {
         return nullptr;
     }
 
@@ -124,11 +124,11 @@ public:
     virtual void pushBack(bool* val, size_t n) {}
 
     /**
-     * Adds the given float value at the end of this column.
+     * Adds the given double value at the end of this column.
      * Calling this method on a wrong typed column is undefined behavior.
      * @param val the value to push
      */
-    virtual void pushBack(float* val, size_t n) {}
+    virtual void pushBack(double* val, size_t n) {}
 
     /**
      * Adds the given String value at the end of this column.
@@ -146,7 +146,7 @@ public:
     }
 
     /**
-     * Return the type of this column as a char: 'S', 'B', 'I' and 'F'.
+     * Return the type of this column as a char: 'S', 'B', 'I' and 'D'.
      * @return the type of this column
      */
     char get_type() {
@@ -203,32 +203,6 @@ public:
     	this->max_elements_ = MAX_INT_ELEMENTS;
     }
 
-//    /**
-//     * Constructs a new IntColumn from the given variable number n of integers.
-//     * @param n the number of integers
-//     * @param ... the integers
-//     */
-//    IntColumn(char* id, int n, ...) : IntColumn(id) {
-//        this->size_ = n;
-//
-//        va_list args;
-//        va_start(args, n);
-//
-//        // creates all inner arrays - 1
-//        for (size_t i = 0; i < this->nrows_ - 1; ++i) {
-//            for (size_t j = 0; j < this->rlen_; ++j) {
-//                this->vals_[i][j] = va_arg(args, int);
-//            }
-//        }
-//        // the length of the last row
-//        size_t last_row_len = this->getColIdx_(n);
-//        for (size_t i = 0; i < last_row_len; ++i) {
-//            this->vals_[this->nrows_ - 1][i] = va_arg(args, int);
-//        }
-//
-//        va_end(args);
-//    }
-
 	~IntColumn() {
     	delete[] this->cache_value_;
     }
@@ -272,6 +246,7 @@ public:
      */
     void pushBack(int* val, size_t n) override {
     	Key* k = this->getNextKey();
+    	this->ser_->clear();
     	this->ser_->serialize_int_array(val, n);
     	Value* v = new Value(this->ser_->get_buff(), n);
     	this->keys_->pushBack(k);
@@ -306,36 +281,6 @@ public:
 		this->cache_value_ = nullptr;
 		this->max_elements_ = MAX_BOOL_ELEMENTS;
 	}
-
-//    /**
-//     * Constructs a new BoolColumn from the given variable number n of booleans.
-//     * @param n the number of booleans
-//     * @param ... the booleans
-//     */
-//    BoolColumn(int n, ...) {
-//        this->type_ = 'B';
-//        this->size_ = n;
-//        // number of inner arrays that will be initialized
-//        this->nrows_ = (size_t)(n / this->rlen_) + 1;
-//        this->vals_ = new bool*[this->nrows_];
-//        for (size_t i = 0; i < this->nrows_; ++i) {
-//            this->vals_[i] = new bool[this->rlen_];
-//        }
-//        va_list args;
-//        va_start(args, n);
-//        // creates all inner arrays - 1
-//        for (size_t i = 0; i < this->nrows_ - 1; ++i) {
-//            for (size_t j = 0; j < this->rlen_; ++j) {
-//                this->vals_[i][j] = va_arg(args, int);
-//            }
-//        }
-//        // the length of the last row
-//        size_t last_row_len = this->getColIdx_(n);
-//        for (size_t i = 0; i < last_row_len; ++i) {
-//            this->vals_[this->nrows_ - 1][i] = va_arg(args, int);
-//        }
-//        va_end(args);
-//    }
 
     /**
      * Default destructor
@@ -383,6 +328,7 @@ public:
      */
     void pushBack(bool* val, size_t n) override {
 		Key* k = this->getNextKey();
+		this->ser_->clear();
 		this->ser_->serialize_bool_array(val, n);
 		Value* v = new Value(this->ser_->get_buff(), n);
 		this->keys_->pushBack(k);
@@ -396,61 +342,31 @@ public:
 /**
  * FloatColumn::
  *
- * Holds primitive float values, unwrapped.
+ * Holds primitive double values, unwrapped.
  */
-class FloatColumn : public Column {
+class DoubleColumn : public Column {
 
 public:
-	float* cache_value_;
+	double* cache_value_;
 
     /**
      * Default constructor
      */
-    FloatColumn(String* id, KVStore* store) : Column(id, store) {
-        this->type_ = 'F';
+    DoubleColumn(String* id, KVStore* store) : Column(id, store) {
+        this->type_ = 'D';
         this->cache_value_ = nullptr;
-        this->max_elements_ = MAX_FLOAT_ELEMENTS;
+        this->max_elements_ = MAX_DOUBLE_ELEMENTS;
     }
 
-	FloatColumn(String* id, KVStore* store, size_t size, KeyArray* keys) : Column(id, store, 'F', size, keys) {
+	DoubleColumn(String* id, KVStore* store, size_t size, KeyArray* keys) : Column(id, store, 'D', size, keys) {
 		this->cache_value_ = nullptr;
-		this->max_elements_ = MAX_FLOAT_ELEMENTS;
+		this->max_elements_ = MAX_DOUBLE_ELEMENTS;
 	}
-
-//    /**
-//     * Constructs a new FloatColumn from the given variable number n of floats.
-//     * @param n the number of floats
-//     * @param ... the floats
-//     */
-//    FloatColumn(int n, ...) {
-//        this->type_ = 'F';
-//        this->size_ = n;
-//        // number of inner arrays that will be initialized
-//        this->nrows_ = (size_t)(n / this->rlen_) + 1;
-//        this->vals_ = new float*[this->nrows_];
-//        for (size_t i = 0; i < this->nrows_; ++i) {
-//            this->vals_[i] = new float[this->rlen_];
-//        }
-//        va_list args;
-//        va_start(args, n);
-//        // creates all inner arrays - 1
-//        for (size_t i = 0; i < this->nrows_ - 1; ++i) {
-//            for (size_t j = 0; j < this->rlen_; ++j) {
-//                this->vals_[i][j] = va_arg(args, double);
-//            }
-//        }
-//        // the length of the last row
-//        size_t last_row_len = this->getColIdx_(n);
-//        for (size_t i = 0; i < last_row_len; ++i) {
-//            this->vals_[this->nrows_ - 1][i] = va_arg(args, double);
-//        }
-//        va_end(args);
-//    }
 
     /**
      * Default destructor
      */
-    ~FloatColumn() override {
+    ~DoubleColumn() override {
         delete[] this->cache_value_;
     }
 
@@ -459,7 +375,7 @@ public:
      * @param idx the index
      * @return the value or exits the program if index is out of bound
      */
-    float get(size_t idx) {
+    double get(size_t idx) {
 		assert(idx < this->size_);
 		int keyIdx = this->getKeyIdx(idx);
 		int eleIdx = this->getElementIdx(idx);
@@ -471,7 +387,7 @@ public:
 		assert(val != nullptr);
 		delete[] this->cache_value_;
 		this->cache_key_ = k;
-		this->cache_value_ = this->des_->deserialize_float_array(val->getBlob(), val->getSize());
+		this->cache_value_ = this->des_->deserialize_double_array(val->getBlob(), val->getSize());
 		return this->cache_value_[eleIdx];
     }
 
@@ -479,21 +395,22 @@ public:
      * Returns this column as an FloatColumn.
      * @return this FloatColumn
      */
-    FloatColumn *asFloat() override {
+    DoubleColumn *asDouble() override {
         return this;
     }
 
     /**
-     * Adds the given float value at the end of this column.
+     * Adds the given double value at the end of this column.
      * @param val the value to add
      *
      * INVARIANT: we always have space to hold new values unless the current size
      *            is != 0 and it is 0 when mod our rlen_, in which case we grow
      *            the number of inner arrays
      */
-    void pushBack(float* val, size_t n) override {
+    void pushBack(double* val, size_t n) override {
 		Key* k = this->getNextKey();
-		this->ser_->serialize_float_array(val, n);
+		this->ser_->clear();
+		this->ser_->serialize_double_array(val, n);
 		Value* v = new Value(this->ser_->get_buff(), n);
 		this->keys_->pushBack(k);
 		this->size_ += n;
@@ -524,36 +441,6 @@ public:
 		this->cache_value_ = nullptr;
 		this->max_elements_ = MAX_STRING_ELEMENTS;
 	}
-
-//    /**
-//     * Constructs a new StringColumn from the given variable number n of string pointers.
-//     * @param n the number of string
-//     * @param ... the integers
-//     */
-//    StringColumn(int n, ...) {
-//        this->type_ = 'S';
-//        this->size_ = n;
-//        // number of inner arrays that will be initialized
-//        this->nrows_ = (size_t)(n / this->rlen_) + 1;
-//        this->vals_ = new StringArray*[this->nrows_];
-//        for (size_t i = 0; i < this->nrows_; ++i) {
-//            this->vals_[i] = new StringArray(this->rlen_);
-//        }
-//        va_list args;
-//        va_start(args, n);
-//        // creates all inner arrays - 1
-//        for (size_t i = 0; i < this->nrows_ - 1; ++i) {
-//            for (size_t j = 0; j < this->rlen_; ++j) {
-//                this->vals_[i]->pushBack(va_arg(args, String*)->clone());
-//            }
-//        }
-//        // the length of the last row
-//        size_t last_row_len = this->getColIdx_(n);
-//        for (size_t i = 0; i < last_row_len; ++i) {
-//            this->vals_[this->nrows_ - 1]->pushBack(va_arg(args, String*)->clone());
-//        }
-//        va_end(args);
-//    }
 
     /**
      * Default destructor
@@ -602,6 +489,7 @@ public:
     void pushBack(StringArray* val) override {
 		Key* k = this->getNextKey();
 		size_t n = val->len();
+		this->ser_->clear();
 		this->ser_->serialize_string_array(val);
 		Value* v = new Value(this->ser_->get_buff(), n);
 		this->keys_->pushBack(k);
@@ -633,8 +521,8 @@ Column* Deserializer::deserialize_column(char* buff, size_t n, KVStore* store) {
 			return new BoolColumn(id, store, size, keys);
 		case 'I':
 			return new IntColumn(id, store, size, keys);
-		case 'F':
-			return new FloatColumn(id, store, size, keys);
+		case 'D':
+			return new DoubleColumn(id, store, size, keys);
 		case 'S':
 			return new StringColumn(id, store, size, keys);
 		default:

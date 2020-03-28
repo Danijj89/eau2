@@ -63,19 +63,19 @@ public:
 	}
 
 	/**
-	 * This method deserializes a serialized float.
-	 * @method deserialize_float
-	 * @param  buff              pointer to buffer containing the float
-	 * @return                   the recovered float
+	 * This method deserializes a serialized double.
+	 * @method deserialize_double
+	 * @param  buff              pointer to buffer containing the double
+	 * @return                   the recovered double
 	 */
-	float deserialize_float(char* buff) {
-		float* val = (float*)buff;
+	double deserialize_double(char* buff) {
+		double* val = (double*)buff;
 		return val[0];
 	}
 
 	/**
 	 * This method deserializes a serialized String.
-	 * @method deserialize_float
+	 * @method deserialize_double
 	 * @param  buff              pointer to buffer containing the String
 	 * @return                   the recovered String
 	 */
@@ -121,12 +121,12 @@ public:
 		return result;
 	}
 
-	float* deserialize_float_array(char* buff, size_t n) {
-		float* result = new float[n];
+	double* deserialize_double_array(char* buff, size_t n) {
+		double* result = new double[n];
 		size_t count = 0;
 		for (size_t i = 0; i < n; ++i) {
-			result[i] = this->deserialize_float(&buff[count]);
-			count += 4;
+			result[i] = this->deserialize_double(&buff[count]);
+			count += 8;
 		}
 		return result;
 	}
