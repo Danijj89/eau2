@@ -30,6 +30,7 @@ const char SERVER_IP[10] = "127.0.0.1";
 const char APPLICATION_IP[10] = "127.0.0.1";
 const unsigned int PORT = 9000;
 const unsigned int APPLICATION_PORT = 9000;
+const unsigned int NUM_DF_THREADS = std::thread::hardware_concurrency();
 
 
 // Design Considerations; ideal capacities

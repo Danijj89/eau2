@@ -21,7 +21,6 @@ public:
     Column** vals_;
     size_t ncols_;
     size_t nrows_;
-    const size_t nthreads_ = std::thread::hardware_concurrency();
 
     DataFrame() {
         this->schema_ = new Schema();
@@ -258,42 +257,43 @@ public:
      * @param r
      */
     void pmap(Rower& r) {
-        std::thread* pool[this->nthreads_];
+        std::thread** pool = new std::thread*[NUM_DF_THREADS];
 
-        size_t chuck_size = (size_t)this->nrows_ / this->nthreads_;
+        size_t chuck_size = (size_t)this->nrows_ / NUM_DF_THREADS;
         // array of row indexes delimiting the work of each thread.
         // Left inclusive, right exclusive
-        size_t* work_chucks = new size_t[this->nthreads_ + 1];
+        size_t* work_chucks = new size_t[NUM_DF_THREADS + 1];
         work_chucks[0] = 0;
-        work_chucks[this->nthreads_] = this->nrows_;
+        work_chucks[NUM_DF_THREADS] = this->nrows_;
 
         size_t sofar = 0;
-        for (size_t i = 1; i < this->nthreads_; ++i) {
+        for (size_t i = 1; i < NUM_DF_THREADS; ++i) {
             size_t end = sofar + chuck_size;
             work_chucks[i] = end;
             sofar += chuck_size;
         }
 
         // clone rowers
-        Rower** rowers = new Rower*[this->nthreads_];
+        Rower** rowers = new Rower*[NUM_DF_THREADS];
         rowers[0] = &r;
-        for (size_t i = 1; i < this->nthreads_; ++i) {
+        for (size_t i = 1; i < NUM_DF_THREADS; ++i) {
             rowers[i] = dynamic_cast<Rower*>(r.clone());
         }
 
         // start threads with the appropriate work
-        for (size_t i = 0; i < this->nthreads_; ++i) {
+        for (size_t i = 0; i < NUM_DF_THREADS; ++i) {
             pool[i] = new std::thread(&DataFrame::rangeMap_, this, work_chucks[i], work_chucks[i + 1], rowers[i]);
         }
 
         // wait for all threads to finish
-        for (size_t i = 0; i < this->nthreads_; ++i) {
+        for (size_t i = 0; i < NUM_DF_THREADS; ++i) {
             pool[i]->join();
         }
 
         // join work
-        for (size_t i = this->nthreads_ - 1; i > 0; --i) {
+        for (size_t i = NUM_DF_THREADS - 1; i > 0; --i) {
 			rowers[i - 1]->joinDelete(rowers[i]);
         }
+        delete[] pool;
     }
 };
