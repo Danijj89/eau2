@@ -252,8 +252,8 @@ public:
     	this->keys_->pushBack(k);
     	this->size_ += n;
     	this->store_->put(k, v);
-    	delete k;
-    	delete v;
+		int nodeId = this->store_->put(k, v);
+		k->setNodeId(nodeId);
     }
 };
 
@@ -334,8 +334,8 @@ public:
 		this->keys_->pushBack(k);
 		this->size_ += n;
 		this->store_->put(k, v);
-		delete k;
-		delete v;
+		int nodeId = this->store_->put(k, v);
+		k->setNodeId(nodeId);
     }
 };
 
@@ -414,7 +414,8 @@ public:
 		Value* v = new Value(this->ser_->get_buff(), n);
 		this->keys_->pushBack(k);
 		this->size_ += n;
-		this->store_->put(k, v);
+		int nodeId = this->store_->put(k, v);
+		k->setNodeId(nodeId);
     }
 };
 
@@ -495,8 +496,9 @@ public:
 		this->keys_->pushBack(k);
 		this->size_ += n;
 		this->store_->put(k, v);
-		delete k;
-		delete v;
+		// Update the node id where the key has been stored
+		int nodeId = this->store_->put(k, v);
+		k->setNodeId(nodeId);
     }
 };
 

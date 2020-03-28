@@ -30,7 +30,8 @@ const char SERVER_IP[10] = "127.0.0.1";
 const char APPLICATION_IP[10] = "127.0.0.1";
 const unsigned int PORT = 9000;
 const unsigned int APPLICATION_PORT = 9000;
-const unsigned int NUM_DF_THREADS = std::thread::hardware_concurrency();
+const unsigned int NUM_DF_THREADS = std::thread::hardware_concurrency() - 1;
+const unsigned int MAX_CHUNKS_PER_NODE = 200;
 
 
 // Design Considerations; ideal capacities

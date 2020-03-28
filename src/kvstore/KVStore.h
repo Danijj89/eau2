@@ -13,6 +13,8 @@ public:
 	ValueArray* values_;
 	Key* cache_key_;
 	Value* cache_value_;
+	KVStore** stores_;
+	size_t numStores_;
 
 	KVStore(int id) {
 		this->id_ = id;
@@ -20,6 +22,8 @@ public:
 		this->values_ = new ValueArray();
 		this->cache_key_ = nullptr;
 		this->cache_value_ = nullptr;
+		this->stores_ = nullptr;
+		this->numStores_ = 0;
 	}
 
 	~KVStore() {
@@ -30,17 +34,59 @@ public:
 	}
 
 	Value* get(Key* k) {
-		size_t i = this->keys_->indexOf(k);
-		if (i == SIZE_MAX) return nullptr;
-		return this->values_->get(i);
+		int nodeId = k->getNodeId();
+		if (nodeId == -1) {
+			size_t i = this->keys_->indexOf(k);
+			if (i != SIZE_MAX) {
+				return this->values_->get(i);
+			} else {
+				for (int i = 0; i < this->numStores_; i++) {
+					if (this->stores_[i]->contains(k)) {
+						return this->stores_[i]->get(k);
+					}
+				}
+				return nullptr;
+			}
+		}
+		else if (nodeId == this->id_) {
+			size_t i = this->keys_->indexOf(k);
+			if (i == SIZE_MAX) return nullptr;
+			return this->values_->get(i);
+		}
+		assert(nodeId < this->numStores_);
+		return this->stores_[nodeId]->get(k);
 	}
 
-	void put(Key* k, Value* v) {
-		k->setNodeId(this->id_);
-		this->keys_->pushBack(new Key(k));
-		this->values_->pushBack(v);
-		// this->broadcastKey(k);
+	int put(Key* k, Value* v) {
+		if (this->hasCapacity()) {
+			k->setNodeId(this->id_);
+			this->keys_->pushBack(new Key(k));
+			this->values_->pushBack(v);
+			return this->id_;
+		}
+		for (int i = 0; i < this->numStores_; i++) {
+			if (this->stores_[i]->hasCapacity()) {
+				return this->stores_[i]->put(k, v);
+			}
+		}
+		// no capacity in the entire network
+		assert(false);
 	}
+
+	bool contains(Key* k) {
+		size_t i = this->keys_->indexOf(k);
+		return i != SIZE_MAX;
+	}
+
+	bool hasCapacity() {
+		return this->keys_->len() < MAX_CHUNKS_PER_NODE;
+	}
+
+	void setStores(KVStore** stores, size_t n) {
+		this->stores_ = stores;
+		this->numStores_ = n;
+	}
+
 
 //	Value* waitAndGet(Key* k) {
 //		while (this->running_) {

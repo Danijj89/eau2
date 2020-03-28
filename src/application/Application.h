@@ -12,9 +12,9 @@ public:
 	Serializer* ser_;
 	Deserializer* des_;
 
-	Application(int id) {
+	Application(int id, KVStore* store) {
 		this->id_ = id;
-		this->store_ = new KVStore(this->id_);
+		this->store_ = store;
 		this->ser_ = new Serializer();
 		this->des_ = new Deserializer();
 	}
@@ -52,6 +52,34 @@ public:
 		DataFrame* result = new DataFrame();
 		result->addColumn(col);
 		return result;
+	}
+
+	DataFrame* waitAndGet(Key* k) {
+		Value* v = this->store_->get(k);
+		while (v == nullptr) {
+			sleep(1);
+			v = this->store_->get(k);
+		}
+		Column* col = this->des_->deserialize_column(v->getBlob(), v->getSize(), this->store_);
+		DataFrame* result = new DataFrame();
+		result->addColumn(col);
+		return result;
+	}
+
+	DataFrame* fromScalar(Key* k, double val) {
+		DataFrame* result = new DataFrame();
+		Column* col = new DoubleColumn(getId(k->getKey(), 0), this->store_);
+		col->pushBack(&val, 1);
+		result->addColumn(col);
+		this->ser_->clear();
+		this->ser_->serialize_column(col);
+		Value* v = new Value(this->ser_->get_buff(), col->getKeys()->len());
+		this->store_->put(k, v);
+		return result;
+	}
+
+	int getNodeId() {
+		return this->id_;
 	}
 
 };
