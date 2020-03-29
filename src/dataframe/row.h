@@ -1,7 +1,6 @@
 #pragma once
 
 
-#include "column.h"
 #include "fielder.h"
 #include "schema.h"
 #include "val.h"
@@ -55,49 +54,80 @@ public:
     }
 
     /**
-     * Setters: set the given column with the given value. Setting a column
-     * with a value of the wrong type is undefined. All values are external.
-     * Strings are not acquired.
+     * Sets the boolean at the given column index
+     * @param col the index of the column to set
+     * @param val the value to set
      */
     void set(size_t col, bool val) {
         assert(this->schema_->colType(col) == 'B');
         this->vals_[col]->asBool()->set(val);
     }
 
+	/**
+	 * Sets the integer at the given column index
+	 * @param col the index of the column to set
+	 * @param val the value to set
+	 */
     void set(size_t col, int val) {
 		assert(this->schema_->colType(col) == 'I');
 		this->vals_[col]->asInt()->set(val);
     }
 
+	/**
+	 * Sets the double at the given column index
+	 * @param col the index of the column to set
+	 * @param val the value to set
+	 */
     void set(size_t col, double val) {
 		assert(this->schema_->colType(col) == 'D');
 		this->vals_[col]->asDouble()->set(val);
     }
 
+	/**
+	 * Sets the string at the given column index
+	 * @param col the index of the column to set
+	 * @param val the value to set
+	 */
     void set(size_t col, String* val) {
 		assert(this->schema_->colType(col) == 'S');
 		this->vals_[col]->asStr()->set(val);
     }
 
     /**
-     * Getters: get the value at the given column. If the column is not
-     * of the requested type, the result is undefined.
+     * Get the boolean at the given column index
+     * @param col the index of the column
+     * @return the value
      */
     bool getBool(size_t col) {
 		assert(this->schema_->colType(col) == 'B');
 		return this->vals_[col]->asBool()->get();
     }
 
+	/**
+	 * Get the integer at the given column index
+	 * @param col the index of the column
+	 * @return the value
+	 */
     int getInt(size_t col) {
 		assert(this->schema_->colType(col) == 'I');
 		return this->vals_[col]->asInt()->get();
     }
 
+	/**
+	 * Get the double at the given column index
+	 * @param col the index of the column
+	 * @return the value
+	 */
     double getDouble(size_t col) {
 		assert(this->schema_->colType(col) == 'D');
 		return this->vals_[col]->asDouble()->get();
     }
 
+	/**
+	 * Get the string at the given column index
+	 * @param col the index of the column
+	 * @return the value
+	 */
     String* getString(size_t col) {
 		assert(this->schema_->colType(col) == 'S');
 		return this->vals_[col]->asStr()->get();
