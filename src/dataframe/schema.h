@@ -6,14 +6,16 @@
 /**
  * Schema::
  *
- * A schema is a description of the contents of a data frame, the schema
- * knows the number of columns and number of rows, the type of each column,
- * optionally columns and rows can be named by strings.
- * The valid types are represented by the chars 'S', 'B', 'I' and 'D'.
+ * A schema is a description of the contents of a dataframe, the schema
+ * knows the number of columns and the types of each column.
+ * Valid types are:
+ * - B: boolean
+ * - I: integer
+ * - D: double
+ * - S: string
  */
 class Schema : public Object {
 public:
-    size_t clen_;
     IntArray* types_; // using int array to store chars
 
     /**
@@ -21,9 +23,9 @@ public:
      * @param from the schema to copy from.
      */
     Schema(Schema* from) {
-        this->clen_ = from->width();
         this->types_ = new IntArray();
-        for (size_t i = 0; i < this->clen_; ++i) {
+        int ncols = from->width();
+        for (size_t i = 0; i < ncols; ++i) {
 			this->types_->pushBack(from->colType(i));
         }
     }
@@ -32,7 +34,6 @@ public:
      * Create an empty schema.
      */
     Schema() {
-        this->clen_ = 0;
         this->types_ = new IntArray();
     }
 
@@ -45,15 +46,10 @@ public:
 
     /**
      * Determines whether a given type represented by a char is valid.
-     * A valid type is one of the following characters:
-     * - I
-     * - B
-     * - D
-     * - S
-     * @param t
-     * @return
+     * @param t the type
+     * @return valid or not
      */
-    bool isValiType_(char t) {
+    bool isValidType_(char t) {
         return t == 'B' || t == 'I' || t == 'D' || t == 'S';
     }
 
@@ -62,11 +58,8 @@ public:
      * @param typ type of the column
      */
     void addColumn(char typ) {
-        if (!isValiType_(typ)) {
-            exit(1);
-        }
+        assert(this->isValidType_(typ));
 		this->types_->pushBack(typ);
-        this->clen_ += 1;
     }
 
     /**
@@ -75,7 +68,7 @@ public:
      * @return the type of the column
      */
     char colType(size_t idx) {
-        if (idx >= this->clen_) exit(1);
+        assert(idx < this->width());
         return (char)this->types_->get(idx);
     }
 
@@ -84,6 +77,6 @@ public:
      * @return the number of columns
      */
     size_t width() {
-        return this->clen_;
+        return this->types_->len();
     }
 };
