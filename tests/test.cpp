@@ -1,9 +1,9 @@
 #include <gtest/gtest.h>
 
-#define ASSERT_TRUE(a)  \
-    ASSERT_EQ((a),true);
-#define ASSERT_FALSE(a) \
-    ASSERT_EQ((a),false);
+//#define ASSERT_TRUE(a)  \
+//    ASSERT_EQ((a),true);
+//#define ASSERT_FALSE(a) \
+//    ASSERT_EQ((a),false);
 #define ASSERT_EXIT_ZERO(a)  \
     ASSERT_EXIT(a(), ::testing::ExitedWithCode(0), ".*");
 #define ASSERT_EXIT_ONE(a)  \
@@ -14,7 +14,8 @@
 
 #include "dataframe/schema_tests.h"
 #include "dataframe/val_tests.h"
-    
+#include "dataframe/row_tests.h"
+
 
 
 //void sorerDFIntegrationTest() {
