@@ -11,8 +11,7 @@
  *
  * This class represents a single row of data constructed according to a
  * DataFrame's schema. The purpose of this class is to make it easier to add
- * read/write complete rows. Internally a DataFrame hold data in columns.
- * Rows have pointer equality.
+ * read/write complete rows. Rows have pointer equality.
  */
 class Row : public Object {
 public:

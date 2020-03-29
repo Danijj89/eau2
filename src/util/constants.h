@@ -5,6 +5,7 @@
 
 
 #include <cstdlib>
+#include <thread>
 
 
 const char* SORER_USAGE = "Usage: ./sorer [-f] [-from] [-len] [-print_col_type] " \
