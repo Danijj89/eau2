@@ -48,3 +48,15 @@ void setAndGet() {
 }
 
 TEST(ValTests, setAndGet) {ASSERT_EXIT_ZERO(setAndGet)}
+
+void strSetCopyStringVal() {
+	Str s = Str();
+	String* s1 = new String("s1");
+	String s2("s1");
+	s.set(s1);
+	delete s1;
+	ASSERT_TRUE(s.get()->equals(&s2));
+	exit(0);
+}
+
+TEST(ValTests, strSetCopyStringVal) {ASSERT_EXIT_ZERO(strSetCopyStringVal)}
