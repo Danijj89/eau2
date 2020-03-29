@@ -2,49 +2,37 @@
 #include <gtest/gtest.h>
 #include "../../src/dataframe/schema.h"
 
-    
-Schema* s = nullptr;
-    
-void setup() {
-	s = new Schema();
-}
 
-void tearDown() {
-	delete s;
-}
-
-void isValidTypes() {
-	setup();
-	ASSERT_TRUE(s->isValidType_('B'));
-	ASSERT_TRUE(s->isValidType_('I'));
-	ASSERT_TRUE(s->isValidType_('D'));
-	ASSERT_TRUE(s->isValidType_('S'));
-	ASSERT_FALSE(s->isValidType_('F'));
-	tearDown();
+void schemaIsValidTypes() {
+	Schema s = Schema();
+	ASSERT_TRUE(s.isValidType_('B'));
+	ASSERT_TRUE(s.isValidType_('I'));
+	ASSERT_TRUE(s.isValidType_('D'));
+	ASSERT_TRUE(s.isValidType_('S'));
+	ASSERT_FALSE(s.isValidType_('F'));
 	exit(0);
 }
 
-TEST(SchemaTests, isValidTypes) {ASSERT_EXIT_ZERO(isValidTypes)}
+TEST(SchemaTests, schemaIsValidTypes) {ASSERT_EXIT_ZERO(schemaIsValidTypes)}
 
-void addColumn() {
-	setup();
-	ASSERT_TRUE(s->width() == 0);
-	s->addColumn('B');
-	ASSERT_TRUE(s->width() == 1);
-	ASSERT_TRUE(s->colType(0) == 'B');
-	s->addColumn('I');
-	ASSERT_TRUE(s->width() == 2);
-	ASSERT_TRUE(s->colType(0) == 'B');
-	ASSERT_TRUE(s->colType(1) == 'I');
-	tearDown();
+void schemaAddColumn() {
+	Schema s = Schema();
+	ASSERT_TRUE(s.width() == 0);
+	s.addColumn('B');
+	ASSERT_TRUE(s.width() == 1);
+	ASSERT_TRUE(s.colType(0) == 'B');
+	s.addColumn('I');
+	ASSERT_TRUE(s.width() == 2);
+	ASSERT_TRUE(s.colType(0) == 'B');
+	ASSERT_TRUE(s.colType(1) == 'I');
 	exit(0);
 }
 
-TEST(SchemaTests, addColumn) {ASSERT_EXIT_ZERO(addColumn)}
+TEST(SchemaTests, schemaAddColumn) {ASSERT_EXIT_ZERO(schemaAddColumn)}
 
-void addColumnInvalidType() {
-	setup();
-	s->addColumn('F');
+void schemaAddColumnInvalidType() {
+	Schema s = Schema();
+	s.addColumn('F');
 }
 
-TEST(SchemaTests, addColumnInvalidType) {ASSERT_SIGNAL_SIX(addColumnInvalidType)}
+TEST(SchemaTests, schemaAddColumnInvalidType) {ASSERT_SIGNAL_SIX(schemaAddColumnInvalidType)}

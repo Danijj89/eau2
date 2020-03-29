@@ -5,7 +5,7 @@
 #include "../../src/dataframe/val.h"
 #include "../../src/util/string.h"
 
-void getType() {
+void valGetType() {
 	Val* values[4] {new Bool(), new Int(), new Double(), new Str()};
 	ASSERT_EQUALS(values[0]->getType(), 'B');
 	ASSERT_EQUALS(values[1]->getType(), 'I');
@@ -18,9 +18,9 @@ void getType() {
 	exit(0);
 }
 
-TEST(ValTests, getType) {ASSERT_EXIT_ZERO(getType)}
+TEST(ValTests, valGetType) {ASSERT_EXIT_ZERO(valGetType)}
 
-void setAndGet() {
+void valSetAndGet() {
 	Val* values[4] {new Bool(), new Int(), new Double(), new Str()};
 
 	Bool* b = values[0]->asBool();
@@ -47,9 +47,9 @@ void setAndGet() {
 	exit(0);
 }
 
-TEST(ValTests, setAndGet) {ASSERT_EXIT_ZERO(setAndGet)}
+TEST(ValTests, valSetAndGet) {ASSERT_EXIT_ZERO(valSetAndGet)}
 
-void strSetCopyStringVal() {
+void valStrSetCopyStringVal() {
 	Str s = Str();
 	String* s1 = new String("s1");
 	String s2("s1");
@@ -59,4 +59,4 @@ void strSetCopyStringVal() {
 	exit(0);
 }
 
-TEST(ValTests, strSetCopyStringVal) {ASSERT_EXIT_ZERO(strSetCopyStringVal)}
+TEST(ValTests, valStrSetCopyStringVal) {ASSERT_EXIT_ZERO(valStrSetCopyStringVal)}
