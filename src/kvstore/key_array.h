@@ -76,6 +76,7 @@ public:
 	 * @return the element of the array at the given index
 	 */
 	virtual Key* get(size_t i) {
+		assert(i < this->size_);
 		if (i >= this->size_) {
 			return nullptr;
 		}
