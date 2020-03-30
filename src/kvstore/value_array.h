@@ -76,6 +76,7 @@ public:
 	 * @return the element of the array at the given index
 	 */
 	virtual Value* get(size_t i) {
+		assert(i < this->size_);
 		if (i >= this->size_) {
 			return nullptr;
 		}
@@ -84,7 +85,7 @@ public:
 
 	/**
 	 * Finds and returns the index of the given Value.
-	 * 
+	 *
 	 * @param v the Value to find
 	 * @return the index or SIZE_MAX if not found
 	 */
