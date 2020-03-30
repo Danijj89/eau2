@@ -15,25 +15,25 @@ public:
 	int nodeId_ = -1;
 
 	Key(const char* key) {
-		this->key_ = new String(key);	
+		this->key_ = new String(key);
 	}
-	
+
 	Key(char* key) {
 		this->key_ = new String(key);
 	}
 
-	Key(const char* key, int nodeId) {
-		this->key_ = new String(key);
+	Key(const char* key, int nodeId) : Key(new String(key)) {
+		// this->key_ = new String(key);
 		this->nodeId_ = nodeId;
 	}
 
 	// This constructor steals key.
 	Key(String* key) {
-		this->key_ = key;	
+		this->key_ = key;
 	}
 
 	Key(String* key, int nodeId) : Key(key) {
-		this->nodeId_ = nodeId;	
+		this->nodeId_ = nodeId;
 	}
 
 	Key(Key* k) {
@@ -53,12 +53,12 @@ public:
 		return this->key_;
 	}
 
-	void setNodeId(int nodeId) {
-		this->nodeId_ = nodeId;
-	}
-
 	int getNodeId() {
 		return this->nodeId_;
+	}
+
+	void setNodeId(int nodeId) {
+		this->nodeId_ = nodeId;
 	}
 
 	bool equals(Object* other) {
