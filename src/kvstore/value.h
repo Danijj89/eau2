@@ -17,15 +17,14 @@ public:
 
 	~Value() {}
 
-	void setBlob(char* blob) {
-		memcpy(&this->blob_, blob, MAX_BLOB_SIZE);
+	size_t getSize() {
+		return this->size_;
 	}
-
 	char* getBlob() {
 		return this->blob_;
 	}
 
-	size_t getSize() {
-		return this->size_;
+	void setBlob(char* blob) {
+		memcpy(&this->blob_, blob, MAX_BLOB_SIZE);
 	}
 };
