@@ -17,14 +17,23 @@
 
 #include <cstdint>
 #include <cstdlib>
+
+
+#include "../util/string.h"
+#include "../util/string_array.h"
+#include "../util/constants.h"
+
 #include "../network/node_info.h"
 #include "../network/NodeInfoArray.h"
-#include "../util/string_array.h"
 #include "../kvstore/key.h"
-#include "../util/constants.h"
-#include "../dataframe/column.h"
+#include "../kvstore/key_array.h"
+#include "../kvstore/value.h"
+#include "../kvstore/value_array.h"
 
-class Column;
+// TODO: Need to deal with circular dependency(serializer and deserializer)
+// #include "../util/constants.h"
+// #include "../kvstore/key.h"
+// #include "../dataframe/column.h"
 
 class Serializer {
 public:
@@ -202,7 +211,7 @@ public:
 		}
 	}
 
-	void serialize_column(Column* col);
+	// void serialize_column(Column* col);
 
 	/**
 	 * This methods 'clears' the buffer.
@@ -232,8 +241,3 @@ public:
 		return this->size_;
 	}
 };
-
-
-
-
-
