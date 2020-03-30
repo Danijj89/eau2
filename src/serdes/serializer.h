@@ -27,13 +27,15 @@
 #include "../network/NodeInfoArray.h"
 #include "../kvstore/key.h"
 #include "../kvstore/key_array.h"
-#include "../kvstore/value.h"
-#include "../kvstore/value_array.h"
+//#include "../kvstore/value.h"
+//#include "../kvstore/value_array.h"
 
 // TODO: Need to deal with circular dependency(serializer and deserializer)
 // #include "../util/constants.h"
 // #include "../kvstore/key.h"
-// #include "../dataframe/column.h"
+#include "../dataframe/column.h"
+
+class Column;
 
 class Serializer {
 public:
@@ -211,7 +213,7 @@ public:
 		}
 	}
 
-	// void serialize_column(Column* col);
+	void serialize_column(Column* col);
 
 	/**
 	 * This methods 'clears' the buffer.

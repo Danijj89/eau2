@@ -2,7 +2,7 @@
 
 #include <iostream>
 
-
+#include "../../src/dataframe/column.h"
 #include "../../src/serdes/serializer.h"
 
 
