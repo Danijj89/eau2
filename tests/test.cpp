@@ -16,6 +16,14 @@
 #include "dataframe/val_tests.h"
 #include "dataframe/row_tests.h"
 
+#include "kvstore/key_tests.h"
+#include "kvstore/value_tests.h"
+#include "kvstore/key_array_tests.h"
+#include "kvstore/value_array_tests.h"
+#include "kvstore/kvstore_tests.h"
+
+#include "serdes/serializer_tests.h"
+#include "serdes/deserializer_tests.h"
 
 
 //void sorerDFIntegrationTest() {
@@ -43,9 +51,7 @@
 //
 //
 //void keyUnitTests() {
-//	Key k1 = Key("test");
-//	Key* k2 = new Key(const_cast<char*>("test"));
-//	CS4500_ASSERT_TRUE(k1.equals(k2));
+
 //
 //	Key k3 = Key(k1.getKey(), 0);
 //	CS4500_ASSERT_TRUE(k3.getNodeId() == 0);
