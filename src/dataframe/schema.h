@@ -24,7 +24,7 @@ public:
      */
     Schema(Schema* from) {
         this->types_ = new IntArray();
-        int ncols = from->width();
+        size_t ncols = from->width();
         for (size_t i = 0; i < ncols; ++i) {
 			this->types_->pushBack(from->colType(i));
         }

@@ -1,5 +1,5 @@
 DOCKER := docker run -ti -v `pwd`:/test w2-gtest:0.1 bash -c
-CXXFLAGS := --std=c++11 -Wall --pedantic -O3
+CXXFLAGS := --std=c++11 -Wall --pedantic -O3 -pthread
 COMPILER := g++
 
 

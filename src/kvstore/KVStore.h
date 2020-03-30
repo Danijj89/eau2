@@ -36,11 +36,11 @@ public:
 	Value* get(Key* k) {
 		int nodeId = k->getNodeId();
 		if (nodeId == -1) {
-			size_t i = this->keys_->indexOf(k);
-			if (i != SIZE_MAX) {
-				return this->values_->get(i);
+			size_t idx = this->keys_->indexOf(k);
+			if (idx != SIZE_MAX) {
+				return this->values_->get(idx);
 			} else {
-				for (int i = 0; i < this->numStores_; i++) {
+				for (size_t i = 0; i < this->numStores_; i++) {
 					if (this->stores_[i]->contains(k)) {
 						return this->stores_[i]->get(k);
 					}
@@ -53,7 +53,7 @@ public:
 			if (i == SIZE_MAX) return nullptr;
 			return this->values_->get(i);
 		}
-		assert(nodeId < this->numStores_);
+		assert((size_t)nodeId < this->numStores_);
 		return this->stores_[nodeId]->get(k);
 	}
 
@@ -64,7 +64,7 @@ public:
 			this->values_->pushBack(v);
 			return this->id_;
 		}
-		for (int i = 0; i < this->numStores_; i++) {
+		for (size_t i = 0; i < this->numStores_; i++) {
 			if (this->stores_[i]->hasCapacity()) {
 				return this->stores_[i]->put(k, v);
 			}
