@@ -6,8 +6,6 @@
 class NodeInfoArray : public Array {
 
 public:
-	size_t size_;
-	size_t capacity_; // capacity of array
 	NodeInfo** vals_; // owned
 
 	NodeInfoArray() {
