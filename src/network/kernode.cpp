@@ -8,13 +8,25 @@
 #include "kernode.h"
 
 int main(int argc, char** argv) {
-	String* ip = new String(argv[1]); // will be stolen by NodeInfo in Kernode
-	int port = atoi(argv[2]);
+	struct sigaction sa;
+	sa.sa_handler = sigchld_handler; // reap all dead processes
+	sigemptyset(&sa.sa_mask);
+	sa.sa_flags = SA_RESTART;
+	if (sigaction(SIGCHLD, &sa, NULL) == -1) {
+		perror("sigaction");
+		exit(1);
+	}
 
-	Kernode* k = new Kernode(ip, port);
-	k->run();
-
-	delete k;
+	for (unsigned int i = 0; i < NODES + 1; ++i) {
+		if (!fork()) { // Child process
+			Kernode* node = new Kernode(i);
+			node->run();
+			delete node;
+			exit(0);
+		} // main process
+		sleep(3);
+		printf("Started Node %u\n", i);
+	}
 
 	return 0;
 }

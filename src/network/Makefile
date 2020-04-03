@@ -21,5 +21,12 @@ run:
 	sleep 2
 	./client -ip 127.0.0.3:9000
 
+clean_kernode_processes:
+	ps -aux | grep kernode | awk '{print $$2}' | xargs kill -9 || echo "Cleaned up processes"
+
+
+experiment: kernode
+	./kernode
+
 clean:
-	rm client server
+	rm client server kernode

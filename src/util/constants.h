@@ -27,10 +27,6 @@ const unsigned int MAX_INT_ELEMENTS = MAX_BLOB_SIZE / 4;
 const unsigned int MAX_DOUBLE_ELEMENTS = MAX_BLOB_SIZE / 8;
 const unsigned int MAX_STRING_ELEMENTS = MAX_BLOB_SIZE / 256;
 const unsigned int MAX_NUM_THREADS = 24;
-const char SERVER_IP[10] = "127.0.0.1";
-const char APPLICATION_IP[10] = "127.0.0.1";
-const unsigned int PORT = 9000;
-const unsigned int APPLICATION_PORT = 9000;
 const unsigned int NUM_DF_THREADS = std::thread::hardware_concurrency() - 1;
 const unsigned int MAX_CHUNKS_PER_NODE = 200;
 
@@ -42,6 +38,17 @@ const unsigned int MAX_CHUNKS_PER_NODE = 200;
 // Testing will be performed on a single computer, assume we have a little more
 // than 8 GB of main memory.
 //const unsigned int MAX_BYTES = 8 * 1024 * 1024 * 1024;
-//const unsigned int NODES = 4;
 //const unsigned int MAX_BYTES_PER_NODE = MAX_BYTES / NODES;
 //const unsigned int MAX_BLOBS_PER_NODE = MAX_BYTES_PER_NODE / MAX_BLOB_SIZE;
+
+const char APPLICATION_IP[10] = "127.0.0.1";
+const unsigned int APPLICATION_PORT = 9000;
+
+const unsigned int NODES = 3;
+const int BACKLOG = 5;
+const char SERVER_IP[10] = "127.0.0.1"; // nodeID_ = 0
+const unsigned int PORT = 9999;
+const char NODE1_IP[10] = "127.0.0.2"; // nodeID_ = 1
+const char NODE2_IP[10] = "127.0.0.3"; // nodeID_ = 2
+const char NODE3_IP[10] = "127.0.0.4"; // nodeID_ = 3
+const char NODE4_IP[10] = "127.0.0.5"; // nodeID_ = 4

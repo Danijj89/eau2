@@ -10,6 +10,8 @@
 #include "node_info.h"
 #include "message.h"
 
+#include "../util/constants.h"
+
 int get_new_fd() {
 	int fd = socket(AF_INET, SOCK_STREAM, 0);
 	assert(fd >= 0);
@@ -67,14 +69,45 @@ void connect_to_server(NodeInfo* from, NodeInfo* server) {
 	printf("Connection established to server %s:%d on socket %d.\n", server_ip, server_port, node_socket);
 }
 
+int connectToDefaultServer() {
+	int server = get_new_fd();
+	sockaddr_in node_adr;
+	int addrlen = sizeof(node_adr);
+	node_adr.sin_family = AF_INET;
+	node_adr.sin_port = htons(PORT);
+	assert(inet_pton(AF_INET, SERVER_IP, &node_adr.sin_addr) > 0);
+	assert(connect(server, (struct sockaddr *) &node_adr, addrlen) >= 0);
+	return server;
+}
+
+int connectToNode(NodeInfo* info) {
+	int connection = get_new_fd();
+	sockaddr_in node_adr;
+	int addrlen = sizeof(node_adr);
+	node_adr.sin_family = AF_INET;
+	// node_adr.sin_port = htons(info->get_port());
+	node_adr.sin_port = htons(PORT);
+	assert(inet_pton(AF_INET, info->get_ip()->c_str(), &node_adr.sin_addr) > 0);
+	assert(connect(connection, (struct sockaddr *) &node_adr, addrlen) >= 0);
+	return connection;
+}
+
 void read_message(int socket, Message* m) {
-	int read_bytes = read(socket, m, sizeof(Message));
-	assert(read_bytes == sizeof(Message));
+	size_t bytes = 0;
+	while (bytes < sizeof(Message)) {
+		size_t read_bytes = read(socket, (char*)m + bytes, sizeof(Message) - bytes);
+		bytes += read_bytes;
+	}
+	assert(bytes == sizeof(Message));
 }
 
 void send_message(int socket, Message* m) {
-	int write_bytes = write(socket, m, sizeof(Message));
-	assert(write_bytes == sizeof(Message));
+	size_t bytes = 0;
+	while (bytes < sizeof(Message)) {
+		size_t write_bytes = write(socket, (char*)m + bytes, sizeof(Message) - bytes);
+		bytes += write_bytes;
+	}
+	assert(bytes == sizeof(Message));
 }
 
 NodeInfo* accept_connection(int fd) {
