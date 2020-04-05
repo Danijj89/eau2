@@ -20,36 +20,10 @@ public:
 	bool running_;
 	size_t maxNodes_ = NODES;
 
-	Kernode(int nodeId) {
-		String* ip;
-		int port;
-		switch(nodeId) {
-			case 0:
-				ip = new String(SERVER_IP);
-				port = PORT;
-				break;
-			case 1:
-				ip = new String(NODE1_IP);
-				port = PORT1;
-				break;
-			case 2:
-				ip = new String(NODE2_IP);
-				port = PORT2;
-				break;
-			case 3:
-				ip = new String(NODE3_IP);
-				port = PORT3;
-				break;
-			case 4:
-				ip = new String(NODE4_IP);
-				port = PORT4;
-				break;
-			default:
-				assert (false);
-		}
+	Kernode(int id, String* ip, int port) {
+		this->id_ = id;
 		this->myInfo_ = new NodeInfo(ip, port, 0);
-		this->running_ = false;
-		this->id_ = nodeId;
+		this->running_ = true;
 		printf("%lu: Initialized Node\n", this->id_);
 	}
 
@@ -85,6 +59,7 @@ public:
 	virtual void setupServer(int listener) {
 		this->connections_ = new Pollfds(listener, -1);
 		this->addressBook_ = new NodeInfoArray();
+		this->addressBook_->pushBack(this->myInfo_);
 		printf("%lu: Got necessary structs for server, and ready to accept\n", this->id_);
 		this->acceptConnections(listener);
 		this->broadcastAddressBook();
@@ -144,6 +119,7 @@ public:
 		this->connections_ = new Pollfds(listener, server);
 		printf("%lu: Getting address book\n", this->id_);
 		this->getAddressBook();
+		this->id_ = this->addressBook_->find(this->myInfo_);
 		printf("%lu: Got address book\n", this->id_);
 		for (size_t i = 0; i < this->addressBook_->len(); i++) {
 			printf("%lu: Address number %lu: ip = %s, port = %d\n", this->id_, i,
@@ -169,7 +145,7 @@ public:
 				break;
 			}
 			printf("%lu: Connect to %lu\n", this->id_, i);
-			NodeInfo* otherInfo = this->addressBook_->get(i - 1);
+			NodeInfo* otherInfo = this->addressBook_->get(i);
 			int fd = connect_to(this->myInfo_, otherInfo);
 			otherInfo->set_fd(fd);
 			this->connections_->add_to_pfds(fd);
@@ -179,22 +155,10 @@ public:
 
 	virtual void performDelegatedAction() {
 		sleep(5);
-		switch (this->id_) {
-			case 0: // perform server action
-			case 1: // perform this->id_ action
-			case 2:
-			case 3:
-			case 4:
-			default:
-				printf("%lu: !!!PERFORMING ACTION ASSIGNED!!!\n", this->id_);
-				// this->loop();
-				break;
-		}
 	}
 
-	// Unused for now
-	// This demonstrate how pollserver and client handle multiple connection
-	virtual void loop() {
+
+	virtual void handleMessages() {
 		char buf [1024] = {0};
 		while(this->running_) {
 			if (poll(this->connections_->pfds(), this->connections_->size(), -1) == -1) {

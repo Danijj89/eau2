@@ -5,25 +5,27 @@
 #include "../network/node.h"
 #include "key_array.h"
 #include "value_array.h"
+#include "../network/kernode.h"
+#include "../util/lock.h"
+#include <unordered_map>
 
-class KVStore {
+class KVStore : public Kernode {
 public:
 	int id_;
+	std::unordered_map<Key, Value, KeyHashFunction> store;
 	KeyArray* keys_;
 	ValueArray* values_;
 	Key* cache_key_;
 	Value* cache_value_;
-	KVStore** stores_;
-	size_t numStores_;
+	Message* m = nullptr;
+	Lock lock;
 
-	KVStore(int id) {
+	KVStore(int id, String* ip, int port) : Kernode(id, ip, port) {
 		this->id_ = id;
 		this->keys_ = new KeyArray();
 		this->values_ = new ValueArray();
 		this->cache_key_ = nullptr;
 		this->cache_value_ = nullptr;
-		this->stores_ = nullptr;
-		this->numStores_ = 0;
 	}
 
 	~KVStore() {
@@ -35,29 +37,50 @@ public:
 
 	Value* get(Key* k) {
 		int nodeId = k->getNodeId();
+		// node id == -1 only if key is created by user
 		if (nodeId == -1) {
+			// search in cache
+			Value* cacheVal = this->getFromCache(k);
+			if (cacheVal != nullptr) return cacheVal;
+			// search in store
 			size_t idx = this->keys_->indexOf(k);
-			if (idx != SIZE_MAX) {
-				return this->values_->get(idx);
-			} else {
-				for (size_t i = 0; i < this->numStores_; i++) {
-					if (this->stores_[i]->contains(k)) {
-						return this->stores_[i]->get(k);
-					}
-				}
-				return nullptr;
-			}
+			assert(idx != SIZE_MAX);
+			nodeId = this->keys_->get(idx)->getNodeId();
+			if (nodeId == this->id_) return this->values_->get(idx);
 		}
 		else if (nodeId == this->id_) {
-			size_t i = this->keys_->indexOf(k);
-			if (i == SIZE_MAX) return nullptr;
-			return this->values_->get(i);
+			return this->getFromLocal(k);
 		}
-		assert((size_t)nodeId < this->numStores_);
-		return this->stores_[nodeId]->get(k);
+		return this->requestValue(k, nodeId);
+	}
+
+	Value* getFromLocal(Key* k) {
+		size_t idx = this->keys_->indexOf(k);
+		assert(idx != SIZE_MAX);
+		return this->values_->get(idx);
+	}
+
+	Value* requestValue(Key* k, int nodeId) {
+		Serializer s = Serializer();
+		s.serialize_key(k);
+		Message m = Message(MsgKind::Get);
+		m.pack_body(s.get_buff(), s.get_size(), SerDesTypes::KEY, 1);
+		send_message(this->addressBook_->get(nodeId)->get_fd(), &m);
+		this->lock.lock();
+		while (this->m == nullptr) {
+			this->lock.wait();
+		}
+		//
+		//TODO: wait for response
 	}
 
 	int put(Key* k, Value* v) {
+		if (this->id_ == 0) {
+
+		} else {
+			Message m = Message(MsgKind::Put);
+			send_message(this->addressBook_->get(0), );
+		}
 		if (this->hasCapacity()) {
 			k->setNodeId(this->id_);
 			this->keys_->pushBack(new Key(k));
@@ -69,6 +92,7 @@ public:
 				return this->stores_[i]->put(k, v);
 			}
 		}
+		this->broadcast();
 		// no capacity in the entire network
 		assert(false);
 	}
@@ -85,6 +109,13 @@ public:
 	void setStores(KVStore** stores, size_t n) {
 		this->stores_ = stores;
 		this->numStores_ = n;
+	}
+
+	Value* getFromCache(Key* k) {
+		if (this->cache_key_->equals(k)) {
+			return this->cache_value_;
+		}
+		return nullptr;
 	}
 
 

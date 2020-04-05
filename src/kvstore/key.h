@@ -68,4 +68,22 @@ public:
 		}
 		return this->key_->equals(o->getKey());
 	}
+
+	bool operator==(Key& k) {
+		return this->key_->equals(k.getKey());
+	}
+};
+
+class KeyHashFunction {
+public:
+
+	size_t operator()(Key k) {
+		size_t result = 0;
+		String* s = k.getKey();
+		char* val = s->c_str();
+		for (size_t i = 0; i < s->size(); i++) {
+			result += val[i];
+		}
+		return result;
+	}
 };
