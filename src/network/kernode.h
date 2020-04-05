@@ -21,26 +21,32 @@ public:
 
 	Kernode(int nodeId) {
 		String* ip;
+		int port;
 		switch(nodeId) {
 			case 0:
 				ip = new String(SERVER_IP);
+				port = PORT;
 				break;
 			case 1:
 				ip = new String(NODE1_IP);
+				port = PORT1;
 				break;
 			case 2:
 				ip = new String(NODE2_IP);
+				port = PORT2;
 				break;
 			case 3:
 				ip = new String(NODE3_IP);
+				port = PORT3;
 				break;
 			case 4:
 				ip = new String(NODE4_IP);
+				port = PORT4;
 				break;
 			default:
 				assert (false);
 		}
-		this->myInfo_ = new NodeInfo(ip, PORT, 0);
+		this->myInfo_ = new NodeInfo(ip, port, 0);
 		this->running_ = false;
 		this->id_ = nodeId;
 		printf("%lu: Initialized Node\n", this->id_);
@@ -129,7 +135,7 @@ public:
 	}
 
 	virtual void connectToServer(int listener) {
-		int server = connectToDefaultServer();
+		int server = connectToDefaultServer(this->myInfo_->get_ip(), this->myInfo_->get_port());
 		this->connections_ = new Pollfds(listener, server);
 		printf("%lu: Getting address book\n", this->id_);
 		this->getAddressBook();

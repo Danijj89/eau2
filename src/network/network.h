@@ -69,8 +69,9 @@ void connect_to_server(NodeInfo* from, NodeInfo* server) {
 	printf("Connection established to server %s:%d on socket %d.\n", server_ip, server_port, node_socket);
 }
 
-int connectToDefaultServer() {
+int connectToDefaultServer(String* ip, int port) {
 	int server = get_new_fd();
+	bind_fd_to_adr(ip, port, server);
 	sockaddr_in node_adr;
 	int addrlen = sizeof(node_adr);
 	node_adr.sin_family = AF_INET;
