@@ -52,3 +52,7 @@ const char NODE1_IP[10] = "127.0.0.2"; // nodeID_ = 1
 const char NODE2_IP[10] = "127.0.0.3"; // nodeID_ = 2
 const char NODE3_IP[10] = "127.0.0.4"; // nodeID_ = 3
 const char NODE4_IP[10] = "127.0.0.5"; // nodeID_ = 4
+const int PORT1 = 9001; // port for nodeId = 1
+const int PORT2 = 9002; // port for nodeId = 2
+const int PORT3 = 9003; // port for nodeId = 3
+const int PORT4 = 9004; // port for nodeId = 4
