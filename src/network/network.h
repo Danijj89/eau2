@@ -104,8 +104,9 @@ void read_message(int socket, Message* m) {
 
 void send_message(int socket, Message* m) {
 	size_t bytes = 0;
-	while (bytes < sizeof(Message)) {
-		size_t write_bytes = write(socket, (char*)m + bytes, sizeof(Message) - bytes);
+	size_t sizeMessage = sizeof(Message);
+	while (bytes < sizeMessage) {
+		size_t write_bytes = write(socket, m + bytes, sizeMessage - bytes);
 		bytes += write_bytes;
 	}
 	assert(bytes == sizeof(Message));

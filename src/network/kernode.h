@@ -115,6 +115,7 @@ public:
 		printf("%lu: Broadcasting address book\n", this->id_);
 		Message* m = new Message(MsgKind::Directory);
 		Serializer* s = new Serializer();
+		s->clear();
 		s->serialize_node_info_array(this->addressBook_);
 		m->pack_body(s->get_buff(), s->get_size(), SerDesTypes::NODEINFOARRAY, this->addressBook_->len());
 		for (size_t i = 0; i < this->addressBook_->len(); ++i) {
@@ -136,11 +137,19 @@ public:
 	}
 
 	virtual void connectToServer(int listener) {
-		int server = connectToDefaultServer(this->myInfo_->get_ip(), this->myInfo_->get_port());
+		String* ip = new String(SERVER_IP);
+		NodeInfo target = NodeInfo(ip, PORT);
+		int server = connect_to(this->myInfo_, &target);
+//		int server = connectToDefaultServer(this->myInfo_->get_ip(), this->myInfo_->get_port());
 		this->connections_ = new Pollfds(listener, server);
 		printf("%lu: Getting address book\n", this->id_);
 		this->getAddressBook();
 		printf("%lu: Got address book\n", this->id_);
+		for (size_t i = 0; i < this->addressBook_->len(); i++) {
+			printf("%lu: Address number %lu: ip = %s, port = %d\n", this->id_, i,
+					this->addressBook_->get(i)->get_ip()->c_str(),
+					this->addressBook_->get(i)->get_port());
+		}
 	}
 
 	virtual void getAddressBook() {
@@ -160,7 +169,7 @@ public:
 				break;
 			}
 			printf("%lu: Connect to %lu\n", this->id_, i);
-			NodeInfo* otherInfo = this->addressBook_->get(i);
+			NodeInfo* otherInfo = this->addressBook_->get(i - 1);
 			int fd = connect_to(this->myInfo_, otherInfo);
 			otherInfo->set_fd(fd);
 			this->connections_->add_to_pfds(fd);
@@ -169,6 +178,7 @@ public:
 	}
 
 	virtual void performDelegatedAction() {
+		sleep(5);
 		switch (this->id_) {
 			case 0: // perform server action
 			case 1: // perform this->id_ action

@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <iostream>
+#include <signal.h>
 
 
 #include "../util/string.h"
