@@ -1,3 +1,4 @@
+#include "../dataframe/column.h"
 #include "../util/constants.h"
 #include "../serdes/serializer.h"
 #include "../serdes/deserializer.h"
@@ -160,7 +161,7 @@ public:
 			}
 			printf("%lu: Connect to %lu\n", this->id_, i);
 			NodeInfo* otherInfo = this->addressBook_->get(i);
-			int fd = connectToNode(otherInfo);
+			int fd = connect_to(this->myInfo_, otherInfo);
 			otherInfo->set_fd(fd);
 			this->connections_->add_to_pfds(fd);
 			printf("%lu: Connected to %lu\n", this->id_, i);
