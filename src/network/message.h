@@ -5,6 +5,7 @@
 #include "../serdes/serdes_types.h"
 #include "../util/object.h"
 #include "../util/constants.h"
+#include "../serdes/serializer.h"
 
 class Message : public Object {
 public:
@@ -51,14 +52,18 @@ public:
 	char* get_body() {
 		return body_;
 	}
-};
 
-class Ack : public Message {
-public:
-	Ack() : Message(MsgKind::Ack) {}
-};
+	void pack_put_message(Key* k, Value* v) {
+		this->kind_ = MsgKind::Put;
+		Serializer s = Serializer();
+		s.serialize_key_value_pair(k, v);
+		this->pack_body(s.get_buff(), s.get_size(), SerDesTypes::PAIR, 1);
+	}
 
-class Register : public Message {
-public:
-	Register() : Message(MsgKind::Register) {}
+	void pack_addkey_message(Key* k) {
+		this->kind_ = MsgKind::AddKey;
+		Serializer s = Serializer();
+		s.serialize_key(k);
+		this->pack_body(s.get_buff(), s.get_size(), SerDesTypes::KEY, 1);
+	}
 };

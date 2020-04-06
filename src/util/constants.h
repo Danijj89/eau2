@@ -35,16 +35,12 @@ const unsigned int MAX_CHUNKS_PER_NODE = 200;
 // const unsigned int MAX_ROWS = 1000 * 1000 * 1000;
 // const unsigned int MAX_COLS = 100;
 
-// Testing will be performed on a single computer, assume we have a little more
-// than 8 GB of main memory.
-//const unsigned int MAX_BYTES = 8 * 1024 * 1024 * 1024;
-//const unsigned int MAX_BYTES_PER_NODE = MAX_BYTES / NODES;
-//const unsigned int MAX_BLOBS_PER_NODE = MAX_BYTES_PER_NODE / MAX_BLOB_SIZE;
+
 
 const char APPLICATION_IP[10] = "127.0.0.1";
 const unsigned int APPLICATION_PORT = 9000;
 
-const unsigned int NODES = 3;
+
 const int BACKLOG = 5;
 const char SERVER_IP[10] = "127.0.0.1"; // nodeID_ = 0
 const unsigned int PORT = 9999;
@@ -56,3 +52,11 @@ const int PORT1 = 9001; // port for nodeId = 1
 const int PORT2 = 9002; // port for nodeId = 2
 const int PORT3 = 9003; // port for nodeId = 3
 const int PORT4 = 9004; // port for nodeId = 4
+const unsigned int NUM_NODES = 3;
+const int SERVER_ID = 0;
+
+// Testing will be performed on a single computer, assume we have a little more
+// than 8 GB of main memory.
+const unsigned int MAX_BYTES = 1024 * 1024;
+const unsigned int MAX_BYTES_PER_NODE = MAX_BYTES / NUM_NODES;
+const unsigned int MAX_BLOBS_PER_NODE = MAX_BYTES_PER_NODE / MAX_BLOB_SIZE;

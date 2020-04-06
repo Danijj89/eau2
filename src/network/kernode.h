@@ -18,7 +18,7 @@ public:
 	NodeInfo* myInfo_;
 	size_t id_;
 	bool running_;
-	size_t maxNodes_ = NODES;
+	size_t maxNodes_ = NUM_NODES;
 
 	Kernode(int id, String* ip, int port) {
 		this->id_ = id;
@@ -140,7 +140,7 @@ public:
 	}
 
 	virtual void connectToLesserNodes() {
-		for (size_t i = 1; i < NODES; ++i) {
+		for (size_t i = 1; i < NUM_NODES; ++i) {
 			if (i == this->id_) {
 				break;
 			}

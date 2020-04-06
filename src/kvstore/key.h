@@ -69,17 +69,17 @@ public:
 		return this->key_->equals(o->getKey());
 	}
 
-	bool operator==(Key& k) {
-		return this->key_->equals(k.getKey());
+	bool operator==(const Key& k) const {
+		return this->key_->equals(const_cast<Key*>(&k)->getKey());
 	}
 };
 
 class KeyHashFunction {
 public:
 
-	size_t operator()(Key k) {
+	size_t operator()(const Key& k) const {
 		size_t result = 0;
-		String* s = k.getKey();
+		String* s = const_cast<Key*>(&k)->getKey();
 		char* val = s->c_str();
 		for (size_t i = 0; i < s->size(); i++) {
 			result += val[i];

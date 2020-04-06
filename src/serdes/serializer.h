@@ -27,12 +27,7 @@
 #include "../network/NodeInfoArray.h"
 #include "../kvstore/key.h"
 #include "../kvstore/key_array.h"
-//#include "../kvstore/value.h"
-//#include "../kvstore/value_array.h"
 
-// TODO: Need to deal with circular dependency(serializer and deserializer)
-// #include "../util/constants.h"
-// #include "../kvstore/key.h"
 #include "../dataframe/column.h"
 
 class Column;
@@ -211,6 +206,17 @@ public:
 		for (size_t i = 0; i < a->len(); ++i) {
 			this->serialize_key(a->get(i));
 		}
+	}
+
+	void serialize_value(Value* v) {
+		memcpy(this->buff_, v->getBlob(), MAX_BLOB_SIZE);
+		this->size_ += MAX_BLOB_SIZE;
+		this->serialize_size_t(v->getSize());
+	}
+
+	void serialize_key_value_pair(Key* k, Value* v) {
+		this->serialize_key(k);
+		this->serialize_value(v);
 	}
 
 	void serialize_column(Column* col);

@@ -15,6 +15,8 @@ public:
 		memcpy(&this->blob_, blob, MAX_BLOB_SIZE);
 	}
 
+	Value() {}
+
 	~Value() {}
 
 	size_t getSize() {

@@ -11,5 +11,6 @@ enum class MsgKind {
 	Shutdown,
 	Register,
 	Directory,
-	Empty
+	Empty,
+	AddKey
 };

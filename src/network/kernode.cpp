@@ -18,7 +18,7 @@ int main(int argc, char** argv) {
 		exit(1);
 	}
 
-	for (unsigned int i = 0; i < NODES + 1; ++i) {
+	for (unsigned int i = 0; i < NUM_NODES + 1; ++i) {
 		if (!fork()) { // Child process
 			Kernode* node = new Kernode(i);
 			node->run();

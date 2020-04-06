@@ -184,5 +184,12 @@ public:
 		return nia;
 	}
 
+	Value* deserialize_value(char* buff) {
+		char blob[MAX_BLOB_SIZE];
+		memcpy(blob, buff, MAX_BLOB_SIZE);
+		size_t size = this->deserialize_size_t(buff + MAX_BLOB_SIZE);
+		return new Value(blob, size);
+	}
+
 	Column* deserialize_column(char* buff, size_t n, KVStore* store);
 };
