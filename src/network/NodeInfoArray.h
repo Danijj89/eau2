@@ -66,12 +66,19 @@ public:
 	}
 
 	NodeInfo* find(NodeInfo* n) {
+		int i = this->indexOf(n);
+		if (i < 0) {
+			return nullptr;
+		}
+		return this->vals_[i];
+	}
+
+	int indexOf(NodeInfo* n) {
 		for (size_t i = 0; i < this->size_; ++i) {
-			if (this->vals_[i]->get_ip()->equals(n->get_ip())
-			&& this->vals_[i]->get_port() == n->get_port()) {
-				return this->vals_[i];
+			if (this->vals_[i]->equals(n)) {
+				return i;
 			}
 		}
-		return nullptr;
+		return -1;
 	}
 };

@@ -63,4 +63,9 @@ public:
 	 * Need to be overridden by subclasses that uses this feature.
 	 */
 	virtual void resize() {}
+
+	/**
+	 * Removes the item at given index.
+	 */
+	virtual void remove(size_t idx) {}
 };

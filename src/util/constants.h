@@ -43,7 +43,7 @@ const unsigned int APPLICATION_PORT = 9000;
 
 const int BACKLOG = 5;
 const char SERVER_IP[10] = "127.0.0.1"; // nodeID_ = 0
-const unsigned int PORT = 9999;
+const unsigned int SERVER_PORT = 9999;
 const char NODE1_IP[10] = "127.0.0.2"; // nodeID_ = 1
 const char NODE2_IP[10] = "127.0.0.3"; // nodeID_ = 2
 const char NODE3_IP[10] = "127.0.0.4"; // nodeID_ = 3

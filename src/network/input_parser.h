@@ -16,7 +16,7 @@ public:
 
 	InputParser() {
 		this->ipv4_ = nullptr;
-		this->port_ = PORT;
+		this->port_ = SERVER_PORT;
 	}
 
 	~InputParser() {

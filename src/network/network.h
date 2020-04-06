@@ -75,7 +75,7 @@ int connectToDefaultServer(String* ip, int port) {
 	sockaddr_in node_adr;
 	int addrlen = sizeof(node_adr);
 	node_adr.sin_family = AF_INET;
-	node_adr.sin_port = htons(PORT);
+	node_adr.sin_port = htons(SERVER_PORT);
 	assert(inet_pton(AF_INET, SERVER_IP, &node_adr.sin_addr) > 0);
 	assert(connect(server, (struct sockaddr *) &node_adr, addrlen) >= 0);
 	return server;
@@ -87,7 +87,7 @@ int connectToNode(NodeInfo* info) {
 	int addrlen = sizeof(node_adr);
 	node_adr.sin_family = AF_INET;
 	// node_adr.sin_port = htons(info->get_port());
-	node_adr.sin_port = htons(PORT);
+	node_adr.sin_port = htons(SERVER_PORT);
 	assert(inet_pton(AF_INET, info->get_ip()->c_str(), &node_adr.sin_addr) > 0);
 	assert(connect(connection, (struct sockaddr *) &node_adr, addrlen) >= 0);
 	return connection;

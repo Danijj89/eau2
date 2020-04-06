@@ -11,5 +11,6 @@ enum class SerDesTypes {
 	NODEINFO,
 	NODEINFOARRAY,
 	KEY,
-	PAIR
+	PAIR,
+	VALUE
 };

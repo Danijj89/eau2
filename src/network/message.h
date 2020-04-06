@@ -66,4 +66,11 @@ public:
 		s.serialize_key(k);
 		this->pack_body(s.get_buff(), s.get_size(), SerDesTypes::KEY, 1);
 	}
+
+	void pack_reply_message(Value* v) {
+		this->kind_ = MsgKind::Reply;
+		Serializer s = Serializer();
+		s.serialize_value(v);
+		this->pack_body(s.get_buff(), s.get_size(), SerDesTypes::VALUE, 1);
+	}
 };

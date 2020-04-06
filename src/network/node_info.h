@@ -73,4 +73,12 @@ public:
 		return this->rep_;
 	}
 
+	bool equals(NodeInfo* o) {
+		NodeInfo* other = dynamic_cast<NodeInfo*>(o);
+		if (other == nullptr) {
+			return false;
+		}
+		return this->ip_ == other->get_ip() && this->port_ == other->get_port();
+	}
+
 };

@@ -1,23 +1,29 @@
 #pragma once
 
+
+#include <unordered_map>
+#include <sys/poll.h>
 #include "key.h"
 #include "value.h"
-#include "../network/node.h"
 #include "key_array.h"
 #include "value_array.h"
-#include "../network/kernode.h"
 #include "../util/lock.h"
-#include <unordered_map>
+#include "../network/message.h"
+#include "../network/kernode.h"
+
+
+
 
 class KVStore : public Kernode {
 public:
 	int id_;
-	std::unordered_map<Key, Value, KeyHashFunction> store;
+	std::unordered_map<Key, Value, KeyHashFunction> store_;
 	Key* cache_key_;
 	Value* cache_value_;
 	Message* replyMessage_;
 	Lock* lock_;
 	size_t capacities_[NUM_NODES] = {0};
+	std::thread* kvThread_;
 
 	//TODO: remove id from kernode
 	KVStore(int id, String* ip, int port) : Kernode(id, ip, port) {
@@ -41,10 +47,10 @@ public:
 		if (val != nullptr) return val;
 
 		// check in local store
-		assert(this->store.find(k) != this->store.end());
-		Key localKey = this->store.find(k)->first;
+		assert(this->store_.find(k) != this->store_.end());
+		Key localKey = this->store_.find(k)->first;
 		int nodeId = localKey.getNodeId();
-		if (nodeId == this->id_) return &this->store[localKey];
+		if (nodeId == this->id_) return &this->store_[localKey];
 
 		// check in entire store
 		return this->requestValue(&localKey, nodeId);
@@ -85,7 +91,7 @@ public:
 			int nodeId = this->getNodeWithCapacity();
 			k->setNodeId(nodeId);
 			if (nodeId == this->id_) {
-				this->store[*k] = *v;
+				this->store_[*k] = *v;
 			} else {
 				Message putMessage = Message();
 				send_message(this->addressBook_->get(nodeId)->get_fd(), &putMessage);
@@ -124,9 +130,87 @@ public:
 	}
 
 	Value* waitAndGet(Key* k) {
-		while (this->store.find(k) == this->store.end()) {
+		while (this->running_ && this->store_.find(k) == this->store_.end()) {
 			sleep(2);
 		}
 		return this->get(k);
+	}
+
+	//TODO: continue from here, need to handle the following messages:
+	//	get, put, addkey, replyToGet
+	//	note that all keys are being updated on all nodes
+	void handleMessages() override {
+		while(this->running_) {
+			Message* buf = new Message();
+			pollfd* fds = this->pollfds_->getPfds();
+			size_t len = this->pollfds_->len();
+			if (poll(fds, len, -1) == -1) {
+				fprintf(stderr, "Error with poll mechanism.\n");
+			}
+			for (size_t i = 0; i < len; ++i) {
+				if (fds[i].revents == POLLIN) {
+					int fd = fds[i].fd;
+					read_message(fd, buf);
+					switch (buf->get_kind()) {
+						case MsgKind::Get:
+							this->handleGetMessage(fd, buf);
+							delete buf;
+							break;
+						case MsgKind::Put:
+							this->handlePutMessage(buf);
+							delete buf;
+							break;
+						case MsgKind::AddKey:
+							this->handleAddKeyMessage(buf);
+							delete buf;
+							break;
+						case MsgKind::Reply:
+							this->handleReplyMessage(buf);
+							break;
+						default:
+							assert(false);
+					}
+				}
+			}
+		}
+	}
+
+	void handleGetMessage(int fd, Message* m) {
+		Deserializer d = Deserializer();
+		Key* k = d.deserialize_key(m->get_body());
+		Value v = this->store_[*k];
+		Message replyMessage = Message();
+		replyMessage.pack_reply_message(&v);
+		send_message(fd, &replyMessage);
+		delete k;
+	}
+
+	void handlePutMessage(Message* m) {
+		char* buff = m->get_body();
+		Deserializer d = Deserializer();
+		String* key = d.deserialize_string(buff);
+		int nodeId = d.deserialize_int(buff + key->size() + 1);
+		Value* v = d.deserialize_value(buff + key->size() + 5);
+		Key k = Key(key, nodeId);
+		this->store_[k] = *v;
+		delete key;
+		delete v;
+	}
+
+	void handleAddKeyMessage(Message* m) {
+		Deserializer d = Deserializer();
+		Key* k = d.deserialize_key(m->get_body());
+		this->store_[*k] = Value();
+	}
+
+	void handleReplyMessage(Message* m) {
+		this->lock_->lock();
+		this->replyMessage_ = m;
+		this->lock_->notify_all();
+		this->lock_->unlock();
+	}
+
+	void run() override {
+		this->kvThread_ = new std::thread(&KVStore::handleMessages, this);
 	}
 };

@@ -7,6 +7,7 @@
 
 
 #include "kernode.h"
+#include "network2.h"
 
 int main(int argc, char** argv) {
 	struct sigaction sa;
@@ -18,10 +19,28 @@ int main(int argc, char** argv) {
 		exit(1);
 	}
 
-	for (unsigned int i = 0; i < NUM_NODES + 1; ++i) {
+	for (int i = 0; i < NUM_NODES; ++i) {
+		String ip("");
+		int port;
+		switch (i) {
+			case 0:
+				ip = String(SERVER_IP);
+				port = SERVER_PORT;
+				break;
+			case 1:
+				ip = String(NODE1_IP);
+				port = PORT1;
+				break;
+			case 2:
+				ip = String(NODE2_IP);
+				port = PORT2;
+				break;
+			default:
+				assert(false);
+		}
 		if (!fork()) { // Child process
-			Kernode* node = new Kernode(i);
-			node->run();
+			Kernode* node = new Kernode(i, &ip, port);
+			node->initialize();
 			delete node;
 			exit(0);
 		} // main process
