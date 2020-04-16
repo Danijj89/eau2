@@ -52,7 +52,7 @@ public:
 	 * Returns the size of this array.
 	 * @return the length.
 	 */
-	virtual size_t size() {
+	size_t size() {
 		return this->size_;
 	}
 
@@ -61,7 +61,7 @@ public:
 	 * @param i idx
 	 * @param v value
 	 */
-	virtual void set(size_t i, Object* v) {
+	void set(size_t i, Object* v) {
 		assert(i < this->size_);
 		this->vals_[i] = v;
 	}
@@ -71,7 +71,7 @@ public:
 	 * @param i idx
 	 * @return object
 	 */
-	virtual Object* get(size_t i) {
+	Object* get(size_t i) {
 		assert(i < this->size_);
 		return this->vals_[i];
 	}
@@ -80,7 +80,7 @@ public:
 	 * Adds the given value at the end of this array.
 	 * @param v object
 	 */
-	virtual void pushBack(Object* v) {
+	void pushBack(Object* v) {
 		if (this->size_ == this->capacity_) this->resize_();
 		this->vals_[this->size_] = v;
 		this->size_++;
