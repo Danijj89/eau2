@@ -2,8 +2,7 @@ DOCKER := docker run -ti -v `pwd`:/test w2-gtest:0.1 bash -c
 CXXFLAGS := --std=c++11 -Wall --pedantic -O3 -pthread
 COMPILER := g++
 
-network:
-	$(DOCKER) "cd /test/src/network; $(COMPILER) $(CSSFLAGS) kernode.cpp -o kernode && ./kernode"
+run: docker_run
 
 local:
 	cd sorer; $(COMPILER) $(CXXFLAGS) main.cpp -o main

@@ -7,6 +7,7 @@
 #include "../util/string_array.h"
 #include "../kvstore/key_array.h"
 #include "../kvstore/value.h"
+#include "../network/node.h"
 #include "../kvstore/KVStore.h"
 #include "../serdes/serializer.h"
 #include "../serdes/deserializer.h"

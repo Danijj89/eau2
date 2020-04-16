@@ -52,7 +52,7 @@ const int PORT1 = 9001; // port for nodeId = 1
 const int PORT2 = 9002; // port for nodeId = 2
 const int PORT3 = 9003; // port for nodeId = 3
 const int PORT4 = 9004; // port for nodeId = 4
-const unsigned int NUM_NODES = 3;
+const int NUM_NODES = 3;
 const int SERVER_ID = 0;
 
 // Testing will be performed on a single computer, assume we have a little more

@@ -281,25 +281,17 @@ void compare() {
 
 # Open Questions
 
-- Do we need to handle both distributed storage and distributed computation?
-- Is there a good way of determining the size for each chuck?
-- Should we be concerned of oversized data that do not fit in our system? Should we
-implement a system to check it?
-- What would be a reasonable assumption of the amount of data that each node should be able to store?
+- Should we implement a message queue instead of a single message field?
 
 # Status
 
-We currently have a working version of the our sorer parser and dataframe, as
-well as the adapter. We also have some basic networking layer implemented. The
-work that remains to be done includes:
-- building the KV store and the networking logic associated with it
-(being able to handle large size of data is likely the most difficult part of it)
-- building the distributed array which contains many arithmetic logic to
-properly fetch the correct data
-- modify the Dataframe class to incorporate distributed array
-- implement the application layer
-- create a demo to test our program
-- write tons of tests
+Currently working on refactoring our distribuited algorithm and implementing 
+the application level interface methods to create dataframes from different sources.
+Also we need to implement all the visitors, rowers/fielders to execute application level examples.
+Other things we need to focus on are:
+- writing more tests
+- refactor arrays/columns
+- refactor fixed size buffer decision
 
 ### Estimated Time of Implementation
 

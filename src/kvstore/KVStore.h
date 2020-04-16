@@ -2,19 +2,11 @@
 
 
 #include <unordered_map>
-#include <sys/poll.h>
-#include "key.h"
-#include "value.h"
-#include "key_array.h"
-#include "value_array.h"
+#include "../network/node.h"
 #include "../util/lock.h"
-#include "../network/message.h"
-#include "../network/kernode.h"
+#include "../serdes/deserializer.h"
 
-
-
-
-class KVStore : public Kernode {
+class KVStore : public Node {
 public:
 	int id_;
 	std::unordered_map<Key, Value, KeyHashFunction> store_;
@@ -26,7 +18,7 @@ public:
 	std::thread* kvThread_;
 
 	//TODO: remove id from kernode
-	KVStore(int id, String* ip, int port) : Kernode(id, ip, port) {
+	KVStore(int id, String* ip, int port) : Node(id, ip, port) {
 		this->id_ = id;
 		this->cache_key_ = nullptr;
 		this->cache_value_ = nullptr;

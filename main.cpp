@@ -2,10 +2,12 @@
 
 //#include <thread>
 //#include "src/application/demo.h"
-#include <cstdlib>
-#include <unordered_map>
-#include "src/kvstore/key.h"
-#include "src/kvstore/value.h"
+#include <stdio.h>
+#include <signal.h>
+#include "src/util/constants.h"
+#include "src/util/string.h"
+#include "src/network/node.h"
+#include "src/network/network2.h"
 
 //void thread_job(Demo* app) {
 //	app->run_();
@@ -37,17 +39,41 @@ int main() {
 //	}
 //	delete[] workers;
 //	delete[] apps;
-
-	std::unordered_map<Key, Value, KeyHashFunction> store;
-	Key* k = new Key("k1", 0);
-	char str[MAX_BLOB_SIZE] = {0};
-	memcpy(str, const_cast<char*>("123"), 3);
-	Value* v = new Value(str, 1);
-	store[*k] = *v;
-	if (store.find(k) == store.end()) {
-		std::cout << "Not found" << '\n';
-	} else {
-		std::cout << store[k].getBlob() << '\n';
+	struct sigaction sa;
+	sa.sa_handler = sigchld_handler; // reap all dead processes
+	sigemptyset(&sa.sa_mask);
+	sa.sa_flags = SA_RESTART;
+	if (sigaction(SIGCHLD, &sa, NULL) == -1) {
+		perror("sigaction");
+		exit(1);
+	}
+	for (int i = 0; i < NUM_NODES; ++i) {
+		String* ip;
+		int port;
+		switch (i) {
+			case 0:
+				ip = new String(SERVER_IP);
+				port = SERVER_PORT;
+				break;
+			case 1:
+				ip = new String(NODE1_IP);
+				port = PORT1;
+				break;
+			case 2:
+				ip = new String(NODE2_IP);
+				port = PORT2;
+				break;
+			default:
+				assert(false);
+		}
+		if (!fork()) { // Child process
+			Node* node = new Node(i, ip, port);
+			node->initialize();
+			delete node;
+			exit(0);
+		} // main process
+		sleep(3);
+		printf("Started Node %u\n", i);
 	}
 	return 0;
 }

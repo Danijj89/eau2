@@ -3,6 +3,7 @@
 #include "../util/object.h"
 #include "../dataframe/dataframe.h"
 #include "../kvstore/KVStore.h"
+#include "wordcount/visitor.h"
 
 
 class Application : public Object {
@@ -80,6 +81,10 @@ public:
 
 	int getNodeId() {
 		return this->id_;
+	}
+
+	DataFrame* fromVisitor(Key* k, const char* types, Visitor* v) {
+		return new DataFrame();
 	}
 
 };

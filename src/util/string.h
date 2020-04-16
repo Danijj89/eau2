@@ -36,7 +36,7 @@ public:
     String(char const* cstr) : String(cstr, strlen(cstr)) {}
 
     /** Build a string from another String */
-    String(String & from):
+    String(const String & from):
             Object(from) {
         size_ = from.size_;
         cstr_ = new char[size_ + 1]; // ensure that we copy the terminator
@@ -84,6 +84,26 @@ public:
             hash = cstr_[i] + (hash << 6) + (hash << 16) - hash;
         return hash;
     }
+
+	bool operator==(const String& s) const {
+    	String* other = const_cast<String*>(&s);
+    	if (this->size_ != other->size()) return false;
+		return strncmp(this->cstr_, other->cstr_, this->size_) == 0;
+	}
+};
+
+class StringHashFunction {
+public:
+
+	size_t operator()(const String& s) const {
+		size_t result = 0;
+		String* str = const_cast<String*>(&s);
+		char* val = str->c_str();
+		for (size_t i = 0; i < str->size(); i++) {
+			result += val[i];
+		}
+		return result;
+	}
 };
 
 /** A string buffer builds a string from various pieces.
@@ -116,6 +136,7 @@ public:
     }
     StrBuff& c(String &s) { return c(s.c_str());  }
     StrBuff& c(size_t v) { return c(std::to_string(v).c_str());  } // Cpp
+    StrBuff& c(int v) { return c(std::to_string(v).c_str()); } //Cpp
 
     String* get() {
         assert(val_ != nullptr); // can be called only once

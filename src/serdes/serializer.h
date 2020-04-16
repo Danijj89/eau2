@@ -27,8 +27,7 @@
 #include "../network/NodeInfoArray.h"
 #include "../kvstore/key.h"
 #include "../kvstore/key_array.h"
-
-#include "../dataframe/column.h"
+#include "../kvstore/value.h"
 
 class Column;
 
