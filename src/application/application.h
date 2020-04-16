@@ -3,7 +3,8 @@
 #include "../util/object.h"
 #include "../dataframe/dataframe.h"
 #include "../kvstore/KVStore.h"
-#include "wordcount/visitor.h"
+#include "wordcount/writer.h"
+#include "../dataframe/df_array.h"
 
 
 class Application : public Object {
@@ -83,8 +84,48 @@ public:
 		return this->id_;
 	}
 
-	DataFrame* fromVisitor(Key* k, const char* types, Visitor* v) {
-		return new DataFrame();
+	DataFrame* fromVisitor(Key* k, const char* types, Writer* w) {
+		DataFrame* result = new DataFrame();
+		size_t nCols = strlen(types);
+		Column** cols = new Column*[nCols];
+
+		DFArray** temp = new DFArray*[nCols];
+		Schema s = Schema(types, nCols);
+		Row r = Row(&s);
+
+
+		while (!w->done()) {
+			for (size_t i = 0; i < CHUNK_ELEMENTS; i++) {
+				w->visit(r);
+				for (size_t c = 0; c < nCols; c++) {
+					DFData v = DFData();
+					switch (types[c]) {
+						case 'B':
+							v.payload_.b = r.getBool(c);
+							temp[c]->pushBack(v);
+							break;
+						case 'I':
+							v.payload_.i = r.getInt(c);
+							temp[c]->pushBack(v);
+							break;
+						case 'D':
+							v.payload_.d = r.getDouble(c);
+							temp[c]->pushBack(v);
+							break;
+						case 'S':
+							v.payload_.s = r.getString(c);
+							temp[c]->pushBack(v);
+							break;
+						default:
+							assert(false);
+					}
+				}
+			}
+
+		}
+
+
+
 	}
 
 };
