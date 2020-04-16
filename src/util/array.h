@@ -10,11 +10,12 @@
 
 
 /**
- * A superclass for resizable arrays.
+ * A generic array of objects
  * @authors zhan.d@husky.neu.edu & yuan.cao@husky.neu.edu
  */
-class Array : Object {
+class Array : public Object {
 public:
+	Object** vals_;
 	size_t size_; // num of elements
 	size_t capacity_; // capacity of array
 
@@ -24,48 +25,76 @@ public:
 	Array() {
 		this->size_ = 0;
 		this->capacity_ = 4;
+		this->vals_ = new Object*[this->capacity_];
 	}
 
 	/**
-	 * Returns the length of this array.
+	 * Constructs an array of the given size.
+	 * @param size
+	 */
+	Array(size_t size) {
+		this->size_ = 0;
+		this->capacity_ = size;
+		this->vals_ = new Object*[this->capacity_];
+	}
+
+	/**
+	 * Default destructor.
+	 */
+	~Array() {
+		for (size_t i = 0; i < this->size_; i++) {
+			delete this->vals_[i];
+		}
+		delete[] this->vals_;
+	}
+
+	/**
+	 * Returns the size of this array.
 	 * @return the length.
 	 */
-	virtual size_t len() {
+	virtual size_t size() {
 		return this->size_;
 	}
 
 	/**
-	 * Asserts that the given index is not out of bounds.
-	 * @param idx the index.
+	 * Sets the given value at the given index.
+	 * @param i idx
+	 * @param v value
 	 */
-	virtual void assertIndexInBounds(size_t idx) {
-		assert(idx >= 0 && idx < this->size_);
+	virtual void set(size_t i, Object* v) {
+		assert(i < this->size_);
+		this->vals_[i] = v;
 	}
 
 	/**
-     * Empties this array of all its values.
-     */
-	virtual void clear() {
-		this->size_ = 0;
+	 * Gets the object at the given index.
+	 * @param i idx
+	 * @return object
+	 */
+	virtual Object* get(size_t i) {
+		assert(i < this->size_);
+		return this->vals_[i];
 	}
 
 	/**
-	 * Resize the array if it has reached its full capacity.
+	 * Adds the given value at the end of this array.
+	 * @param v object
 	 */
-	virtual void resizeIfFull() {
-		if (this->size_ >= this->capacity_) {
-			this->resize();
+	virtual void pushBack(Object* v) {
+		if (this->size_ == this->capacity_) this->resize_();
+		this->vals_[this->size_] = v;
+		this->size_++;
+	}
+
+	/**
+	 * Resizes the array.
+	 */
+	void resize_() {
+		Object** temp = new Object*[this->capacity_ * 2];
+		for (size_t i = 0; i < this->size_; i++) {
+			temp[i] = this->vals_[i];
 		}
+		delete[] this->vals_;
+		this->vals_ = temp;
 	}
-
-	/**
-	 * Actual resize method.
-	 * Need to be overridden by subclasses that uses this feature.
-	 */
-	virtual void resize() {}
-
-	/**
-	 * Removes the item at given index.
-	 */
-	virtual void remove(size_t idx) {}
 };
