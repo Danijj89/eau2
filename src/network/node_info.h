@@ -4,7 +4,7 @@
 #include <unistd.h>
 #include "../util/string.h"
 
-class NodeInfo {
+class NodeInfo : public Object {
 public:
 	String* ip_; // owned
 	int port_;

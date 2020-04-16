@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Application.h"
+#include "application.h"
 #include "../dataframe/dataframe.h"
 
 class Trivial : public Application {

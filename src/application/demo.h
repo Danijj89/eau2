@@ -1,7 +1,7 @@
 #pragma once
 
 
-#include "Application.h"
+#include "application.h"
 
 class Demo : public Application {
 public:

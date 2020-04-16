@@ -7,7 +7,7 @@
 #include "row.h"
 #include "rower.h"
 #include "schema.h"
-#include "../application/wordcount/visitor.h"
+#include "../application/wordcount/writer.h"
 
 /**
  * ModifiedDataFrame::
@@ -189,13 +189,13 @@ public:
      * Visit rows in order.
      * @param r the visitor
      */
-     void map(Visitor& v) {
+     void map(Rower& r) {
 		Row* row = new Row(this->schema_);
         for (size_t i = 0; i < this->nrows_; ++i) {
 			fillRow(i, *row);
-            v.visit(*row);
+            r.accept(*row);
         }
      }
 
-    void localMap(Visitor* v) {}
+    void localMap(Rower* v) {}
 };

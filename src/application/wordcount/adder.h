@@ -1,9 +1,10 @@
-
+#pragma once
 
 #include <unordered_map>
-#include "visitor.h"
+#include "writer.h"
+#include "reader.h"
 
-class Adder : public Visitor {
+class Adder : public Reader {
 public:
 	std::unordered_map<String, int, StringHashFunction> map_;
 

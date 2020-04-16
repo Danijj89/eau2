@@ -1,8 +1,9 @@
-//
-// Created by daniele zhan on 4/16/20.
-//
+#pragma once
 
-#ifndef EAU2_DFDATA_H
-#define EAU2_DFDATA_H
+#include "payload.h"
 
-#endif //EAU2_DFDATA_H
+class DFData {
+public:
+	bool missing_;
+	Payload payload_;
+};

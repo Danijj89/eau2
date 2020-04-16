@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../util/int_array.h"
+#include "../util/string.h"
 
 
 /**
@@ -16,29 +16,40 @@
  */
 class Schema : public Object {
 public:
-    IntArray* types_; // using int array to store chars
+    String* types_;
 
     /**
      * Copying constructor.
      * @param from the schema to copy from.
      */
     Schema(Schema* from) {
-        this->types_ = new IntArray();
-        size_t ncols = from->width();
-        for (size_t i = 0; i < ncols; ++i) {
-			this->types_->pushBack(from->colType(i));
+        size_t nCols = from->width();
+        char types[nCols + 1];
+        for (size_t i = 0; i < nCols; ++i) {
+        	types[i] = from->colType(i);
         }
+        types[nCols] = '\0';
+        this->types_ = new String(types);
+    }
+
+    /**
+     * Constructs a schema with the given types and number of columns.
+     * @param types types
+     * @param nCols number of columns
+     */
+    Schema(const char* types, size_t nCols) {
+		this->types_ = new String(types, nCols);
     }
 
     /**
      * Create an empty schema.
      */
     Schema() {
-        this->types_ = new IntArray();
+        this->types_ = new String("");
     }
 
     /**
-     * Destructor.
+     * Default destructor.
      */
     ~Schema() {
         delete this->types_;
@@ -59,7 +70,13 @@ public:
      */
     void addColumn(char typ) {
         assert(this->isValidType_(typ));
-		this->types_->pushBack(typ);
+        size_t len = this->types_->size();
+        char* prev = this->types_->c_str();
+        char next[len + 1];
+        memcpy(next, prev, len);
+        next[len] = '\0';
+		delete this->types_;
+		this->types_ = new String(next);
     }
 
     /**
@@ -69,7 +86,7 @@ public:
      */
     char colType(size_t idx) {
         assert(idx < this->width());
-        return (char)this->types_->get(idx);
+        return (char)this->types_->c_str()[idx];
     }
 
     /**
@@ -77,6 +94,6 @@ public:
      * @return the number of columns
      */
     size_t width() {
-        return this->types_->len();
+        return this->types_->size();
     }
 };

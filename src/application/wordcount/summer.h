@@ -1,10 +1,11 @@
 //lang:Cpp
+#pragma once
 
 #include <unordered_map>
 #include "../../util/string.h"
-#include "visitor.h"
+#include "writer.h"
 
-class Summer : public Visitor {
+class Summer : public Writer {
 public:
 	std::unordered_map<String, int, StringHashFunction> map_;
 	std::unordered_map<String, int, StringHashFunction>::iterator itr;

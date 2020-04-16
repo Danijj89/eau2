@@ -17,7 +17,7 @@ public:
      * reused in the next call. The return value is used in filters to
      * indicate that a row should be kept.
 	 */
-    virtual bool accept(Row& r) = 0;
+    virtual bool accept(Row& r) { return false; }
 
     /**
 	 * Once traversal of the data frame is complete the rowers that
@@ -25,5 +25,5 @@ public:
 	 * The original object will be the last to be called join on.
 	 * The join method is reponsible for cleaning up memory.
 	 */
-    virtual void joinDelete(Rower* other) = 0;
+    virtual void joinDelete(Rower* other) {}
 };

@@ -24,10 +24,11 @@
 #include "../util/constants.h"
 
 #include "../network/node_info.h"
-#include "../network/NodeInfoArray.h"
+#include "../network/node_info_array.h"
 #include "../kvstore/key.h"
 #include "../kvstore/key_array.h"
 #include "../kvstore/value.h"
+#include "../dataframe/DFData.h"
 
 class Column;
 
@@ -219,6 +220,8 @@ public:
 	}
 
 	void serialize_column(Column* col);
+
+	void serializeDFData(char type, DFData* vals, size_t size) {}
 
 	/**
 	 * This methods 'clears' the buffer.

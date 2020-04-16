@@ -1,8 +1,9 @@
-//
-// Created by daniele zhan on 4/16/20.
-//
+#pragma once
+#include "../util/string.h"
 
-#ifndef EAU2_PAYLOAD_H
-#define EAU2_PAYLOAD_H
-
-#endif //EAU2_PAYLOAD_H
+union Payload {
+	bool b;
+	int i;
+	double d;
+	String* s;
+};

@@ -1,8 +1,15 @@
-//
-// Created by daniele zhan on 4/16/20.
-//
+#pragma once
 
-#ifndef EAU2_READER_H
-#define EAU2_READER_H
+#include "../../dataframe/rower.h"
 
-#endif //EAU2_READER_H
+class Reader : public Rower {
+public:
+
+	bool accept(Row& r) override {
+		this->visit(r);
+	}
+
+	virtual void visit(Row& r) = 0;
+
+	virtual bool done() { return false; }
+};

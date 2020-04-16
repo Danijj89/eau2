@@ -4,6 +4,7 @@
 #include "fielder.h"
 #include "schema.h"
 #include "val.h"
+#include "DFData.h"
 
 /**
  * Row ::
@@ -14,41 +15,23 @@
  */
 class Row : public Object {
 public:
-    Val** vals_; //owned
+    DFData* vals_; //owned
     Schema* schema_; // owned
     size_t nCols_;
 
     /** Build a row following a schema. */
     Row(Schema* scm) {
     	this->nCols_ = scm->width();
-        this->vals_ = new Val*[this->nCols_];
+        this->vals_ = new DFData[this->nCols_];
 		// Each case push back once to create a slot in the column
 		for (size_t i = 0; i < this->nCols_; ++i) {
-			switch (scm->colType(i)) {
-				case 'B':
-					this->vals_[i] = new Bool();
-					break;
-				case 'I':
-					this->vals_[i] = new Int();
-					break;
-				case 'D':
-					this->vals_[i] = new Double();
-					break;
-				case 'S':
-					this->vals_[i] = new Str();
-					break;
-				default:
-					assert(false);
-			}
+			this->vals_[i] = DFData();
 		}
         this->schema_ = new Schema(scm);
     }
 
     /** Destroys a row. */
     ~Row() override {
-		for (size_t i = 0; i < this->nCols_; ++i) {
-			delete this->vals_[i];
-		}
 		delete[] this->vals_;
 		delete this->schema_;
     }
@@ -60,7 +43,7 @@ public:
      */
     void set(size_t col, bool val) {
         assert(this->schema_->colType(col) == 'B');
-        this->vals_[col]->asBool()->set(val);
+        this->vals_[col].payload_.b = val;
     }
 
 	/**
@@ -70,7 +53,7 @@ public:
 	 */
     void set(size_t col, int val) {
 		assert(this->schema_->colType(col) == 'I');
-		this->vals_[col]->asInt()->set(val);
+		this->vals_[col].payload_.i = val;
     }
 
 	/**
@@ -80,7 +63,7 @@ public:
 	 */
     void set(size_t col, double val) {
 		assert(this->schema_->colType(col) == 'D');
-		this->vals_[col]->asDouble()->set(val);
+		this->vals_[col].payload_.d = val;
     }
 
 	/**
@@ -90,7 +73,7 @@ public:
 	 */
     void set(size_t col, String* val) {
 		assert(this->schema_->colType(col) == 'S');
-		this->vals_[col]->asStr()->set(val);
+		this->vals_[col].payload_.s = val;
     }
 
     /**
@@ -100,7 +83,7 @@ public:
      */
     bool getBool(size_t col) {
 		assert(this->schema_->colType(col) == 'B');
-		return this->vals_[col]->asBool()->get();
+		return this->vals_[col].payload_.b;
     }
 
 	/**
@@ -110,7 +93,7 @@ public:
 	 */
     int getInt(size_t col) {
 		assert(this->schema_->colType(col) == 'I');
-		return this->vals_[col]->asInt()->get();
+		return this->vals_[col].payload_.i;
     }
 
 	/**
@@ -120,7 +103,7 @@ public:
 	 */
     double getDouble(size_t col) {
 		assert(this->schema_->colType(col) == 'D');
-		return this->vals_[col]->asDouble()->get();
+		return this->vals_[col].payload_.d;
     }
 
 	/**
@@ -130,7 +113,7 @@ public:
 	 */
     String* getString(size_t col) {
 		assert(this->schema_->colType(col) == 'S');
-		return this->vals_[col]->asStr()->get();
+		return this->vals_[col].payload_.s;
     }
 
     /**
@@ -157,16 +140,16 @@ public:
         for (size_t i = 0; i < this->nCols_; ++i) {
             switch(this->schema_->colType(i)) {
                 case 'B':
-                    f->accept(this->vals_[i]->asBool()->get());
+                    f->accept(this->vals_[i].payload_.b);
                     break;
                 case 'I':
-					f->accept(this->vals_[i]->asInt()->get());
+					f->accept(this->vals_[i].payload_.i);
                     break;
                 case 'D':
-					f->accept(this->vals_[i]->asDouble()->get());
+					f->accept(this->vals_[i].payload_.d);
                     break;
                 case 'S':
-					f->accept(this->vals_[i]->asStr()->get());
+					f->accept(this->vals_[i].payload_.s);
                     break;
                 default:
                     assert(false);

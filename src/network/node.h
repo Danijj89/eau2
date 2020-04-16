@@ -1,7 +1,7 @@
 #pragma once
 
 
-#include "NodeInfoArray.h"
+#include "node_info_array.h"
 #include "pollfds.h"
 #include "network.h"
 #include "../serdes/deserializer.h"

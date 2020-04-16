@@ -1,10 +1,10 @@
-
+#pragma once
 
 #include "../../dataframe/row.h"
 #include "../../dataframe/rower.h"
-#include "visitor.h"
+#include "writer.h"
 
-class FileReader : public Visitor {
+class FileReader : public Writer {
 public:
 	static const size_t BUFSIZE = 1024;
 	char * buf_;

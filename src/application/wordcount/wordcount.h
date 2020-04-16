@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../Application.h"
+#include "../application.h"
 #include "filereader.h"
 #include "adder.h"
 #include "summer.h"

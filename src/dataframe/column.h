@@ -16,10 +16,6 @@
 /* Forward Declaration */
 class Serializer;
 class Deserializer;
-class IntColumn;
-class BoolColumn;
-class DoubleColumn;
-class StringColumn;
 class KVStore;
 
 /**
@@ -36,36 +32,30 @@ public:
     size_t size_;
     KeyArray* keys_;
     Key* cache_key_;
+    DFData* cache_val_;
     KVStore* store_;
-    Serializer* ser_;
-    Deserializer* des_;
-    size_t max_elements_;
 
 	/**
 	 * Default constructor
 	 */
-	Column(String* id, KVStore* store) {
+	Column(String* id, char type, KVStore* store) {
 		this->id_ = id; // steals
-		this->type_ = '\0';
+		this->type_ = type;
 		this->size_ = 0;
 		this->keys_ = new KeyArray();
 		this->cache_key_ = nullptr;
+		this->cache_val_ = nullptr;
 		this->store_ = store; // external
-		this->ser_ = new Serializer();
-		this->des_ = new Deserializer();
-		this->max_elements_ = 0;
 	}
 
-	Column(String* id, KVStore* store, char type, size_t size, KeyArray* keys) {
+	Column(String* id, char type, size_t size, KeyArray* keys, KVStore* store) {
 		this->id_ = id;
-		this->store_ = store;
 		this->type_ = type;
 		this->size_ = size;
 		this->keys_ = keys;
 		this->cache_key_ = nullptr;
-		this->ser_ = new Serializer();
-		this->des_ = new Deserializer();
-		this->max_elements_ = 0;
+		this->cache_val_ = nullptr;
+		this->store_ = store;
 	}
 
 	/**
@@ -74,41 +64,33 @@ public:
 	~Column() override {
 		delete this->id_;
 		delete this->keys_;
-		delete this->ser_;
-		delete this->des_;
+		delete this->cache_key_;
+		delete this->cache_val_;
 	}
 
-    /**
-     * Return same column as an IntColumn or nullptr if of the wrong type.
-     * @return the IntColumn or nullptr if of the wrong type
-     */
-    virtual IntColumn *asInt() {
-        return nullptr;
-    }
 
-    /**
-     * Return same column as a BoolColumn, or nullptr if of the wrong type.
-     * @return the BoolColumn or nullptr if of the wrong type
-     */
-    virtual BoolColumn *asBool() {
-        return nullptr;
-    }
 
-    /**
-     * Return same column as a FloatColumn, or nullptr if of the wrong type.
-     * @return the BoolColumn or nullptr if of the wrong type
-     */
-    virtual DoubleColumn *asDouble() {
-        return nullptr;
-    }
+	void pushBack(bool* vals, size_t size, size_t nodeId) {
+		switch (type) {
+			case 'B':
 
-    /**
-     * Return same column as a StringColumn, or nullptr if of the wrong type.
-     * @return the BoolColumn or nullptr if of the wrong type
-     */
-    virtual StringColumn *asString() {
-        return nullptr;
-    }
+		}
+	}
+
+
+
+	void pushBack(DFData* vals, size_t size) {
+		Key* k = this->getNextKey();
+		Serializer s = Serializer();
+		// Serializer to do
+		s.serializeDFData(this->type_, vals, size);
+		Value* v = new Value(s.get_buff(), s.get_size());
+		this->keys_->pushBack(k);
+		this->size_ += size;
+		this->store_->put(k, v);
+	}
+
+
 
     /**
      * Adds the given int value at the end of this column.
