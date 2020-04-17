@@ -1,13 +1,9 @@
 #pragma once
 
 
-// #include "../network/node_info.h"
-// #include "../network/NodeInfoArray.h"
-// #include "../util/string_array.h"
 #include "../util/helper.h"
-// // #include "../kvstore/KVStore.h"
-// // #include "../dataframe/column.h"
 #include "serializer.h"
+#include "../dataframe/dataframe.h"
 
 
 /**
@@ -24,6 +20,7 @@
 
 class KVStore;
 class Column;
+class DataFrame;
 
 class Deserializer {
 public:
@@ -191,5 +188,7 @@ public:
 		return new Value(blob, size);
 	}
 
-	Column* deserialize_column(char* buff, size_t n, KVStore* store);
+	Column* deserialize_column(char* buff, KVStore* store);
+
+	DataFrame* deserialize_dataframe(char* buff, KVStore* store);
 };

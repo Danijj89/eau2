@@ -29,6 +29,7 @@
 #include "../kvstore/key_array.h"
 #include "../kvstore/value.h"
 #include "../dataframe/DFData.h"
+#include "../dataframe/dataframe.h"
 
 class Column;
 
@@ -221,7 +222,16 @@ public:
 
 	void serialize_column(Column* col);
 
-	void serializeDFData(char type, DFData* vals, size_t size) {}
+	void serialize_column_array(Column** cols, size_t n) {
+		for (size_t i = 0; i < n; i++) {
+			this->serialize_column(cols[i]);
+		}
+	}
+
+	void serialize_dataframe(DataFrame* df) {
+		this->serialize_size_t(df->ncols());
+		this->serialize_column_array(df->getColumns(), df->ncols());
+	}
 
 	/**
 	 * This methods 'clears' the buffer.

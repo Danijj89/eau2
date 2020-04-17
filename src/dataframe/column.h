@@ -71,23 +71,33 @@ public:
 
 
 	void pushBack(bool* vals, size_t size, size_t nodeId) {
-		switch (type) {
-			case 'B':
+		Key* k = this->getNextKey(nodeId);
+		Serializer s = Serializer();
+		// Serializer to do
+		s.serialize_bool_array(vals, size);
+		Value* v = new Value(s.get_buff(), size);
+		this->keys_->pushBack(k);
+		this->size_ += size;
+		this->store_->put(k, v);
+	}
 
-		}
+	void pushBack(int* vals, size_t size, size_t nodeId) {
+		// create 4 keys
+	}
+
+	void pushBack(double* vals, size_t size, size_t nodeId) {
+		// create 8 keys
+	}
+
+	void pushBack(String** vals, size_t size, size_t nodeId) {
+		// create 32 keys
 	}
 
 
 
 	void pushBack(DFData* vals, size_t size) {
 		Key* k = this->getNextKey();
-		Serializer s = Serializer();
-		// Serializer to do
-		s.serializeDFData(this->type_, vals, size);
-		Value* v = new Value(s.get_buff(), s.get_size());
-		this->keys_->pushBack(k);
-		this->size_ += size;
-		this->store_->put(k, v);
+
 	}
 
 
@@ -144,12 +154,12 @@ public:
 		return idx % this->max_elements_;
 	}
 
-    virtual Key* getNextKey() {
+    virtual Key* getNextKey(size_t nodeId) {
     	StrBuff s = StrBuff();
     	s.c(*this->id_);
     	s.c("_");
     	s.c(this->keys_->size_);
-    	return new Key(s.get());
+    	return new Key(s.get(), nodeId);
     }
 
     KeyArray* getKeys() {
@@ -481,10 +491,11 @@ void Serializer::serialize_column(Column* col) {
 	this->serialize_string(col->getId());
 	this->serialize_char(col->get_type());
 	this->serialize_size_t(col->size());
+	this->serialize_size_t(col->getKeys()->size());
 	this->serialize_key_array(col->getKeys());
 }
 
-Column* Deserializer::deserialize_column(char* buff, size_t n, KVStore* store) {
+Column* Deserializer::deserialize_column(char* buff, KVStore* store) {
 	size_t count = 0;
 	String* id = this->deserialize_string(&buff[count]);
 	count += id->size() + 1;
@@ -492,7 +503,9 @@ Column* Deserializer::deserialize_column(char* buff, size_t n, KVStore* store) {
 	count += 1;
 	size_t size = this->deserialize_size_t(&buff[count]);
 	count += 8;
-	KeyArray* keys = this->deserialize_key_array(&buff[count], n);
+	size_t numKeys = this->deserialize_size_t(&buff[count]);
+	count += 8;
+	KeyArray* keys = this->deserialize_key_array(&buff[count], numKeys);
 	switch (type) {
 		case 'B':
 			return new BoolColumn(id, store, size, keys);

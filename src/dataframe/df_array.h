@@ -50,7 +50,35 @@ public:
 		this->vals_ = temp;
 	}
 
-	DFData* getData() {
-		return this->vals_;
+	bool* getAsBools() {
+		bool* result = new bool[this->size_];
+		for (size_t i = 0; i < this->size_; i++) {
+			result[i] = this->vals_->payload_.b;
+		}
+		return result;
+	}
+
+	int* getAsInts() {
+		int* result = new int[this->size_];
+		for (size_t i = 0; i < this->size_; i++) {
+			result[i] = this->vals_->payload_.i;
+		}
+		return result;
+	}
+
+	double* getAsDoubles() {
+		double* result = new double[this->size_];
+		for (size_t i = 0; i < this->size_; i++) {
+			result[i] = this->vals_->payload_.d;
+		}
+		return result;
+	}
+
+	String** getAsStrings() {
+		String** result = new String*[this->size_];
+		for (size_t i = 0; i < this->size_; i++) {
+			result[i] = this->vals_->payload_.s;
+		}
+		return result;
 	}
 };

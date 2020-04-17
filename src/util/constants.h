@@ -40,7 +40,7 @@ const unsigned int MAX_CHUNKS_PER_NODE = 200;
 const char APPLICATION_IP[10] = "127.0.0.1";
 const unsigned int APPLICATION_PORT = 9000;
 
-const size_t CHUNK_ELEMENTS = 100;
+const size_t CHUNK_ELEMENTS = 16 * 1024;
 
 const int BACKLOG = 5;
 const char SERVER_IP[10] = "127.0.0.1"; // nodeID_ = 0

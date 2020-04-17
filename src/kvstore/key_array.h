@@ -10,25 +10,22 @@
  * New keys can only be appended, and no key can be deleted.
  * Authors: cao.yuan1@husky.neu.edu, zhan.d@husky.neu.edu
  */
-class KeyArray : public Array {
+class KeyArray {
 public:
-	Key** vals_; //Owned
+	Array* array_; //Owned
 
 	/**
 	 * Default constructor of this array.
 	 */
-	KeyArray() : Array() {
-		this->vals_ = new Key*[this->capacity_];
+	KeyArray() {
+		this->array_ = new Array();
 	}
 
 	/**
 	 * The destructor of this array.
 	 */
 	~KeyArray() {
-		for (size_t i = 0; i < this->size_; ++i) {
-			delete this->vals_[i];
-		}
-		delete[] this->vals_;
+		delete this->array_;
 	}
 
 	/**
@@ -36,23 +33,8 @@ public:
 	 *
 	 * @param item the given item to be added to the end of this array
 	 */
-	virtual void pushBack(Key* item) {
-		this->resizeIfFull();
-		this->vals_[this->size_] = item;
-		this->size_ += 1;
-	}
-
-	/**
-	 * Grows the array if it has reached it's capacity limit.
-	 */
-	void resize() override {
-		this->capacity_ *= 2;
-		Key** new_vals = new Key*[this->capacity_];
-		for (size_t i = 0; i < this->size_; ++i) {
-			new_vals[i] = this->vals_[i];
-		}
-		delete[] this->vals_;
-		this->vals_ = new_vals;
+	void pushBack(Key* item) {
+		this->array_->pushBack(item);
 	}
 
 	/**
@@ -61,11 +43,10 @@ public:
 	 * Throws an error if index is out of bounds.
 	 *
 	 * @param i insertion index
-	 * @param element the element to be inserted at the given index
+	 * @param v the element to be inserted at the given index
 	 */
-	virtual void set(size_t i, Key* element) {
-		this->assertIndexInBounds(i);
-		this->vals_[i] = element;
+	virtual void set(size_t i, Key* v) {
+		this->array_->set(i, v);
 	}
 
 	/**
@@ -76,11 +57,9 @@ public:
 	 * @return the element of the array at the given index
 	 */
 	virtual Key* get(size_t i) {
-		assert(i < this->size_);
-		if (i >= this->size_) {
-			return nullptr;
-		}
-		return this->vals_[i];
+		Key* k = dynamic_cast<Key*>(this->array_->get(i));
+		assert(k != nullptr);
+		return k;
 	}
 
 	/**
@@ -90,11 +69,16 @@ public:
 	 * @return the index or SIZE_MAX if not found
 	 */
 	size_t indexOf(Key* k) {
-		for (size_t i = 0; i < this->size_; ++i) {
-			if (this->vals_[i]->equals(k)) {
-				return i;
-			}
+		for (size_t i = 0; i < this->array_->size(); ++i) {
+			Key* curr = this->get(i);
+			if (curr->equals(k)) return i;
 		}
 		return SIZE_MAX;
 	}
+
+	/**
+	 * Gets the size of this array
+	 * @return size
+	 */
+	size_t size() { return this->array_->size(); }
 };

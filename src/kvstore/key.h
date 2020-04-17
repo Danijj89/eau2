@@ -12,7 +12,7 @@
 class Key : public Object {
 public:
 	String* key_; //Owned
-	int nodeId_ = -1;
+	size_t nodeId_ = SIZE_MAX;
 
 	Key(const char* key) {
 		this->key_ = new String(key);

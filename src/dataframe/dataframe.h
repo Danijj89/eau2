@@ -185,6 +185,10 @@ public:
         return this->ncols_;
     }
 
+    Column** getColumns() {
+    	return this->vals_;
+    }
+
     /**
      * Visit rows in order.
      * @param r the visitor
@@ -199,3 +203,12 @@ public:
 
     void localMap(Rower* v) {}
 };
+
+DataFrame* Deserializer::deserialize_dataframe(char *buff, KVStore* store) {
+	DataFrame* result = new DataFrame();
+	size_t nRows = this->deserialize_size_t(buff);
+	size_t nCols = this->deserialize_size_t(buff);
+	for (size_t i = 0; i < nCols; i++) {
+		result->addColumn(this->deserialize_column(buff, store));
+	}
+}
