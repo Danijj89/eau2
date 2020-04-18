@@ -107,6 +107,7 @@ void read_message2(int socket, Message2* m) {
 	m = read_nbytes(socket, sizeof(Message2));
 	char* buff = read_nbytes(socket, m->getMemberArea());
 	m->addBody(buff);
+	assert(m->size = sizeof(Message2) + m->getMemberArea());
 }
 
 char* read_nbytes(int socket, size_t nbytes) {
@@ -114,6 +115,7 @@ char* read_nbytes(int socket, size_t nbytes) {
 	size_t bytes = 0;
 	while (bytes < nbytes) {
 		size_t read_bytes = read(socket, buff + bytes, nbytes - bytes);
+		bytes += nbytes;
 	}
 	assert(bytes == nbytes);
 	return buff;
@@ -130,14 +132,23 @@ void send_message(int socket, Message* m) {
 }
 
 void send_message2(int socket, Message2* m) {
-	send_nbytes(socket, (char*)m, sizeof(Message2));
-	send_nbytes(socket, m->getBody(), m->getMemberArea());
+	size_t mSize = m->getSize();
+	size_t bodySize = m->getMemberArea();
+	size_t totalSize = mSize + bodySize;
+	m->setSize(totalSize);
+	char* buff = new char*[totalSize];
+	memcpy(buff, m, mSize);
+	memcpy(buff + mSize, m->getBody, bodySize);
+	send_nbytes(socket, buff, totalSize)
+	// send_nbytes(socket, (char*)m, sizeof(Message2));
+	// send_nbytes(socket, m->getBody(), m->getMemberArea());
 }
 
 void send_nbytes(int socket, char* buff, size_t nbytes) {
 	size_t bytes = 0;
 	while (bytes < nbytes) {
 		size_t wrote_bytes = write(socket, buff + bytes, nbytes - bytes);
+		bytes += nbytes;
 	}
 	assert(bytes == nbytes);
 }
