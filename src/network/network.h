@@ -9,6 +9,7 @@
 #include <arpa/inet.h>
 #include "node_info.h"
 #include "message.h"
+#include "message2.h"
 
 #include "../util/constants.h"
 
@@ -102,6 +103,22 @@ void read_message(int socket, Message* m) {
 	assert(bytes == sizeof(Message));
 }
 
+void read_message2(int socket, Message2* m) {
+	m = read_nbytes(socket, sizeof(Message2));
+	char* buff = read_nbytes(socket, m->getMemberArea());
+	m->addBody(buff);
+}
+
+char* read_nbytes(int socket, size_t nbytes) {
+	char* buff = new char[nbytes];
+	size_t bytes = 0;
+	while (bytes < nbytes) {
+		size_t read_bytes = read(socket, buff + bytes, nbytes - bytes);
+	}
+	assert(bytes == nbytes);
+	return buff;
+}
+
 void send_message(int socket, Message* m) {
 	size_t bytes = 0;
 	size_t sizeMessage = sizeof(Message);
@@ -110,6 +127,19 @@ void send_message(int socket, Message* m) {
 		bytes += write_bytes;
 	}
 	assert(bytes == sizeof(Message));
+}
+
+void send_message2(int socket, Message2* m) {
+	send_nbytes(socket, (char*)m, sizeof(Message2));
+	send_nbytes(socket, m->getBody(), m->getMemberArea());
+}
+
+void send_nbytes(int socket, char* buff, size_t nbytes) {
+	size_t bytes = 0;
+	while (bytes < nbytes) {
+		size_t wrote_bytes = write(socket, buff + bytes, nbytes - bytes);
+	}
+	assert(bytes == nbytes);
 }
 
 NodeInfo* accept_connection(int fd) {
