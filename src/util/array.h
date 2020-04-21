@@ -63,6 +63,7 @@ public:
 	 */
 	void set(size_t i, Object* v) {
 		assert(i < this->size_);
+		delete this->vals_[i];
 		this->vals_[i] = v;
 	}
 
@@ -90,11 +91,35 @@ public:
 	 * Resizes the array.
 	 */
 	void resize_() {
-		Object** temp = new Object*[this->capacity_ * 2];
+		this->capacity_ *= 2;
+		Object** temp = new Object*[this->capacity_];
 		for (size_t i = 0; i < this->size_; i++) {
 			temp[i] = this->vals_[i];
 		}
 		delete[] this->vals_;
 		this->vals_ = temp;
+	}
+
+	/**
+	 * Returns the index of the object that equals the given one in this array.
+	 * @param o the object to find
+	 * @return the index or SIZE_MAX if not found
+	 */
+	size_t indexOf(Object* o) {
+		for (size_t i = 0; i < this->size_; ++i) {
+			if (o->equals(this->vals_[i])) return i;
+		}
+		return SIZE_MAX;
+	}
+
+	/**
+	 * Returns the object in this array that is equal to the given one.
+	 * @param o the object to find
+	 * @return the object in this array or nullptr if not found
+	 */
+	Object* find(Object* o) {
+		size_t i = this->indexOf(o);
+		if (i != SIZE_MAX) return this->vals_[i];
+		return nullptr;
 	}
 };

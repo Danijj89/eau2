@@ -1,9 +1,11 @@
 #pragma once
 
 
-#include <cstring>
+#include "../util/object.h"
 #include "../util/string.h"
-
+#include "value.h"
+#include "../serialization/serializer.h"
+#include "../serialization/deserializer.h"
 
 /**
  * Key: This class represent the key in a key-value store.
@@ -13,6 +15,7 @@ class Key : public Object {
 public:
 	String* key_; //Owned
 	size_t nodeId_ = SIZE_MAX;
+
 
 	Key(const char* key) {
 		this->key_ = new String(key);
@@ -53,7 +56,7 @@ public:
 		return this->key_;
 	}
 
-	int getNodeId() {
+	size_t getNodeId() {
 		return this->nodeId_;
 	}
 
@@ -71,6 +74,20 @@ public:
 
 	bool operator==(const Key& k) const {
 		return this->key_->equals(const_cast<Key*>(&k)->getKey());
+	}
+
+	String* serialize() {
+		Serializer s = Serializer();
+		s.serializeString(this->key_);
+		s.serializeSizeT(this->nodeId_);
+		return s.get();
+	}
+
+	static Key* deserialize(char* buff, size_t* counter) {
+		Deserializer d = Deserializer();
+		String* key = d.deserializeString(buff, counter);
+		size_t nodeId = d.deserializeSizeT(buff, counter);
+		return new Key(key, nodeId);
 	}
 };
 

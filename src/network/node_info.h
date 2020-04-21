@@ -1,15 +1,17 @@
-
+//lang: CwC
 #pragma once
 
 #include <unistd.h>
+#include "../util/object.h"
 #include "../util/string.h"
+#include "../serialization/serializer.h"
+#include "../serialization/deserializer.h"
 
 class NodeInfo : public Object {
 public:
 	String* ip_; // owned
 	int port_;
 	int fd_;
-	String* rep_; // owned
 
 	/**
 	 * Creates a new NodeInfo with the given ip address and port.
@@ -21,12 +23,6 @@ public:
 		this->ip_ = ip;
 		this->port_ = port;
 		this->fd_ = -1;
-		StrBuff* sb = new StrBuff();
-		sb->c(*this->ip_);
-		sb->c(":");
-		sb->c(this->port_);
-		this->rep_ = sb->get();
-		delete sb;
 	}
 
 	/**
@@ -44,41 +40,39 @@ public:
 	 */
 	~NodeInfo() {
 		delete this->ip_;
-		delete this->rep_;
-		// Close the fd if not -1
-		if (this->fd_ >= 3) {
-			//TODO: might not need to check that the operation was successful
-			assert(close(this->fd_) == 0);
+		if (this->fd_ >= 3 && close(this->fd_) != 0) {
+			perror("Error: ");
+			assert(false);
 		}
 	}
 
-	String* get_ip() {
-		return ip_;
-	}
+	String* getIP() { return ip_; }
 
+	int getPort() { return port_; }
 
-	int get_port() {
-		return port_;
-	}
+	int getFd() { return this->fd_; }
 
-	int get_fd() {
-		return this->fd_;
-	}
+	void setFd(int fd) { this->fd_ = fd; }
 
-	void set_fd(int fd) {
-		this->fd_ = fd;
-	}
-
-	String* to_string() {
-		return this->rep_;
-	}
-
-	bool equals(NodeInfo* o) {
+	bool equals(Object* o) override {
 		NodeInfo* other = dynamic_cast<NodeInfo*>(o);
 		if (other == nullptr) {
 			return false;
 		}
-		return this->ip_ == other->get_ip() && this->port_ == other->get_port();
+		return this->ip_->equals(other->getIP()) && this->port_ == other->getPort();
 	}
 
+	String* serialize() {
+		Serializer s = Serializer();
+		s.serializeString(this->ip_);
+		s.serializeInt(this->port_);
+		return s.get();
+	}
+
+	static NodeInfo* deserialize(char* buff, size_t* counter) {
+		Deserializer d = Deserializer();
+		String* ip = d.deserializeString(buff, counter);
+		int port = d.deserializeInt(buff, counter);
+		return new NodeInfo(ip, port);
+	}
 };

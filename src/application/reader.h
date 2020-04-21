@@ -1,12 +1,14 @@
 #pragma once
 
-#include "../../dataframe/row.h"
 
-class Writer : public Rower {
+#include "../dataframe/rower.h"
+
+class Reader : public Rower {
 public:
 
 	bool accept(Row& r) override {
 		this->visit(r);
+		return true;
 	}
 
 	virtual void visit(Row& r) = 0;

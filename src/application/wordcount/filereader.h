@@ -1,8 +1,7 @@
 #pragma once
 
-#include "../../dataframe/row.h"
-#include "../../dataframe/rower.h"
-#include "writer.h"
+
+#include "../writer.h"
 
 class FileReader : public Writer {
 public:

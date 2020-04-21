@@ -1,76 +1,49 @@
 #pragma once
 
 
-#include "msg_kind.h"
-#include "../serdes/serdes_types.h"
 #include "../util/object.h"
-#include "../util/constants.h"
-#include "../serdes/serializer.h"
+#include "msg_kind.h"
+#include "../serialization/data_type.h"
+#include "../kvstore/value.h"
 
 class Message : public Object {
 public:
+	size_t size_;
 	MsgKind kind_;
-	SerDesTypes type_;
-	size_t ser_member_size_;
-	char body_[MAX_BUFF_SIZE] = {0}; // serialized information, part of message
+	DataType type_;
 
-	Message(MsgKind kind) {
+	char* body_; // owned
+
+
+	Message(MsgKind kind, DataType type, String* v) {
+		this->size_ = v->size();
 		this->kind_ = kind;
-		this->type_ = SerDesTypes::NONE;
-		this->ser_member_size_ = 0;
-	}
-
-	Message() {
-		this->kind_ = MsgKind::Empty;
-		this->type_ = SerDesTypes::NONE;
-		this->ser_member_size_ = 0;
-	}
-
-	virtual ~Message() {}
-
-	void pack_body(char* buff, size_t len, SerDesTypes type, size_t members) {
 		this->type_ = type;
-		this->ser_member_size_ = members;
-		// Copy in the entire buff, which is expected to be a Serializer buffer
-		for (size_t i = 0; i < len || i < MAX_BUFF_SIZE; ++i) {
-			this->body_[i] = buff[i];
-		}
+		char* buff = new char[this->size_];
+		memcpy(buff, v->c_str(), this->size_);
+		this->body_ = buff;
 	}
 
-	MsgKind get_kind() {
-		return kind_;
+	Message(MsgKind kind, DataType type) {
+		this->kind_ = kind;
+		this->type_ = type;
 	}
 
-	SerDesTypes get_type() {
-		return type_;
+	~Message() {
+		delete[] this->body_;
 	}
 
-	size_t get_ser_member_size() {
-		return ser_member_size_;
-	}
+	MsgKind getKind() { return this->kind_; }
 
-	char* get_body() {
-		return body_;
-	}
+	DataType getType() { return this->type_; }
 
-	void pack_put_message(Key* k, Value* v) {
-		this->kind_ = MsgKind::Put;
-		Serializer s = Serializer();
-		s.serialize_key_value_pair(k, v);
-		this->pack_body(s.get_buff(), s.get_size(), SerDesTypes::PAIR, 1);
-	}
+	char* getBody() { return this->body_; }
 
-	void pack_addkey_message(Key* k) {
-		this->kind_ = MsgKind::AddKey;
-		Serializer s = Serializer();
-		s.serialize_key(k);
-		this->pack_body(s.get_buff(), s.get_size(), SerDesTypes::KEY, 1);
-	}
+	size_t getSize() { return this->size_; }
 
-	void pack_reply_message(Value* v) {
-		this->kind_ = MsgKind::Reply;
-		Serializer s = Serializer();
-		s.serialize_value(v);
-		this->pack_body(s.get_buff(), s.get_size(), SerDesTypes::VALUE, 1);
+	void addBody(char* buff, size_t size) {
+		delete[] this->body_;
+		this->size_ = size;
+		this->body_ = buff;
 	}
 };

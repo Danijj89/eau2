@@ -1,25 +1,28 @@
 #pragma once
 
-
-// #include <unistd.h>
+#include <cstdlib>
 #include <poll.h>
-#include <fcntl.h> // for nonblocking if necessary
-#include "../util/array.h"
+#include <cassert>
 
-
-class Pollfds : public Array {
+class Pollfds {
 public:
-	pollfd* vals_; // what this points to is owned
+	pollfd* vals_;
+	size_t size_;
+	size_t capacity_;
 
 	Pollfds() {
+		this->size_ = 0;
+		this->capacity_ = 4;
 		this->vals_ = new pollfd[this->capacity_];
 	}
 
 	~Pollfds() {
-		delete [] this->vals_;
+		delete[] this->vals_;
 	}
 
-	void resize() {
+	size_t size() { return this->size_; }
+
+	void resize_() {
 		this->capacity_ *= 2;
 		pollfd* new_vals = new pollfd[this->capacity_];
 		for (size_t i = 0; i < this->size_; ++i) {
@@ -29,15 +32,10 @@ public:
 		this->vals_ = new_vals;
 	}
 
-	pollfd* getPfds() { return this->vals_; }
+	pollfd* getPollfds() { return this->vals_; }
 
-	/**
-	 * Pushes the given item to the end of this array.
-	 *
-	 * @param item the given item to be added to the end of this array
-	 */
 	void pushBack(int fd) {
-		this->resizeIfFull();
+		if (this->size_ == this->capacity_) this->resize_();
 		this->vals_[this->size_].fd = fd;
 		this->vals_[this->size_].events = POLLIN;
 		this->size_ += 1;

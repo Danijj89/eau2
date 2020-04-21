@@ -1,160 +1,168 @@
 #pragma once
 
 
-#include "fielder.h"
+#include "../util/object.h"
+#include "df_data_array.h"
 #include "schema.h"
-#include "val.h"
-#include "DFData.h"
+#include "fielder.h"
 
-/**
- * Row ::
- *
- * This class represents a single row of data constructed according to a
- * DataFrame's schema. The purpose of this class is to make it easier to add
- * read/write complete rows. Rows have pointer equality.
- */
+
 class Row : public Object {
 public:
-    DFData* vals_; //owned
-    Schema* schema_; // owned
-    size_t nCols_;
+	Schema* schema_; // owned
+	DFDataArray* vals_; //owned
 
-    /** Build a row following a schema. */
-    Row(Schema* scm) {
-    	this->nCols_ = scm->width();
-        this->vals_ = new DFData[this->nCols_];
-		// Each case push back once to create a slot in the column
-		for (size_t i = 0; i < this->nCols_; ++i) {
-			this->vals_[i] = DFData();
+	Row(Schema* schema) {
+		this->schema_ = new Schema(schema);
+		size_t nCols = this->schema_->width();
+		this->vals_ = new DFDataArray(nCols);
+		// Initialize array with values so that it can be set
+		for (size_t i = 0; i < nCols; i++) {
+			this->vals_->pushBack(new DFData());
 		}
-        this->schema_ = new Schema(scm);
-    }
+	}
 
-    /** Destroys a row. */
-    ~Row() override {
-		delete[] this->vals_;
+	~Row() override {
 		delete this->schema_;
-    }
+		delete this->vals_;
+	}
 
-    /**
-     * Sets the boolean at the given column index
-     * @param col the index of the column to set
-     * @param val the value to set
-     */
-    void set(size_t col, bool val) {
-        assert(this->schema_->colType(col) == 'B');
-        this->vals_[col].payload_.b = val;
-    }
+	/**
+	 * Sets the boolean at the given column index
+	 * @param col the index of the column to set
+	 * @param val the value to set
+	 */
+	void set(size_t col, bool val) {
+		assert(this->schema_->colType(col) == 'B');
+		DFData* v = new DFData();
+		v->payload_.b = val;
+		this->vals_->set(col, v);
+	}
 
 	/**
 	 * Sets the integer at the given column index
 	 * @param col the index of the column to set
 	 * @param val the value to set
 	 */
-    void set(size_t col, int val) {
+	void set(size_t col, int val) {
 		assert(this->schema_->colType(col) == 'I');
-		this->vals_[col].payload_.i = val;
-    }
+		DFData* v = new DFData();
+		v->payload_.i = val;
+		this->vals_->set(col, v);
+	}
 
 	/**
 	 * Sets the double at the given column index
 	 * @param col the index of the column to set
 	 * @param val the value to set
 	 */
-    void set(size_t col, double val) {
+	void set(size_t col, double val) {
 		assert(this->schema_->colType(col) == 'D');
-		this->vals_[col].payload_.d = val;
-    }
+		DFData* v = new DFData();
+		v->payload_.d = val;
+		this->vals_->set(col, v);
+	}
 
 	/**
 	 * Sets the string at the given column index
 	 * @param col the index of the column to set
 	 * @param val the value to set
 	 */
-    void set(size_t col, String* val) {
+	void set(size_t col, String* val) {
 		assert(this->schema_->colType(col) == 'S');
-		this->vals_[col].payload_.s = val;
-    }
+		DFData* v = new DFData();
+		v->payload_.s = new String(*val);
+		this->vals_->set(col, v);
+	}
 
-    /**
-     * Get the boolean at the given column index
-     * @param col the index of the column
-     * @return the value
-     */
-    bool getBool(size_t col) {
+	/**
+	 * Get the boolean at the given column index
+	 * @param col the index of the column
+	 * @return the value
+	 */
+	bool getBool(size_t col) {
 		assert(this->schema_->colType(col) == 'B');
-		return this->vals_[col].payload_.b;
-    }
+		return this->vals_->get(col)->payload_.b;
+	}
 
 	/**
 	 * Get the integer at the given column index
 	 * @param col the index of the column
 	 * @return the value
 	 */
-    int getInt(size_t col) {
+	int getInt(size_t col) {
 		assert(this->schema_->colType(col) == 'I');
-		return this->vals_[col].payload_.i;
-    }
+		return this->vals_->get(col)->payload_.i;
+	}
 
 	/**
 	 * Get the double at the given column index
 	 * @param col the index of the column
 	 * @return the value
 	 */
-    double getDouble(size_t col) {
+	double getDouble(size_t col) {
 		assert(this->schema_->colType(col) == 'D');
-		return this->vals_[col].payload_.d;
-    }
+		return this->vals_->get(col)->payload_.d;
+	}
 
 	/**
 	 * Get the string at the given column index
 	 * @param col the index of the column
 	 * @return the value
 	 */
-    String* getString(size_t col) {
+	String* getString(size_t col) {
 		assert(this->schema_->colType(col) == 'S');
-		return this->vals_[col].payload_.s;
-    }
+		return this->vals_->get(col)->payload_.s;
+	}
 
-    /**
-     * Number of fields in the row.
-     */
-    size_t width() {
-        return this->nCols_;
-    }
+	/**
+	 * Gets the value at the given column as a DFData
+	 * @param col
+	 * @return
+	 */
+	DFData* getDFData(size_t col) {
+		return this->vals_->get(col);
+	}
 
-    /**
-     * Type of the field at the given position. An idx >= width is undefined.
-     */
-    char colType(size_t idx) {
-        return this->schema_->colType(idx);
-    }
+	/**
+	 * Number of fields in the row.
+	 */
+	size_t width() {
+		return this->vals_->size();
+	}
 
-    /**
-     * Given a Fielder, visit every field of this row.
-     *
-     * Calling this method before the row's fields have been set is undefined.
-     */
-    void visit(Fielder* f) {
-        f->start();
-        for (size_t i = 0; i < this->nCols_; ++i) {
-            switch(this->schema_->colType(i)) {
-                case 'B':
-                    f->accept(this->vals_[i].payload_.b);
-                    break;
-                case 'I':
-					f->accept(this->vals_[i].payload_.i);
-                    break;
-                case 'D':
-					f->accept(this->vals_[i].payload_.d);
-                    break;
-                case 'S':
-					f->accept(this->vals_[i].payload_.s);
-                    break;
-                default:
-                    assert(false);
-            }
-        }
-        f->done();
-    }
+	/**
+	 * Type of the field at the given position. An idx >= width is undefined.
+	 */
+	char colType(size_t idx) {
+		return this->schema_->colType(idx);
+	}
+
+	/**
+	 * Given a Fielder, visit every field of this row.
+	 *
+	 * Calling this method before the row's fields have been set is undefined.
+	 */
+	void visit(Fielder* f) {
+		f->start();
+		for (size_t i = 0; i < this->width(); ++i) {
+			switch(this->schema_->colType(i)) {
+				case 'B':
+					f->accept(this->vals_->get(i)->payload_.b);
+					break;
+				case 'I':
+					f->accept(this->vals_->get(i)->payload_.i);
+					break;
+				case 'D':
+					f->accept(this->vals_->get(i)->payload_.d);
+					break;
+				case 'S':
+					f->accept(this->vals_->get(i)->payload_.s);
+					break;
+				default:
+					assert(false);
+			}
+		}
+		f->done();
+	}
 };

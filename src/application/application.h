@@ -1,114 +1,107 @@
 #pragma once
 
-#include "../util/object.h"
-#include "../dataframe/dataframe.h"
-#include "../kvstore/KVStore.h"
-#include "wordcount/writer.h"
-#include "../dataframe/df_array.h"
 
+#include "../util/object.h"
+#include "../dataframe/distributed_columns.h"
+#include "../kvstore/KVStore.h"
+#include "writer.h"
+#include "../dataframe/dataframe.h"
+#include "../network/node_configuration.h"
 
 class Application : public Object {
 public:
-	int id_;
-	KVStore* store_;
+	KVStore* store_; // owned
+	size_t numNodes_;
+	size_t chunkItems_;
 
-	Application(int id, KVStore* store) {
-		this->id_ = id;
-		this->store_ = store;
+
+	Application(NodeConfiguration* conf) {
+		this->store_ = new KVStore(conf);
+		this->numNodes_ = conf->getNumNodes();
+		this->chunkItems_ = conf->getChunkItems();
 	}
 
 	~Application() override {
 		delete this->store_;
 	}
 
-	virtual void run_() {}
+	virtual void run() = 0;
+
+	size_t getNodeId() { return this->store_->getNodeId(); }
+
+	size_t getNumNodes() { return this->numNodes_; }
 
 	DataFrame* get(Key* k) {
-		Value* v = this->store_->get(k);
-		Deserializer des = Deserializer();
-		DataFrame* result = des.deserialize_dataframe(v->getBlob(), this->store_);
-		return result;
+		Value* v = this->store_->getUserData(k);
+		assert(v != nullptr);
+		size_t counter = 0;
+		return DataFrame::deserializeDataFrame(v->getBlob(), &counter, this->store_);
 	}
 
 	DataFrame* waitAndGet(Key* k) {
-		Value* v = this->store_->waitAndGet(k);
-		Deserializer des = Deserializer();
-		DataFrame* result = des.deserialize_dataframe(v->getBlob(), this->store_);
-		return result;
-	}
-
-	int getNodeId() {
-		return this->id_;
+		Value* v = this->store_->waitAndGetUserData(k);
+		assert(v != nullptr);
+		size_t counter = 0;
+		return DataFrame::deserializeDataFrame(v->getBlob(), &counter, this->store_);
 	}
 
 	DataFrame* fromVisitor(Key* k, const char* types, Writer* w) {
-		DataFrame* result = new DataFrame();
-		size_t nCols = strlen(types);
-		Column** cols = new Column*[nCols];
+		Schema* schema = new Schema(types);
+		DistributedColumns* cols = new DistributedColumns(schema, this->store_);
+		Row r = Row(cols->getSchema());
+		size_t nCols = schema->width();
 
-		DFArray** temp = new DFArray*[nCols];
-		Schema s = Schema(types, nCols);
-		Row r = Row(&s);
-		size_t nodeId = 0;
-
+		size_t keyIdx = 0;
+		size_t lastChunkSize = 0;
 		while (!w->done()) {
-			for (size_t i = 0; i < CHUNK_ELEMENTS && !w->done(); i++) {
-				w->visit(r);
-				for (size_t c = 0; c < nCols; c++) {
-					DFData v = DFData();
-					switch (types[c]) {
-						case 'B':
-							v.payload_.b = r.getBool(c);
-							temp[c]->pushBack(v);
-							break;
-						case 'I':
-							v.payload_.i = r.getInt(c);
-							temp[c]->pushBack(v);
-							break;
-						case 'D':
-							v.payload_.d = r.getDouble(c);
-							temp[c]->pushBack(v);
-							break;
-						case 'S':
-							v.payload_.s = r.getString(c);
-							temp[c]->pushBack(v);
-							break;
-						default:
-							assert(false);
-					}
-				}
+			DFDataArray** temp = this->fillTempChunk_(&r, nCols, w, types);
+			for (size_t col = 0; col < nCols; col++) {
+				Key* curr = this->makeKey_(k->getKey()->c_str(), col, keyIdx, keyIdx % this->numNodes_);
+				cols->addKey(col, new Key(curr));
+				this->store_->put(curr, new Value(temp[col]->serialize(types[col]))); // takes ownership of both Key and Value
 			}
-			for (size_t i = 0; i < nCols; i++) {
-				switch (types[i]) {
-					case 'B':
-						cols[i]->pushBack(temp[i]->getAsBools(), temp[i]->size(), nodeId);
-						break;
-					case 'I':
-						cols[i]->pushBack(temp[i]->getAsInts(), temp[i]->size(), nodeId);
-						break;
-					case 'D':
-						cols[i]->pushBack(temp[i]->getAsDoubles(), temp[i]->size(), nodeId);;
-						break;
-					case 'S':
-						cols[i]->pushBack(temp[i]->getAsStrings(), temp[i]->size(), nodeId);
-						break;
-					default:
-						assert(false);
-				}
-			}
-			nodeId = nodeId == NUM_NODES - 1 ? 0 : nodeId + 1;
+			keyIdx++;
+			lastChunkSize = temp[0]->size();
 		}
 
-		for (size_t i = 0; i < nCols; i++) {
-			result->addColumn(cols[i]);
-		}
+		cols->setLastChunkSize(lastChunkSize);
 
-		Serializer ser = Serializer();
-		ser.serialize_dataframe(result);
-		Value* v = new Value(ser.get_buff(), nCols);
-		this->store_->put(k, v);
-
+		DataFrame* result = new DataFrame(cols);
+		this->store_->putUserData(new Key(k), new Value(result->serialize())); // takes ownership of both Key and Value
 		return result;
 	}
 
+	DFDataArray** fillTempChunk_(Row* r, size_t nCols, Writer* w, const char* types) {
+		DFDataArray** temp = new DFDataArray*[nCols];
+		for (size_t i = 0; i < nCols; i++) {
+			temp[i] = new DFDataArray();
+		}
+		for (size_t row = 0; row < this->chunkItems_ && !w->done(); row++) {
+			w->visit(*r);
+			for (size_t col = 0; col < nCols; col++) {
+				temp[col]->pushBack(new DFData(r->getDFData(col), types[col]));
+			}
+		}
+		return temp;
+	}
+
+	Key* makeKey_(char* prefix, size_t col, size_t row, size_t nodeId) {
+		StrBuff s = StrBuff();
+		s.c(prefix);
+		s.c("-");
+		s.c(col);
+		s.c("-");
+		s.c(row);
+		return new Key(s.get(), nodeId);
+	}
+
+	void waitShutDown() {
+		while (this->store_->running_) {
+			sleep(3);
+		}
+	}
+
+	void shutdown() {
+		this->store_->shutdown();
+	}
 };

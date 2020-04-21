@@ -1,16 +1,16 @@
 #pragma once
 
 
-#include "key.h"
+#include "../util/object.h"
 #include "../util/array.h"
-
+#include "key.h"
 
 /**
  * KeyArray: this class represent a vector of Key objects.
  * New keys can only be appended, and no key can be deleted.
  * Authors: cao.yuan1@husky.neu.edu, zhan.d@husky.neu.edu
  */
-class KeyArray {
+class KeyArray : public Object {
 public:
 	Array* array_; //Owned
 
@@ -19,6 +19,14 @@ public:
 	 */
 	KeyArray() {
 		this->array_ = new Array();
+	}
+
+	/**
+	 * Constructs a key array with the given initial capacity
+	 * @param size
+	 */
+	KeyArray(size_t size) {
+		this->array_ = new Array(size);
 	}
 
 	/**
@@ -45,7 +53,7 @@ public:
 	 * @param i insertion index
 	 * @param v the element to be inserted at the given index
 	 */
-	virtual void set(size_t i, Key* v) {
+	void set(size_t i, Key* v) {
 		this->array_->set(i, v);
 	}
 
@@ -56,24 +64,19 @@ public:
 	 * @param i the index of the element
 	 * @return the element of the array at the given index
 	 */
-	virtual Key* get(size_t i) {
+	Key* get(size_t i) {
 		Key* k = dynamic_cast<Key*>(this->array_->get(i));
 		assert(k != nullptr);
 		return k;
 	}
 
 	/**
-	 * Finds and returns the index of the given Key.
-	 *
+	 * Finds the key in this array that is equal to the given key.
 	 * @param k the key to find
-	 * @return the index or SIZE_MAX if not found
+	 * @return the key in this array or nullptr if not found
 	 */
-	size_t indexOf(Key* k) {
-		for (size_t i = 0; i < this->array_->size(); ++i) {
-			Key* curr = this->get(i);
-			if (curr->equals(k)) return i;
-		}
-		return SIZE_MAX;
+	Key* find(Key* k) {
+		return dynamic_cast<Key*>(this->array_->find(k));
 	}
 
 	/**
@@ -81,4 +84,26 @@ public:
 	 * @return size
 	 */
 	size_t size() { return this->array_->size(); }
+
+	String* serialize() {
+		Serializer s = Serializer();
+		StrBuff sb = StrBuff();
+		sb.c(*s.serializeSizeT(this->size())->get());
+		for (size_t i = 0; i < this->size(); i++) {
+			Key* curr = dynamic_cast<Key*>(this->array_->get(i));
+			assert(curr != nullptr);
+			sb.c(*curr->serialize());
+		}
+		return sb.get();
+	}
+
+	static KeyArray* deserialize(char* buff, size_t* counter) {
+		Deserializer d = Deserializer();
+		size_t size = d.deserializeSizeT(buff, counter);
+		KeyArray* result = new KeyArray(size);
+		for (size_t i = 0; i < size; i++) {
+			result->pushBack(Key::deserialize(buff, counter));
+		}
+		return result;
+	}
 };
