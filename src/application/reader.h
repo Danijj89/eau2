@@ -11,7 +11,7 @@ public:
 		return true;
 	}
 
-	virtual void visit(Row& r) = 0;
+	virtual bool visit(Row& r) = 0;
 
 	virtual bool done() { return false; }
 };
