@@ -4,7 +4,7 @@ COMPILER := g++
 NETWORK_CONFIGURATIONS := -nodes 2 -socket_backlog 5 -chunk_items 100
 SERVER := -ip 127.0.0.1 -port 9000 -server_ip 127.0.0.1 -server_port 9000
 CLIENT := -ip 127.0.0.1 -port 9001 -server_ip 127.0.0.1 -server_port 9000
-FILE := -file /Users/danijj/Desktop/NEU/sp20/cs4500/final/src/application/wordcount/100k.txt
+FILE := -file 100k.txt
 
 run: docker_run
 
