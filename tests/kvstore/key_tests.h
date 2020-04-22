@@ -7,10 +7,6 @@
 #include "../../src/kvstore/key.h"
 
 
-#define CS4500_ASSERT_TRUE(a)  \
-	ASSERT_EQ((a),true);
-
-
 void keyConstructor() {
 	const char* name = "test";
 	Key k1 = Key(name);

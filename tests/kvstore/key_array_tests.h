@@ -7,10 +7,6 @@
 #include "../../src/kvstore/key_array.h"
 
 
-#define CS4500_ASSERT_TRUE(a)  \
-	ASSERT_EQ((a),true);
-
-
 void keyArrayConstructor() {
 	Key k1 = Key("key");
 
@@ -23,7 +19,7 @@ void keyArrayConstructor() {
 	exit(0);
 }
 
-TEST(KeyArrayTests, keyArrayConstructor) {ASSERT_EXIT_ZERO(keyConstructor)}
+TEST(KeyArrayTests, keyArrayConstructor) {ASSERT_EXIT_ZERO(keyArrayConstructor)}
 
 
 void keyArrayGetter() {

@@ -7,10 +7,6 @@
 #include "../../src/kvstore/value.h"
 
 
-#define CS4500_ASSERT_TRUE(a)  \
-	ASSERT_EQ((a),true);
-
-
 void valueConstructorGetter() {
 	char* v = const_cast<char*>("This is a blob.");
 
