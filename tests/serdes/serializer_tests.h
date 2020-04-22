@@ -1,9 +1,7 @@
 #include <gtest/gtest.h>
 
-#include <iostream>
 
-#include "../../src/dataframe/column.h"
-#include "../../src/serdes/serializer.h"
+#include <iostream>
 
 
 void serializerConstructorAndGetter() {

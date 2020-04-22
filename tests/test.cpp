@@ -14,18 +14,11 @@
 
 
 #include "dataframe/schema_tests.h"
-#include "dataframe/val_tests.h"
 #include "dataframe/row_tests.h"
 #include "kvstore/key_tests.h"
 #include "kvstore/value_tests.h"
 #include "kvstore/key_array_tests.h"
-#include "kvstore/value_array_tests.h"
-#include "serdes/serializer_tests.h"
 #include "kvstore/kvstore_tests.h"
-#include "serdes/deserializer_tests.h"
-
-
-
 
 
 int main(int argc, char **argv) {

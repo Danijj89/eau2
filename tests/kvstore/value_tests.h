@@ -14,9 +14,9 @@
 void valueConstructorGetter() {
 	char* v = const_cast<char*>("This is a blob.");
 
-	Value value1 = Value(v, 1);
+	Value value1 = Value(new String(v));
 
-	Value* value2 = new Value(v, 2);
+	Value* value2 = new Value(new String(v));
 
 	CS4500_ASSERT_TRUE(value1.getSize() == 1);
 	CS4500_ASSERT_TRUE(value2->getSize() == 2);
@@ -33,13 +33,13 @@ void valueSetter() {
 	char* v = const_cast<char*>("This is a blob.");
 	char* new_v = const_cast<char*>("This is another blob.");
 
-	Value value1 = Value(v, 1);
+	Value value1 = Value(new String(v));
 
-	Value* value2 = new Value(new_v, 2);
+	Value* value2 = new Value(new String(new_v));
 
 	CS4500_ASSERT_TRUE(strcmp(value1.getBlob(), value2->getBlob()) != 0);
 
-	value1.setBlob(new_v);
+	// value1.setBlob(new_v);
 
 	CS4500_ASSERT_TRUE(strcmp(value1.getBlob(), value2->getBlob()) == 0);
 
