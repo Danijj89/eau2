@@ -40,7 +40,6 @@ public:
 	/** Compute word counts on the local node and build a data frame. */
 	void local_count() {
 		DataFrame* words = (this->waitAndGet(&in));
-		String* first = words->getString(0, 0);
 		p("Node ").p(this->getNodeId()).pln(": starting local count...");
 		std::unordered_map<String, int, StringHashFunction> map = std::unordered_map<String, int, StringHashFunction>();
 		Adder add(&map);

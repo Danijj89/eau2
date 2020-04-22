@@ -33,7 +33,7 @@ public:
 		this->store_ = store;
 		this->cacheKey_ = nullptr;
 		this->cacheValue_ = nullptr;
-		this->chunkItems_ = store->getChunkItems();
+		this->chunkItems_ = this->store_->getChunkItems();
 	}
 
 	DistributedColumns(Schema* schema, KeyArray** keys, size_t lastChunkSize, KVStore* store) {
@@ -44,6 +44,7 @@ public:
 		this->store_ = store;
 		this->cacheKey_ = nullptr;
 		this->cacheValue_ = nullptr;
+		this->chunkItems_ = this->store_->getChunkItems();
 	}
 
 	~DistributedColumns() {
