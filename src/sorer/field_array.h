@@ -3,8 +3,8 @@
 
 #pragma once
 
-
-#include "../util/array.h"
+#include <cstdlib>
+#include <cassert>
 
 /**
  * FieldArray: represents a vector storing the starting and ending bytes of
@@ -19,20 +19,27 @@
  */
 class FieldArray {
 public:
-    Array* array_;
+    int* start_;
+    int* end_;
+    size_t size_;
+    size_t capacity_;
 
     /**
      * Default constructor.
      */
     FieldArray() {
-    	this->array_ = new Array();
+    	this->size_ = 0;
+    	this->capacity_ = 4;
+    	this->start_ = new int[this->capacity_];
+    	this->end_ = new int[this->capacity_];
     }
 
     /**
      * Default destructor.
      */
     ~FieldArray() {
-        delete this->array_;
+        delete[] this->start_;
+        delete[] this->end_;
     }
 
     /**
@@ -41,27 +48,27 @@ public:
      * @param end the end byte
      */
     virtual void pushBack(int start, int end) {
-        this->resizeIfFull();
-        this->starts_[this->size_] = start;
-        this->ends_[this->size_] = end;
+        if (this->size_ == this->capacity_) this->resize_();
+        this->start_[this->size_] = start;
+        this->end_[this->size_] = end;
         this->size_ += 1;
     }
 
     /**
      * Grows the array if it has reached it's capacity limit.
      */
-    void resize() override {
+    void resize_() {
         this->capacity_ *= 2;
-        int* new_starts = new int[this->capacity_];
-        int* new_ends = new int[this->capacity_];
+        int* new_start = new int[this->capacity_];
+        int* new_end = new int[this->capacity_];
         for(size_t i = 0; i < this->size_; ++i) {
-            new_starts[i] = this->starts_[i];
-            new_ends[i] = this->ends_[i];
+            new_start[i] = this->start_[i];
+            new_end[i] = this->end_[i];
         }
-        delete[] this->starts_;
-        delete[] this->ends_;
-        this->starts_ = new_starts;
-        this->ends_ = new_ends;
+        delete[] this->start_;
+        delete[] this->end_;
+        this->start_ = new_start;
+        this->end_ = new_end;
     }
 
     /**
@@ -70,10 +77,8 @@ public:
      * @return the starting byte, or -1 if the given index is out of bound.
      */
     virtual int getStart(size_t i) {
-        if (i >= this->size_) {
-            return -1;
-        }
-        return this->starts_[i];
+        assert(i < this->size_);
+        return this->start_[i];
     }
 
     /**
@@ -82,9 +87,11 @@ public:
      * @return the ending byte, or -1 if the given index is out of bound.
      */
     virtual int getEnd(size_t i) {
-        if (i >= this->size_) {
-            return -1;
-        }
-        return this->ends_[i];
+        assert(i < this->size_);
+        return this->end_[i];
     }
+
+    size_t size() { return this->size_; }
+
+    void clear() { this->size_ = 0; }
 };
