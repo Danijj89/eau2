@@ -10,12 +10,14 @@
 
 
 /**
- * A generic array of objects
+ * A generic array of objects. All objects put into the array are
+ * stolen.
+ *
  * @authors zhan.d@husky.neu.edu & yuan.cao@husky.neu.edu
  */
 class Array : public Object {
 public:
-	Object** vals_;
+	Object** vals_; // Owned
 	size_t size_; // num of elements
 	size_t capacity_; // capacity of array
 
@@ -101,7 +103,9 @@ public:
 	}
 
 	/**
-	 * Returns the index of the object that equals the given one in this array.
+	 * Returns the index of the first object that equals the given one
+	 * in this array, or SIZE_MAX if the object could not be found.
+	 *
 	 * @param o the object to find
 	 * @return the index or SIZE_MAX if not found
 	 */
@@ -113,7 +117,9 @@ public:
 	}
 
 	/**
-	 * Returns the object in this array that is equal to the given one.
+	 * Returns the pointer to object in this array that is equal to the
+	 * given one, or nullptr if the equivalent object does not exist.
+	 *
 	 * @param o the object to find
 	 * @return the object in this array or nullptr if not found
 	 */

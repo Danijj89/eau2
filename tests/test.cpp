@@ -1,18 +1,18 @@
 #include "common_header.h"
 
 
-#include "util/arg_parser_tests.h"
-#include "util/array_tests.h"
-#include "util/helper_tests.h"
-#include "util/lock_tests.h"
-#include "util/object_tests.h"
-#include "util/string_tests.h"
-#include "util/sys_tests.h"
+#include "util/arg_parser_tests.h" // done
+#include "util/array_tests.h" // done
+#include "util/helper_tests.h" // done
+#include "util/lock_tests.h" // done
+#include "util/object_tests.h" // done
+#include "util/string_tests.h" // done
+#include "util/sys_tests.h" // done
 
-#include "sorer/argument_parser_tests.h" // done
-#include "sorer/field_array_tests.h"
-#include "sorer/sorer_tests.h"
-#include "sorer/types_array_tests.h"
+#include "sorer/argument_parser_tests.h" // low priority
+#include "sorer/field_array_tests.h" // low priority
+#include "sorer/sorer_tests.h" // low priority
+#include "sorer/types_array_tests.h" // low priority
 
 #include "serialization/serializer_tests.h" // done
 #include "serialization/deserializer_tests.h" // done
