@@ -16,6 +16,12 @@ public:
 		return result;
 	}
 
+	size_t deserializeSizeT(char* buff, size_t* counter) {
+		size_t result = ((size_t*) (buff + *counter))[0];
+		(*counter) += 8;
+		return result;
+	}
+
 	double deserializeDouble(char* buff, size_t* counter) {
 		double result = ((double*) (buff + *counter))[0];
 		(*counter) += 8;
@@ -25,12 +31,6 @@ public:
 	String* deserializeString(char* buff, size_t* counter) {
 		String* result = new String(buff + *counter);
 		(*counter) += result->size() + 1;
-		return result;
-	}
-
-	size_t deserializeSizeT(char* buff, size_t* counter) {
-		size_t result = ((size_t*) (buff + *counter))[0];
-		(*counter) += 8;
 		return result;
 	}
 };

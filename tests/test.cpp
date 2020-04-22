@@ -1,24 +1,53 @@
-#include <gtest/gtest.h>
-
-//#define ASSERT_TRUE(a)  \
-//    ASSERT_EQ((a),true);
-//#define ASSERT_FALSE(a) \
-//    ASSERT_EQ((a),false);
-#define ASSERT_EXIT_ZERO(a)  \
-    ASSERT_EXIT(a(), ::testing::ExitedWithCode(0), ".*");
-#define ASSERT_EXIT_ONE(a)  \
-    ASSERT_EXIT(a(), ::testing::ExitedWithCode(1), ".*");
-#define ASSERT_SIGNAL_SIX(a)  \
-    ASSERT_EXIT(a(), ::testing::KilledBySignal(6), ".*");
-#define ASSERT_EQUALS(a, b)   ASSERT_EQ(a, b)
+#include "common_header.h"
 
 
-#include "dataframe/schema_tests.h"
-#include "dataframe/row_tests.h"
-#include "kvstore/key_tests.h"
-#include "kvstore/value_tests.h"
+#include "util/arg_parser_tests.h"
+#include "util/array_tests.h"
+#include "util/helper_tests.h"
+#include "util/lock_tests.h"
+#include "util/object_tests.h"
+#include "util/string_tests.h"
+#include "util/sys_tests.h"
+
+#include "sorer/argument_parser_tests.h"
+#include "sorer/field_array_tests.h"
+#include "sorer/sorer_tests.h"
+#include "sorer/types_array_tests.h"
+
+#include "serialization/serializer_tests.h"
+#include "serialization/deserializer_tests.h"
+
+#include "network/message_tests.h"
+#include "network/network_tests.h"
+#include "network/node_configuration_tests.h"
+#include "network/node_info_array_tests.h"
+#include "network/node_info_tests.h"
+#include "network/node_tests.h"
+#include "network/pollfds_tests.h"
+
 #include "kvstore/key_array_tests.h"
+#include "kvstore/key_tests.h"
 #include "kvstore/kvstore_tests.h"
+#include "kvstore/pair_tests.h"
+#include "kvstore/value_tests.h"
+
+#include "dataframe/dataframe_tests.h"
+#include "dataframe/df_data_array_tests.h"
+#include "dataframe/df_data_tests.h"
+#include "dataframe/distributed_columns_tests.h"
+#include "dataframe/fielder_tests.h"
+#include "dataframe/row_tests.h"
+#include "dataframe/rower_tests.h"
+#include "dataframe/schema_tests.h"
+
+#include "application/application_tests.h"
+#include "application/reader_tests.h"
+#include "application/writer_tests.h"
+
+#include "application/wordcount/adder_tests.h"
+#include "application/wordcount/filereader_tests.h"
+#include "application/wordcount/summer_tests.h"
+#include "application/wordcount/wordcount_tests.h"
 
 
 int main(int argc, char **argv) {
