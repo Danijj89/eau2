@@ -9,17 +9,17 @@
 #include "util/string_tests.h"
 #include "util/sys_tests.h"
 
-#include "sorer/argument_parser_tests.h"
+#include "sorer/argument_parser_tests.h" // done
 #include "sorer/field_array_tests.h"
 #include "sorer/sorer_tests.h"
 #include "sorer/types_array_tests.h"
 
-#include "serialization/serializer_tests.h"
-#include "serialization/deserializer_tests.h"
+#include "serialization/serializer_tests.h" // done
+#include "serialization/deserializer_tests.h" // done
 
 #include "network/message_tests.h"
 #include "network/network_tests.h"
-#include "network/node_configuration_tests.h"
+#include "network/node_configuration_tests.h" // done
 #include "network/node_info_array_tests.h"
 #include "network/node_info_tests.h"
 #include "network/node_tests.h"

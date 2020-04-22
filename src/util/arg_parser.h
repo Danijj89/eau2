@@ -4,6 +4,11 @@
 #include "../network/node_configuration.h"
 #include "helper.h"
 
+/**
+ * ArgParser: This class helps parse the commandline arguments passed to the
+ * program. Argc and argv need to be passed in directly from main. Each option
+ * is an option type followed by the value for that option.
+ */
 class ArgParser : public Object {
 public:
 
