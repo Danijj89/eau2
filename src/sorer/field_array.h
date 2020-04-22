@@ -4,7 +4,7 @@
 #pragma once
 
 
-
+#include "../util/array.h"
 
 /**
  * FieldArray: represents a vector storing the starting and ending bytes of
@@ -17,25 +17,22 @@
  *
  * @authors cao.yuan1@husky.neu.edu & zhan.d@husky.neu.edu
  */
-class FieldArray : public Array {
+class FieldArray {
 public:
-    int* starts_; // the start bytes
-    int* ends_; // the end bytes
+    Array* array_;
 
     /**
      * Default constructor.
      */
-    FieldArray() : Array() {
-        this->starts_ = new int[this->capacity_];
-        this->ends_ = new int[this->capacity_];
+    FieldArray() {
+    	this->array_ = new Array();
     }
 
     /**
      * Default destructor.
      */
-    ~FieldArray() override {
-        delete[] this->starts_;
-        delete[] this->ends_;
+    ~FieldArray() {
+        delete this->array_;
     }
 
     /**

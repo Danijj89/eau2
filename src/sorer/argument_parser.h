@@ -5,7 +5,6 @@
 
 #include "../util/object.h"
 #include "../util/helper.h"
-#include "../util/constants.h"
 
 /**
  * Argument parser used to parse command line inputs for the sorer application.

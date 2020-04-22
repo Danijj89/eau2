@@ -9,10 +9,8 @@
 #include <stdlib.h>
 #include "types_array.h"
 #include "field_array.h"
-#include "../dataframe/column.h"
 #include "../dataframe/dataframe.h"
 #include "../dataframe/schema.h"
-#include "../util/constants.h"
 
 /**
  * Class that encapsulate all logic to parse a schema on read file.

@@ -36,7 +36,7 @@ public:
 			} else if (strcmp(flag, "-file") == 0) {
 				conf->setFilePath(val);
 				i += 2;
-			} else if (strcmp(flag, "-chuck_items") == 0) {
+			} else if (strcmp(flag, "-chunk_items") == 0) {
 				conf->setChunkItems(parse_uint(val));
 				i += 2;
 			} else {

@@ -5,7 +5,6 @@
 #include "schema.h"
 #include "../kvstore/key_array.h"
 #include "df_data.h"
-#include "../util/constants.h"
 #include "../kvstore/KVStore.h"
 #include "../kvstore/value.h"
 #include "df_data_array.h"
