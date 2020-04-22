@@ -32,6 +32,15 @@ docker_client: docker_build
 docker_valgrind: docker_build
 	$(DOCKER) "cd /test; valgrind --leak-check=full ./main"
 
+test_setup:
+	$(DOCKER) "cd /test/tests; cmake ."
+
+test: test_setup
+	$(DOCKER) "cd /test/tests; make && ./runTests"
+
+valgrind: test_setup
+	$(DOCKER) "cd /test/tests; make && valgrind ./runTests"
+
 clean:
 	sudo git clean -df
 
