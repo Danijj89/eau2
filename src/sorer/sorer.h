@@ -26,7 +26,8 @@ public:
 	char *file_;
 	TypesArray *schema_;
 	FieldArray **columnar_;
-	Column **data_;
+	DFDataArray **data_;
+	const size_t INFER_SCHEMA_LINES = 500;
 
 	/**
 	 * Default constructor.
@@ -59,13 +60,13 @@ public:
 			close(this->fd_);
 		}
 		if (this->columnar_ != nullptr) {
-			for (size_t i = 0; i < this->schema_->len(); i++) {
+			for (size_t i = 0; i < this->schema_->size(); i++) {
 				delete this->columnar_[i];
 			}
 		}
 		delete[] this->columnar_;
 		if (this->data_ != nullptr) {
-			for (size_t i = 0; i < this->schema_->len(); i++) {
+			for (size_t i = 0; i < this->schema_->size(); i++) {
 				delete this->data_[i];
 			}
 		}
@@ -170,8 +171,8 @@ public:
 			}
 			// pass the curr type array down so to store the row schema
 			this->parseRowSchema_(&start, curr);
-			size_t result_len = this->schema_->len();
-			size_t curr_len = curr->len();
+			size_t result_len = this->schema_->size();
+			size_t curr_len = curr->size();
 			for (size_t j = 0; j < curr_len; ++j) {
 				Types curr_type = curr->get(j);
 				// if the current line has more element than the one we accumulated so far,
@@ -315,7 +316,7 @@ public:
  	 *       and the end to the end of a line.
  	 */
 	void makeColumnar_() {
-		size_t max_fields = this->schema_->len();
+		size_t max_fields = this->schema_->size();
 		this->columnar_ = new FieldArray *[max_fields];
 		for (size_t i = 0; i < max_fields; ++i) {
 			this->columnar_[i] = new FieldArray();
@@ -359,8 +360,8 @@ public:
  	 * @return whether it is valid or not.
  	 */
 	bool isValidRow_(TypesArray *row_types) {
-		size_t max_fields = this->schema_->len();
-		if (row_types->len() == max_fields) {
+		size_t max_fields = this->schema_->size();
+		if (row_types->size() == max_fields) {
 			for (size_t i = 0; i < max_fields; ++i) {
 				if (row_types->get(i) > this->schema_->get(i)) {
 					return false;
@@ -403,48 +404,31 @@ public:
 	 * Parses the columnar representation into data stored in Columns.
 	 */
 	void parseData_() {
-		size_t numCols = this->schema_->len();
-		size_t numRows = this->columnar_[0]->len();
-		this->data_ = new Column *[numCols];
+		size_t numCols = this->schema_->size();
+		size_t numRows = this->columnar_[0]->size();
+		this->data_ = new DFDataArray *[numCols];
 		for (size_t i = 0; i < numCols; i++) {
-			int start, end;
-			switch (this->schema_->get(i)) {
-				case Types::BOOL:
-					this->data_[i] = new BoolColumn();
-					for (size_t j = 0; j < numRows; ++j) {
-						start = this->columnar_[i]->getStart(j);
-						end = this->columnar_[i]->getEnd(j);
-						this->data_[i]->asBool()->pushBack(this->parseBool(start, end));
-					}
-					break;
-				case Types::INT:
-					this->data_[i] = new IntColumn();
-					for (size_t j = 0; j < numRows; ++j) {
-						start = this->columnar_[i]->getStart(j);
-						end = this->columnar_[i]->getEnd(j);
-						this->data_[i]->asInt()->pushBack(this->parseInt(start, end));
-					}
-					break;
-				case Types::DOUBLE:
-					this->data_[i] = new DoubleColumn();
-					for (size_t j = 0; j < numRows; ++j) {
-						start = this->columnar_[i]->getStart(j);
-						end = this->columnar_[i]->getEnd(j);
-						this->data_[i]->asDouble()->pushBack(this->parseFloat(start, end));
-					}
-					break;
-				case Types::STRING:
-					this->data_[i] = new StringColumn();
-					for (size_t j = 0; j < numRows; ++j) {
-						start = this->columnar_[i]->getStart(j);
-						end = this->columnar_[i]->getEnd(j);
-						String *s = this->parseString(start, end);
-						this->data_[i]->asString()->pushBack(s);
-						delete s;
-					}
-					break;
-				default:
-					assert(false);
+			this->data_[i] = new DFDataArray(numRows);
+			for (size_t j = 0; j < numRows; ++j) {
+				int start = this->columnar_[i]->getStart(j);
+				int end = this->columnar_[i]->getEnd(j);
+				DFData* v = new DFData();
+				switch (this->schema_->get(i)) {
+					case Types::BOOL:
+						v->payload_.b = this->parseBool(start, end);
+						break;
+					case Types::INT:
+						v->payload_.i = this->parseInt(start, end);
+						break;
+					case Types::DOUBLE:
+						v->payload_.d = this->parseDouble(start, end);
+						break;
+					case Types::STRING:
+						v->payload_.s = this->parseString(start, end);
+						break;
+					default:
+						assert(false);
+				}
 			}
 		}
 	}
@@ -499,7 +483,7 @@ public:
  	 * @param end is the end of the field in file.
  	 * @return the parsed double.
  	 */
-	double parseFloat(size_t start, size_t end) {
+	double parseDouble(size_t start, size_t end) {
 		// removes empty spaces in front and back
 		size_t new_start = this->triml_(start, end);
 		size_t new_end = this->trimr_(start, end);
@@ -550,16 +534,16 @@ public:
 		Types type = this->schema_->get(col);
 		switch (type) {
 			case Types::BOOL:
-				printf("%d\n", this->data_[col]->asBool()->get(row));
+				printf("%d\n", this->data_[col]->get(row)->payload_.b);
 				break;
 			case Types::INT:
-				printf("%d\n", this->data_[col]->asInt()->get(row));
+				printf("%d\n", this->data_[col]->get(row)->payload_.i);
 				break;
 			case Types::DOUBLE:
-				printf("%f\n", this->data_[col]->asDouble()->get(row));
+				printf("%f\n", this->data_[col]->get(row)->payload_.d);
 				break;
 			case Types::STRING:
-				printf("%s\n", this->data_[col]->asString()->get(row)->c_str());
+				printf("%s\n", this->data_[col]->get(row)->payload_.s->c_str());
 				break;
 			default:
 				assert(false);
@@ -607,11 +591,5 @@ public:
 		}
 	}
 
-	DataFrame* getAsDF() {
-		DataFrame* df = new DataFrame();
-		for (size_t i = 0; i < this->schema_->len(); i++) {
-			df->addColumn(this->data_[i]);
-		}
-		return df;
-	}
+	DFDataArray** getAsDFDataArrays() { return this->data_; }
 };

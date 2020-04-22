@@ -2,6 +2,10 @@
 
 #include "../application.h"
 #include "set.h"
+#include "set_updater.h"
+#include "projects_tagger.h"
+#include "users_tagger.h"
+#include "set_writer.h"
 
 /*************************************************************************
  * This computes the collaborators of Linus Torvalds.
@@ -39,44 +43,44 @@ public:
 		Key pK("projs");
 		Key uK("usrs");
 		Key cK("comts");
-		if (index == 0) {
+		if (this->getNodeId() == 0) {
 			pln("Reading...");
-			projects = DataFrame::fromFile(PROJ, pK.clone(), &kv);
-			p("    ").p(projects->nrows()).pln(" projects");
-			users = DataFrame::fromFile(USER, uK.clone(), &kv);
-			p("    ").p(users->nrows()).pln(" users");
-			commits = DataFrame::fromFile(COMM, cK.clone(), &kv);
-			p("    ").p(commits->nrows()).pln(" commits");
+			projects = this->fromFile(new Key(pK), PROJ);
+			p("    ").p(projects->nRows()).pln(" projects");
+			users = this->fromFile(new Key(uK), USER);
+			p("    ").p(users->nRows()).pln(" users");
+			commits = this->fromFile(new Key(cK), COMM);
+			p("    ").p(commits->nRows()).pln(" commits");
 			// This dataframe contains the id of Linus.
-			delete DataFrame::fromScalarInt(new Key("users-0-0"), &kv, LINUS);
+			delete this->fromScalar(new Key("users-0-0"), LINUS);
 		} else {
-			projects = dynamic_cast<DataFrame*>(kv.waitAndGet(pK));
-			users = dynamic_cast<DataFrame*>(kv.waitAndGet(uK));
-			commits = dynamic_cast<DataFrame*>(kv.waitAndGet(cK));
+			projects = this->waitAndGet(&pK);
+			users = this->waitAndGet(&uK);
+			commits = this->waitAndGet(&cK);
 		}
 		uSet = new Set(users);
 		pSet = new Set(projects);
 	}
 
 	/** Performs a step of the linus calculation. It operates over the three
-	 *  datafrrames (projects, users, commits), the sets of tagged users and
+	 *  dataframes (projects, users, commits), the sets of tagged users and
 	 *  projects, and the users added in the previous round. */
 	void step(int stage) {
 		p("Stage ").pln(stage);
 		// Key of the shape: users-stage-0
-		Key uK(StrBuff("users-").c(stage).c("-0").get());
+		Key uK(StrBuff().c("users-").c(stage).c("-0").get());
 		// A df with all the users added on the previous round
-		DataFrame* newUsers = dynamic_cast<DataFrame*>(kv.waitAndGet(uK));
+		DataFrame* newUsers = this->waitAndGet(&uK);
 		Set delta(users);
 		SetUpdater upd(delta);
-		newUsers->map(upd); // all of the new users are copied to delta.
+		newUsers->map(&upd); // all of the new users are copied to delta.
 		delete newUsers;
 		ProjectsTagger ptagger(delta, *pSet, projects);
-		commits->local_map(ptagger); // marking all projects touched by delta
+		commits->localMap(&ptagger); // marking all projects touched by delta
 		merge(ptagger.newProjects, "projects-", stage);
 		pSet->union_(ptagger.newProjects); //
 		UsersTagger utagger(ptagger.newProjects, *uSet, users);
-		commits->local_map(utagger);
+		commits->localMap(&utagger);
 		merge(utagger.newUsers, "users-", stage + 1);
 		uSet->union_(utagger.newUsers);
 		p("    after stage ").p(stage).pln(":");
@@ -91,30 +95,30 @@ public:
 	 * computed.
 	 */
 	void merge(Set& set, char const* name, int stage) {
-		if (this_node() == 0) {
-			for (size_t i = 1; i < arg.num_nodes; ++i) {
-				Key nK(StrBuff(name).c(stage).c("-").c(i).get());
-				DataFrame* delta = dynamic_cast<DataFrame*>(kv.waitAndGet(nK));
-				p("    received delta of ").p(delta->nrows())
+		if (this->getNodeId() == 0) {
+			for (size_t i = 1; i < this->numNodes_; ++i) {
+				Key nK(StrBuff().c(name).c(stage).c("-").c(i).get());
+				DataFrame* delta = this->waitAndGet(&nK);
+				p("    received delta of ").p(delta->nRows())
 						.p(" elements from node ").pln(i);
 				SetUpdater upd(set);
-				delta->map(upd);
+				delta->map(&upd);
 				delete delta;
 			}
 			p("    storing ").p(set.size()).pln(" merged elements");
 			SetWriter writer(set);
-			Key k(StrBuff(name).c(stage).c("-0").get());
-			delete DataFrame::fromVisitor(&k, &kv, "I", writer);
+			Key k(StrBuff().c(name).c(stage).c("-0").get());
+			delete this->fromVisitor(&k,"I", &writer);
 		} else {
 			p("    sending ").p(set.size()).pln(" elements to master node");
 			SetWriter writer(set);
-			Key k(StrBuff(name).c(stage).c("-").c(index).get());
-			delete DataFrame::fromVisitor(&k, &kv, "I", writer);
-			Key mK(StrBuff(name).c(stage).c("-0").get());
-			DataFrame* merged = dynamic_cast<DataFrame*>(kv.waitAndGet(mK));
-			p("    receiving ").p(merged->nrows()).pln(" merged elements");
+			Key k(StrBuff().c(name).c(stage).c("-").c(this->getNodeId()).get());
+			delete this->fromVisitor(&k, "I", &writer);
+			Key mK(StrBuff().c(name).c(stage).c("-0").get());
+			DataFrame* merged = this->waitAndGet(&mK);
+			p("    receiving ").p(merged->nRows()).pln(" merged elements");
 			SetUpdater upd(set);
-			merged->map(upd);
+			merged->map(&upd);
 			delete merged;
 		}
 	}

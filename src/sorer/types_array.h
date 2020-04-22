@@ -5,34 +5,39 @@
 
 
 #include "types.h"
-#include "../util/array.h"
+#include <cstdlib>
+#include <cassert>
 
 /**
  * Resizable array of types.
  * @authors zhan.d@husky.neu.edu & yuan.cao@husky.neu.edu
  */
-class TypesArray : public Array {
+class TypesArray {
 public:
     Types* vals_; // the values (owned)
+    size_t size_;
+    size_t capacity_;
 
     /**
      * Default constructor of this array.
      */
-    TypesArray() : Array() {
+    TypesArray() {
+    	this->size_ = 0;
+    	this->capacity_ = 4;
         this->vals_ = new Types[this->capacity_];
     }
 
     /**
      * The destructor of this array.
      */
-    ~TypesArray() override {
+    ~TypesArray() {
         delete[] this->vals_;
     }
 
     /**
      * Grows the array if it has reached it's capacity limit.
      */
-    void resize() override {
+    void resize_() {
         this->capacity_ *= 2;
         Types* new_vals = new Types[this->capacity_];
         for (size_t i = 0; i < this->size_; ++i) {
@@ -51,7 +56,7 @@ public:
      * @param element the element to be inserted at the given index
      */
     virtual void set(size_t i, Types element) {
-        this->assertIndexInBounds(i);
+        assert(i < this->size_);
         this->vals_[i] = element;
     }
 
@@ -64,7 +69,7 @@ public:
      * @return the element of the array at the given index
      */
     virtual Types get(size_t i) {
-        this->assertIndexInBounds(i);
+        assert(i < this->size_);
         return this->vals_[i];
     }
 
@@ -74,8 +79,12 @@ public:
      * @param item the given item to be added to the end of this array
      */
     virtual void pushBack(Types item) {
-        this->resizeIfFull();
+        if (this->size_ == this->capacity_) this->resize_();
         this->vals_[this->size_] = item;
         this->size_ += 1;
     }
+
+    size_t size() { return this->size_; }
+
+    void clear() { this->size_ = 0; }
 };

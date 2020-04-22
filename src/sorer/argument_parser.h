@@ -38,10 +38,7 @@ public:
 	 */
 	void parse(int argc, char** argv) {
 		// Make sure that the number of arguments given are in the correct range
-		if (argc < 5 || argc > 10) {
-			this->print_usage();
-			exit(1);
-		}
+		assert(argc >= 5 && argc <= 10);
 		int i = 1;
 		while (i < argc) {
 			if (strcmp(argv[i], "-f") == 0 && !this->filename_ && argc > i + 1) {
@@ -68,14 +65,9 @@ public:
 				this->val2_ = parse_uint(argv[i + 2]);
 				i += 3;
 			} else {
-				this->print_usage();
-				exit(1);
+				assert(false);
 			}
 		}
-	}
-
-	void print_usage() {
-		printf("%s\n", SORER_USAGE);
 	}
 
 	/**

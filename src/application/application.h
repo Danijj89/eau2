@@ -45,6 +45,10 @@ public:
 		return DataFrame::deserializeDataFrame(v->getBlob(), &counter, this->store_);
 	}
 
+	DataFrame* fromFile(Key* k, const char* filePath) { return nullptr; }
+
+	DataFrame* fromScalar(Key* k, int v) { return nullptr; }
+
 	DataFrame* fromVisitor(Key* k, const char* types, Writer* w) {
 		Schema* schema = new Schema(types);
 		DistributedColumns* cols = new DistributedColumns(schema, this->store_);
