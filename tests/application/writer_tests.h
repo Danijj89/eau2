@@ -1,6 +1,10 @@
-#pragma once
+#include "../../src/application/writer.h"
 
 
-#include "../common_header.h"
+void writerNotTestedNotice() {
 
 
+	exit(0);
+}
+
+TEST(WriterTests, writerNotTestedNotice) {ASSERT_EXIT_ZERO(writerNotTestedNotice)}

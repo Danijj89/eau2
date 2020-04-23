@@ -1,5 +1,3 @@
-#pragma once
-
 #include "../../src/dataframe/row.h"
 
 void rowColType() {

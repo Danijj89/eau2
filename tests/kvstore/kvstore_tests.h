@@ -1,7 +1,5 @@
-#include <gtest/gtest.h>
-
-
 #include <string.h>
+
 
 #include "../../src/kvstore/KVStore.h"
 

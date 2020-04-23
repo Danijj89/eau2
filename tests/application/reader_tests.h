@@ -1,7 +1,10 @@
-#pragma once
+#include "../../src/application/reader.h"
 
 
-#include "../common_header.h"
+void readerNotTestedNotice() {
 
 
-#include "../../src/application/application.h"
+	exit(0);
+}
+
+TEST(ReaderTests, readerNotTestedNotice) {ASSERT_EXIT_ZERO(readerNotTestedNotice)}

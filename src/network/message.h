@@ -6,6 +6,9 @@
 #include "../serialization/data_type.h"
 #include "../kvstore/value.h"
 
+/**
+ * Message: This class represents a message sent through our network.
+ */
 class Message : public Object {
 public:
 	size_t size_;
@@ -19,14 +22,16 @@ public:
 		this->size_ = v->size();
 		this->kind_ = kind;
 		this->type_ = type;
-		char* buff = new char[this->size_];
-		memcpy(buff, v->c_str(), this->size_);
+		char* buff = new char[this->size_ + 1];
+		memcpy(buff, v->c_str(), this->size_ + 1);
 		this->body_ = buff;
 	}
 
 	Message(MsgKind kind, DataType type) {
 		this->kind_ = kind;
 		this->type_ = type;
+		this->size_ = 0;
+		this->body_ = nullptr;
 	}
 
 	~Message() {
