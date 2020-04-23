@@ -9,6 +9,9 @@ int main(int argc, char** argv) {
 	WordCount app = WordCount(conf);
 	app.run();
 	app.waitShutDown();
+
+	delete conf;
+
 	printf("Run terminated\n");
 	return 0;
 }

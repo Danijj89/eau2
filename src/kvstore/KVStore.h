@@ -36,6 +36,8 @@ public:
 	}
 
 	~KVStore() {
+		this->kvThread_.join();
+		printf("%lu: kvstore thread joined\n", this->id_);
 		delete this->userKeys_;
 		delete this->lock_;
 		delete this->replyMessage_;

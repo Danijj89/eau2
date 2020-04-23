@@ -2,6 +2,8 @@
 
 
 void fielderNotTestedNotice() {
+	// This class cannot be tested independently.
+
 	exit(0);
 }
 

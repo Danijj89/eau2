@@ -56,10 +56,6 @@ public:
 		std::unordered_map<String, int, StringHashFunction> map = std::unordered_map<String, int, StringHashFunction>();
 		Key* own = mk_key(this->getNodeId());
 		DataFrame* df = this->get(own);
-		String* s1 = df->getString(0, 0);
-		String* s2 = df->getString(0, 1);
-		int i1 = df->getInt(1, 0);
-		int i2 = df->getInt(1, 1);
 		merge(df, &map);
 		for (size_t i = 1; i < this->getNumNodes(); ++i) { // merge other nodes
 			Key* ok = mk_key(i);

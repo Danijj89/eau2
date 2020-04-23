@@ -1,8 +1,20 @@
-#include "../../src/network/node_info.h"
+#include "../../src/network/pollfds.h"
 
 
-void pollfdsNotTestedNotice() {
+void pollfdsNotCompletelyTestedNotice() {
 	exit(0);
 }
 
-TEST(PollfdsTests, pollfdsNotTestedNotice) {ASSERT_EXIT_ZERO(pollfdsNotTestedNotice)}
+TEST(PollfdsTests, pollfdsNotCompletelyTestedNotice) {ASSERT_EXIT_ZERO(pollfdsNotCompletelyTestedNotice)}
+
+
+void pollfdsConstructorDestructorTest() {
+	Pollfds pfds1 = Pollfds();
+	Pollfds* pfds2 = new Pollfds();
+
+	delete pfds2;
+
+	exit(0);
+}
+
+TEST(PollfdsTests, pollfdsConstructorDestructorTest) {ASSERT_EXIT_ZERO(pollfdsConstructorDestructorTest)}

@@ -1,7 +1,7 @@
 DOCKER := docker run -ti -v `pwd`:/test w2-gtest:0.1 bash -c
 CXXFLAGS := --std=c++11 -Wall --pedantic -O3 -pthread
 COMPILER := g++
-NETWORK_CONFIGURATIONS := -nodes 2 -socket_backlog 5 -chunk_items 100
+NETWORK_CONFIGURATIONS := -nodes 2 -socket_backlog 5 -chunk_items 1000
 SERVER := -ip 127.0.0.1 -port 9000 -server_ip 127.0.0.1 -server_port 9000
 CLIENT := -ip 127.0.0.1 -port 9001 -server_ip 127.0.0.1 -server_port 9000
 FILE := -file 100k.txt

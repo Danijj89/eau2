@@ -2,7 +2,7 @@
 
 
 void writerNotTestedNotice() {
-
+	// This class cannot be test independently.
 
 	exit(0);
 }

@@ -4,7 +4,6 @@
 #include <sys/wait.h>
 
 #include "../../src/network/node.h"
-#include "../../src/network/node.h"
 
 
 /**
@@ -38,7 +37,7 @@ int main(int argc, char** argv) {
 	int clientPort = 9001;
 	size_t numNodes = 2;
 	int socketBacklog = 4;
-	char* file = "../100k.txt";
+	char* file = const_cast<char*>("../100k.txt");
 	size_t chunkItems = 1000;
 
 	NodeConfiguration** conf = new NodeConfiguration*[numNodes];
