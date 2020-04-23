@@ -35,11 +35,14 @@ docker_valgrind: docker_build
 test_setup:
 	$(DOCKER) "cd /test/tests; cmake ."
 
-test: test_setup
-	$(DOCKER) "cd /test/tests; make && ./runTests"
+unittest: test_setup
+	$(DOCKER) "cd /test/tests; make; ./runTests"
+
+functionaltest: test_setup
+	$(DOCKER) "cd /test/tests; make; ./nodeTest"
 
 valgrind: test_setup
-	$(DOCKER) "cd /test/tests; make && valgrind ./runTests"
+	$(DOCKER) "cd /test/tests; make; valgrind ./runTests"
 
 clean:
 	sudo git clean -df

@@ -47,4 +47,5 @@ add_subdirectory(${CMAKE_CURRENT_BINARY_DIR}/googletest-src
 	)
 
 add_executable(runTests test.cpp)
+add_executable(nodeTest FunctionalTests/nodeTest.cpp)
 target_link_libraries(runTests gtest)

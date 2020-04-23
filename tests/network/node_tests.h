@@ -2,6 +2,10 @@
 
 
 void nodeNotTestedNotice() {
+	// This class contains primitive node functionalities that cannot be easily
+	// tested. Instead the test will be performed as part of a functional test
+	// for node.
+
 	exit(0);
 }
 

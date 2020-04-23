@@ -18,18 +18,18 @@
 #include "serialization/deserializer_tests.h" // done
 
 #include "network/message_tests.h" // done
-#include "network/network_tests.h" //initial blank test
+#include "network/network_tests.h" // done
 #include "network/node_configuration_tests.h" // done
-#include "network/node_info_array_tests.h" //initial blank test
-#include "network/node_info_tests.h" //initial blank test
-#include "network/node_tests.h" //initial blank test
-#include "network/pollfds_tests.h" //initial blank test
+#include "network/node_info_array_tests.h" // low priority
+#include "network/node_info_tests.h" // low priority
+#include "network/node_tests.h" // done
+#include "network/pollfds_tests.h" // low priority
 
-#include "kvstore/key_array_tests.h" //initial blank test
-#include "kvstore/key_tests.h" //initial blank test
-#include "kvstore/kvstore_tests.h" //initial blank test
-#include "kvstore/pair_tests.h" //initial blank test
-#include "kvstore/value_tests.h" //initial blank test
+#include "kvstore/key_array_tests.h" // initial blank test
+#include "kvstore/key_tests.h" // initial blank test
+#include "kvstore/kvstore_tests.h" // initial blank test
+#include "kvstore/pair_tests.h" // initial blank test
+#include "kvstore/value_tests.h" // initial blank test
 
 #include "dataframe/dataframe_tests.h" //initial blank test
 #include "dataframe/df_data_array_tests.h" //initial blank test

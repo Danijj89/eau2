@@ -41,8 +41,8 @@ public:
 	~NodeInfo() {
 		delete this->ip_;
 		if (this->fd_ >= 3 && close(this->fd_) != 0) {
-			perror("Error: ");
-			assert(false);
+			perror("NOTICE: fd already closed ");
+			// assert(false);
 		}
 	}
 
