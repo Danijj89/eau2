@@ -1,11 +1,12 @@
 # Introduction
 
-Eau2 is a platform that is built on top of a distributed key-value store.
-It allows users to perform analysis on data in terms of a dataframe
-abstraction. The system is designed to handle arbitrary sized data by
-distributing storage across several storage nodes. The distributed nature (memory manipulation and networking logic) of the system is hidden from the
-users, who primarily work with dataframes and save intermediate results by
-assigning keys to the resulting dataframes.
+Eau2 is a distributed in-memory key-value store which allows users to perform
+analysis on data in terms of Dataframe abstraction.
+The system is designed to handle arbitrary sized data by
+distributing storage across several storage nodes. 
+Its distributed nature is hidden from the
+user, who primarily work with dataframes and save intermediate results by
+assigning keys to them.
 
 To run the prepared example program that comes with the repository, please use
 `make docker_run`. To run the tests and memory check, please use
@@ -13,15 +14,17 @@ To run the prepared example program that comes with the repository, please use
 
 # Architecture
 
-We envisioned a three-layered architecture:
+The system is divided into three layers:
 - an Application layer on the top
-- a middle layer made out of DataFrames
-- a distributed key-value store on the bottom layer
+- a Key-Value store in the middle
+- a network layer on the bottom 
 
 ## Application Layer
 
-The application layer provides a high level API for the user to interact with the system.
-Among the key functionality that it will support, we have:
+The application layer is composed of a range of classes that provides the
+user the tools to perform their computations.
+
+Among the key functionality that it supports, we have:
 - a way to configure the cluster underneath (e.g. number of nodes)
 - a mechanism to load data into the system
 - a mechanism to store/retrieve data
@@ -32,277 +35,274 @@ Among the key functionality that it will support, we have:
 
 To configure the underlying system that gets started, the Application will
 take in command line arguments at the start-up of the application. Among the
-configurations, we have the number of nodes in the cluster, max chunk sizes,
-max number of chunks.
+configurations, we have the number of nodes in the cluster, max chunk size,
+the ip addresses of node and server, the file to read the data from...
 
 ### Loading Data
 
-We only support the SOR file format. We will integrate our previously built
-sorer (a parser for .sor files). To distribute the data over the network and
-store it in different nodes,
-we will define two constants:
-- the size of a standard chunk of data
-- the number of elements in a chunk of data for each type
-- the maximum number of chunks a node can store
+Currently, the only file format supported is .sor through the `fromFile()`
+method provided by the `Application` superclass.
+However, it is possible to parse other file formats through the `fromVisitor()`
+method, by providing a user defined visitor.
 
-Then, the data will be distributed according to the following methodology:
-- each column of the .sor file will be divided into chunks of fixed numbers
-of elements (last chuck might be smaller)
-- Each chunk will be associated a programmatically generated Key
-- For each chuck in each column (start with first column and send out all
-chunks in that columnbefore moving to column 2), send the max number of chucks
-that a node can hold to each node
 
-The reason the order of data is as described is to attempt to keep as much data
-in the same place as possible to reduce network traffic when fetching, respect
-NUMA nature of current systems, and lay ground work for effective distributed
-computing.
+### Data Storage & Retrieval
 
-### Store & Retrieve Data
+The storage of the data is handled according to the following strategy:
+- Fixed sized chunks of data of the same type (can think of them as sections
+of an array) are created and associated a key. 
+- These chunks are then distributed
+across the nodes of the network making sure that all the sections belonging
+to the same row are stored in the same node.
 
-The user is largely unaware of the storage and retrieval strategy. We assume
-that all the data is initially located on one machine. When the users create a
-DataFrame object based the the .sor file that contains the data, the data is
-automatically distributed through the key-value store.
+This strategy provides performance benefits by permitting local map operations
+without the necessity to request data over the network.
 
-The user can associate a key/name with a dataframe in a similar manner as
-declaring a variable, although with a different syntac. Unbeknownst to the user
-this put the DataFrame object into the key-value store, and thus allow all
-nodes in the network to access the DataFrame object and work with the
-information stored in the DataFrame object. Thus, the user can use keys/names
-of DataFrame objects in his or her application like variables names known to
-all nodes.
+User defined DataFrames are always stored locally to
+the node that created it, and the associated key is broad-casted over
+the network. The DataFrames are not chunked, since they only contain
+keys that are associated to actual chunks of data.
 
 ### User Defined Logic
 
 The Application provides an overridable function where users can to implement
-and run their own business logic on the data. To implement distributed computation, each node in the network comes with associated identifier (e.g.
-an integer) that the user can use to run computation on that specific node.
+and run their own business logic on the data. To implement distributed computation, 
+each node in the network comes with associated identifier that the user can use 
+to run computation on that specific node.
+The identifiers start at 0 (always the node that is designated to be the server)
+all the way to `N-1`, where `N` is the number of nodes. 
 
-## Dataframe (Middle-Layer)
+## Key-Value Store (Middle-Layer)
 
-The DataFrame provides dataframe functionalities. Moreover, it expose to the
-user methods to save the value of a DataFrame to a key/name. With the key/name
-a DataFrame object can be recreated on the same node or in a different node.
+The Key-Value Store contains the actual logic to store & retrieve data.
+This includes:
+- managing the local storage
+- handling all the network communication
+- caching
 
-A DataFrame is made up of columns. A column is a distributed array. A column
-creates the illusion that the column is built on top of a plain array. In
-addition, it has a pushBack method to append new values to the column during
-the creation of the DataFrame. Updates are not support to simplify
-implementation. A column also includes a cache to mitigate the impact of its
-distributed nature.
+Since the Key-Value Store is the only access point to the underlying
+network, multiple classes on the top level (currently DataFrame and Application)
+has access to it.
 
-To support flexible use of DataFrame objects, we created a number of ways for
-users to create DataFrame objects (from an array of allowable objects,
-from reading in data from a SOR file, etc).
+## Node (Bottom-layer)
 
-## Key-Value Store
+The node encapsulates all the networking logic and functionality used
+by the above Key-Value Store.
+When an Eau2 application is started, the node is responsible for starting
+and connecting the nodes in the network according to some `NodeConfiguration`
+that is passed down from the application level.
 
-The Key-Value Store encapsulates the storage of the blobs,
-eventual caching to minimize network traffic and all the networking logic
-required to connect, send, and receive data over the cluster.
+The current initialization strategy changes depending on the node
+being a client or a server.
 
+The server initialization follows these steps:
+- start server
+- listen to incoming connection
+- register the required number of nodes (all of them)
+- broadcast their addresses to all the other nodes
+
+The client initialization follows these steps:
+- start client
+- connect to server (at the known address)
+- wait for the address book from the server
+- connect to all the other nodes
 
 # Implementation
 
+Following are the description of the main classes on which Eau2 is built.
+We describe them from in order from top layer to bottom layer.
+
 ## Application Layer
-
-To implement this layer, we envisioned the following classes.
-
-### Key
-
-The Key class will store the following metadata:
-- a unique string identifier
-- the node location of the data the key refers to.
-
-These metadata will be set by the constructor, and it will provide basic getters
-(and maybe setters) to retrieve these information.
 
 ### Application
 
-The Application class has the following fields:
+Application is a the top layer class that a user would extend to
+and override to create a custom program.
+The class has the following fields:
 ```c
 // the unique id of the node
 int id;
 
-// the Key-Value Store that is initialized by this application.
-// It is stored in the application level so to have a single point of deletion,
-// but it is only used in Dataframes.
+// the Key-Value Store used to store and retrieve
 KVStore store;
+
+// the number of items in each chunk of data
+size_t chunkItems;
 ```
 
 Among the methods, we have:
 ```c
 // creates a dataframe given a .sor file
-DataFrame::createDataframeFromSor(char* filepath);
+fromFile(Key* k, const char* file);
 
-// A method called to start the program and which calls execute();
-void run_();
+// creates a dataframe using a writer visitor
+fromVisitor(Key* k, const char* types, Writer* v);
 
-// A user overridable function to perform business logic
-void execute_();
+// creates a dataframe from a single value
+// there can be multiple overloaded version of this method to created
+// dataframes from different types values
+fromScalar(Key* k, ...);
+
+// an overridable method for users to implement business logic
+void run();
+
+// gets the id of this node
+getNodeId();
+
+// retrieves a dataframe from the store. Does not wait its creation.
+get(Key* k);
+// retrieves a dataframe from the store. Waits its creation.
+waitAndGet(Key* k);
 ```
+
+### Writer & Reader
+
+Two super classes extended by user defined visitors to implement
+custom logic to create dataframes or compute on them.
+
+## Shared: Application layer & Middle layer
+
+The following classes are shared among the top and middle layer.
+
+### Key
+
+The Key class is used to encapsulate metadata associated with a value.
+Currently the metadata are:
+- a unique string identifier
+- the node location of the data the key refers to.
+
+### Value
+
+The Value class is used to encapsulate the actual data.
+Currently it stores the data and the size of the data. 
+The data is stored as a `char*`.
+
+### DataFrame
+
+The DataFrame class is the data structure used to interact with data in Eau2.
+It stores metadata such as the data type of the columns, the number of columns,
+and number of rows. The current data types supported are:
+- 'B': boolean
+- 'I': integer
+- 'D': double
+- 'S': String
+
+Since the underlying data is distributed across the network, the DataFrame
+is responsible for keeping track of where the data is located.
+To do so, it holds a `DistributedColumn` object which is a wrapper around
+a table of `Key`s. The actual logic to retrieve the data is delegated to
+the `DistributedColumn` class which has access to the Key-Value Store underneath.
+
+DataFrame is a read-only class and does not provide methods to change its data.
+
 ## Middle-Layer
 
 Classes in the middle-layer include:
 
-### Distributed Array (DA)
+### KVStore (Key-Value Store)
 
-The Distributed Array manages the distributed nature of a Dataframe.
-The fields in a DA are:
+The KVStore is responsible for storing & retrieving the data.
+It has access to the network and contains serialization/deserialization
+as well as caching logic.
+
+There are two kinds of data stored in the KVStore:
+- chunks of actual data
+- serialized dataframes
+
+Both are stored in the `store` field, an `std::unordered_map` of 
+`Key`s and `Value`s.
+
+The KVStore also stores user defined keys in a separate array of keys,
+to keep track of where that data is stored.
+
+Among the primary methods, we have:
 ```c
-// an ordered array of keys that is a subset of all keys in the Key-Value Store
-KeyArray* keys;
+// Stores the given value associated with the given key to the
+// node specified by the key
+// Note: this method steals the arguments!
+put(Key* k, Value* v);
 
-// the Key-Value Store of the node
-KVStore* store;
+// Gets the value associated with the given key
+get(Key* k);
 
-// Cache slots for a Value
-Value* cache;
-
-// Type of data allowed to be stored within the distributed array
-SerDesTypes type;
+// Gets the value associated with the given key.
+// Wait for the key to be broadcasted if not yet in the server.
+waitAndGet(Key* k);
 ```
 
-DA methods include:
-```c
-bool getBool(size_t col, size_t row);
+## Network layer
 
-int getInt(size_t col, size_t row);
+This layer is primarily comprised of the `Node` class.
 
-float getFloat(size_t col, size_t row);
+### Node
 
-String* getString(size_t col, size_t row);
-```
-
-### Dataframe
-
-On top of dataframe functionalities (which are the same as the one we
-previously built), Dataframe provides ways to store/retrieve data of the form
-of Dataframe.
-
-In addition to our previously built methods, we have:
-```c
-// to build a dataframe from a unique string identifier
-Dataframe::fromKey(char* key);
-```
-
-## KVStore
-
-The Key-Value Store is responsible for all the network interactions,
-serialization/deserialization, and data storage on the form of blobs.
-
-Notable fields on this class include:
-```c
-// Id of the Key Value Store node_infos_
-int id_;
-
-// Holding all the keys
-KeyArray* keys_;
-
-// The local cache containing the keys & values of the cached blobs
-ValueArray* values_;
-```
-
-The methods include:
-```c
-// Get chunks of data in their correct column type given their associated key
-void put(Key* k, Value* v);
-Value* get(Key* k);
-Value* waitAndGet(Key* k);
-```
+The Node class encapsulated all the networking logic necessary for
+the Eau2 to work.
+Among the functionalities, we have:
+- connect to nodes
+- send messages
+- receive messages
 
 # Use Cases
 
-To use our program, the user will create a class that extends our Application
-class and override the its execute() method. In the execute method the user
-will put the business logic that he/she wants to perform on the data.
-The flow of the execute method depends on if the user wants the computation to
-be distribuited or on a single node.
+To use Eau2, the user will create a class that extends the `Application` 
+and override the `run()` method, which will contain the user's business logic.
+A basic implementation and flow of the `run()` method is as follows:
 
-Single node computation example:
+General usage example:
+
 ```c
 // In DemoApplication class
 
-void execute() override {
-    Dataframe* df = this->createDataframeFromSor("test.sor", "df");
+void run() override {
+    // server node is 0
+    if (this->getNodeId() == 0) {
+        delete this->fromFile(Key("data"), "file.txt");
+    }
+    
+    Dataframe* df = this->waitAndGet(Key("data"));
     long long sum = 0;
     for (size_t i = 0; i < df->width(); i++) {
         for (size_t j = 0; j < df->length(); j++) {
             sum += df->getInt(i, j);
         }   
     }
-    df->storeAs(Key("sum"));
-    Dataframe* df2 = Dataframe::fromKey(Key("sum"));
-    assert(sum == df2->getInt(0,0));
+    // N is the local node id
+    delete this->fromScalar(Key("local_sum_N"), sum);
+    if (this->getNodeId() == 0) {
+        // check that sum is equal in all nodes
+        for (size_t i = 1; i < numberOfNodes; i++) {
+            Dataframe* df2 = this->waitAndGet(Key("local_sum_i"));
+            assert(sum == df2->getInt(0,0));
+        }      
+    }
 }
 ```
 
-Distributed computation example:
-```c
-// In DistributedDemoApplication class
-
-void execute() override {
-    switch (this->id) {
-        case 1:
-            this->sum();
-            break;
-	case 2:
-            this->compare();
-            break;
-        default:
-            assert(false);
-    }
-}
-
-void sum() {
-    Dataframe* df = this->createDataframeFromSor("test.sor", "df");
-    long long sum = 0;
-    for (size_t i = 0; i < df->width(); i++) {
-    	for (size_t j = 0; j < df->length(); j++) {
-    		sum += df->getInt(i, j);
-    	}   
-    }
-    df->storeAs("sum");
-}
-
-void compare() {
-    Dataframe* df = Dataframe::fromKey("df");
-    long long sum2 = 0;
-    for (size_t i = 0; i < df->width(); i++) {
-    	for (size_t j = 0; j < df->length(); j++) {
-    		sum2 += df->getInt(i, j);
-    	}   
-    }
-    Dataframe* df2 = Dataframe::fromKey("sum");
-    assert(sum2 == sum);
-}
-```
+where we have a node reading data into the system, 
+then retrieve the data in all nodes and do some computation on each one
+of them, and then do some merging operation on one of them.
 
 # Open Questions
 
-- Should we implement a message queue instead of a single message field?
+- How to connect multiple computers to run Eau2
 
 # Status
 
-Currently working on refactoring our distribuited algorithm and implementing 
-the application level interface methods to create dataframes from different sources.
-Also we need to implement all the visitors, rowers/fielders to execute application level examples.
-Other things we need to focus on are:
-- writing more tests
-- refactor arrays/columns
-- refactor fixed size buffer decision
+Currently working on:
+- fixing memory leaks
+- find a way to connect multiple computers over the network
+- implementing linus
+- writing tests
 
 ### Estimated Time of Implementation
 
-Distributed KV store: 40+ hours
+Fixing current memory leaks: 5hours
 
-Implementing DA & Dataframe modifications: 40~ hours
+Connect multiple computers over the network: 10hours
 
-Application layer implementation + demo: 30~ hours
+Implementing linus: 20+ hours
 
-Possible ML algorithms (random forest)/ 7 Degrees of Linus: 20~ hours
+Writing tests: 6hours
 
-Overall, the amount of work will be around 140 hours.
-However, since it is usual to underestimate project times,
-the time might end up well above the estimate.
+Total time left so far: 40+ hours
