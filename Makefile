@@ -4,6 +4,7 @@ COMPILER := g++
 NETWORK_CONFIGURATIONS := -nodes 2 -socket_backlog 5 -chunk_items 1000
 SERVER := -ip 127.0.0.1 -port 9000 -server_ip 127.0.0.1 -server_port 9000
 CLIENT := -ip 127.0.0.1 -port 9001 -server_ip 127.0.0.1 -server_port 9000
+CLIENT2 := -ip 127.0.0.1 -port 9002 -server_ip 127.0.0.1 -server_port 9000
 FILE := -file 100k.txt
 
 run: docker_run
@@ -16,6 +17,9 @@ server: build
 
 client: build
 	./main  $(CLIENT) $(NETWORK_CONFIGURATIONS) $(FILE)
+
+client: build
+	./main  $(CLIENT2) $(NETWORK_CONFIGURATIONS) $(FILE)
 
 docker_build:
 	$(DOCKER) "cd /test; $(COMPILER) $(CXXFLAGS) main.cpp -o main"

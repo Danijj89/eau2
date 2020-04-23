@@ -8,9 +8,8 @@ Its distributed nature is hidden from the
 user, who primarily work with dataframes and save intermediate results by
 assigning keys to them.
 
-To run the prepared example program that comes with the repository, please use
-`make docker_run`. To run the tests and memory check, please use
-`make valgrind`.
+To run the prepared example program (wordcount) that comes with the repository, please use
+`make server` and `make client`.
 
 # Architecture
 
