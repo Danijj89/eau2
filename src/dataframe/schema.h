@@ -32,7 +32,7 @@ public:
 			types[i] = from->colType(i);
 		}
 		types[nCols] = '\0';
-		this->types_ = new String(types);
+		this->types_ = new String(true, types, nCols);
 	}
 
 	Schema(const char* types) {

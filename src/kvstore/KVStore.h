@@ -36,8 +36,8 @@ public:
 	}
 
 	~KVStore() {
-		this->kvThread_.join();
-		printf("%lu: kvstore thread joined\n", this->id_);
+		//this->kvThread_.join();
+		//printf("%lu: kvstore thread joined\n", this->id_);
 		delete this->userKeys_;
 		delete this->lock_;
 		delete this->replyMessage_;
@@ -46,7 +46,7 @@ public:
 	}
 
 	Value* get(Key* k) {
-		printf("%lu: getting key %s stored in node %lu\n", this->id_, k->getKey()->c_str(), k->getNodeId());
+		//printf("%lu: getting key %s stored in node %lu\n", this->id_, k->getKey()->c_str(), k->getNodeId());
 		if (k->getNodeId() == this->id_) {
 			return &(this->store_[*k]);
 		}
@@ -64,7 +64,7 @@ public:
 	}
 
 	Value* requestValue(Key* k) {
-		printf("%lu: requesting value for key %s from node %lu\n", this->id_, k->getKey()->c_str(), k->getNodeId());
+		//printf("%lu: requesting value for key %s from node %lu\n", this->id_, k->getKey()->c_str(), k->getNodeId());
 		Message m = Message(MsgKind::GET, DataType::KEY, k->serialize());
 
 		// request value
@@ -98,7 +98,7 @@ public:
 	 * @param v
 	 */
 	void put(Key* k, Value* v) {
-		printf("%lu: put key %s in node %lu\n", this->id_, k->getKey()->c_str(), k->getNodeId());
+		//printf("%lu: put key %s in node %lu\n", this->id_, k->getKey()->c_str(), k->getNodeId());
 		size_t nodeId = k->getNodeId();
 		if (nodeId == this->id_) {
 			this->store_[*k] = *v;
@@ -120,7 +120,7 @@ public:
 	 * @param v value
 	 */
 	void putUserData(Key* k, Value* v) {
-		printf("%lu, put user key %s in node %lu\n", this->id_, k->getKey()->c_str(), this->id_);
+		//printf("%lu, put user key %s in node %lu\n", this->id_, k->getKey()->c_str(), this->id_);
 		k->setNodeId(this->id_);
 		this->store_[*k] = *v;
 		this->userKeys_->pushBack(k);
@@ -137,19 +137,19 @@ public:
 	}
 
 	Value* getUserData(Key* k) {
-		printf("%lu: get user data for key %s from node %lu\n", this->id_, k->getKey()->c_str(), k->getNodeId());
+		//printf("%lu: get user data for key %s from node %lu\n", this->id_, k->getKey()->c_str(), k->getNodeId());
 		Key* localKey = this->userKeys_->find(k);
 		assert(localKey != nullptr);
 		return this->get(localKey);
 	}
 
 	Value* waitAndGetUserData(Key* k) {
-		printf("%lu: wait and get user data for key %s\n", this->id_, k->getKey()->c_str());
+		//printf("%lu: wait and get user data for key %s\n", this->id_, k->getKey()->c_str());
 		Key* localKey;
 		while (this->running_ && (localKey = this->userKeys_->find(k)) == nullptr) {
 			sleep(2);
 		}
-		printf("%lu: got user data for key %s", this->id_, k->getKey()->c_str());
+		//printf("%lu: got user data for key %s", this->id_, k->getKey()->c_str());
 		return this->get(this->userKeys_->find(localKey));
 	}
 
@@ -158,7 +158,7 @@ public:
 			pollfd* fds = this->pollfds_->getPollfds();
 			size_t len = this->pollfds_->size();
 			if (poll(fds, len, -1) == -1) {
-				fprintf(stderr, "Error with poll mechanism.\n");
+				//printf(stderr, "Error with poll mechanism.\n");
 			}
 			for (size_t i = 0; i < len; ++i) {
 				if (fds[i].revents == POLLIN) {
@@ -166,26 +166,26 @@ public:
 					Message* m = readMessage(fd);
 					switch (m->getKind()) {
 						case MsgKind::GET:
-							printf("%lu: received GET message\n", this->id_);
+							//printf("%lu: received GET message\n", this->id_);
 							this->handleGetMessage(fd, m);
 							delete m;
 							break;
 						case MsgKind::PUT:
-							printf("%lu: received PUT message\n", this->id_);
+							//printf("%lu: received PUT message\n", this->id_);
 							this->handlePutMessage(m);
 							delete m;
 							break;
 						case MsgKind::ADD_KEY:
-							printf("%lu: received ADD_KEY message\n", this->id_);
+							//printf("%lu: received ADD_KEY message\n", this->id_);
 							this->handleAddKeyMessage(m);
 							delete m;
 							break;
 						case MsgKind::REPLY:
-							printf("%lu: received REPLY message\n", this->id_);
+							//printf("%lu: received REPLY message\n", this->id_);
 							this->handleReplyMessage(m);
 							break;
 						case MsgKind::SHUTDOWN:
-							printf("%lu: received SHUTDOWN message\n", this->id_);
+							//printf("%lu: received SHUTDOWN message\n", this->id_);
 							delete m;
 							this->running_ = false;
 							break;
@@ -195,14 +195,14 @@ public:
 				}
 			}
 		}
-		printf("%lu: stopped handling messages\n", this->id_);
+		//printf("%lu: stopped handling messages\n", this->id_);
 	}
 
 	void handleGetMessage(int fd, Message* m) {
 		size_t counter = 0;
 		Key* k = Key::deserialize(m->getBody(), &counter);
 		Value* v = &this->store_[*k];
-		printf("%lu: handling GET request for key %s\n", this->id_, k->getKey()->c_str());
+		//printf("%lu: handling GET request for key %s\n", this->id_, k->getKey()->c_str());
 		String* body = new String(v->getBlob(), v->getSize());
 		Message replyMessage = Message(MsgKind::REPLY, DataType::VALUE, body);
 		sendMessage(fd, &replyMessage);
