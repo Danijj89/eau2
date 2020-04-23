@@ -45,7 +45,9 @@ public:
 		words->localMap(&add);
 		delete words;
 		Summer cnt(&map);
-		delete this->fromVisitor(this->mk_key(this->getNodeId()), "SI", &cnt);
+		Key* k = this->mk_key(this->getNodeId());
+		delete this->fromVisitor(k, "SI", &cnt);
+		delete k;
 	}
 
 	/** Merge the data frames of all nodes */
