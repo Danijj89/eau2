@@ -19,8 +19,12 @@ public:
 
 	String* serialize() {
 		StrBuff sb = StrBuff();
-		sb.c(*this->key_->serialize());
-		sb.c(*this->value_->serialize());
+		String* temp = this->key_->serialize();
+		sb.c(*temp);
+		delete temp;
+		temp = this->value_->serialize();
+		sb.c(*temp);
+		delete temp;
 		return sb.get();
 	}
 

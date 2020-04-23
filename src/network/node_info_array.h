@@ -78,11 +78,15 @@ public:
 	String* serialize() {
 		Serializer s = Serializer();
 		StrBuff sb = StrBuff();
-		sb.c(*s.serializeSizeT(this->size())->get());
+		String* temp = s.serializeSizeT(this->size())->get();
+		sb.c(*temp);
+		delete temp;
 		for (size_t i = 0; i < this->size(); i++) {
 			NodeInfo* curr = dynamic_cast<NodeInfo*>(this->array_->get(i));
 			assert(curr != nullptr);
-			sb.c(*curr->serialize());
+			temp = curr->serialize();
+			sb.c(*temp);
+			delete temp;
 		}
 		return sb.get();
 	}

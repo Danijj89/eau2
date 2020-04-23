@@ -188,11 +188,17 @@ public:
 	String* serialize() {
 		Serializer s = Serializer();
 		StrBuff sb = StrBuff();
-		sb.c(*this->schema_->serialize());
+		String* temp = this->schema_->serialize();
+		sb.c(*temp);
+		delete temp;
 		for (size_t i = 0; i < this->width_; i++) {
-			sb.c(*this->keys_[i]->serialize());
+			temp = this->keys_[i]->serialize();
+			sb.c(*temp);
+			delete temp;
 		}
-		sb.c(*s.serializeSizeT(this->lastChunkSize_)->get());
+		temp = s.serializeSizeT(this->lastChunkSize_)->get();
+		sb.c(*temp);
+		delete temp;
 		return sb.get();
 	}
 

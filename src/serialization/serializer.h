@@ -10,7 +10,6 @@ public:
 
 	String* get() {
 		String* s = this->sb.get();
-		this->sb = StrBuff();
 		return s;
 	}
 

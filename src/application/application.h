@@ -66,6 +66,10 @@ public:
 			}
 			keyIdx++;
 			lastChunkSize = temp[0]->size();
+			for (size_t i = 0; i < nCols; i++) {
+				delete temp[i];
+			}
+			delete[] temp;
 		}
 
 		cols->setLastChunkSize(lastChunkSize);

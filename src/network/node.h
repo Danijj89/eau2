@@ -70,7 +70,9 @@ public:
 		this->pollfds_->pushBack(listener);
 		printf("%d: Got necessary structs for server, and ready to accept\n", this->myInfo_->getPort());
 		this->acceptConnections(listener);
-		this->broadcastAddressBook();
+		if (this->numNodes_ > 1) {
+			this->broadcastAddressBook();
+		}
 	}
 
 	virtual void acceptConnections(int listener) {
@@ -95,12 +97,14 @@ public:
 
 	virtual void broadcastAddressBook() {
 		printf("%d: Broadcasting address book\n", this->myInfo_->getPort());
-		Message m = Message(MsgKind::DIRECTORY, DataType::NODE_INFO_ARRAY, this->addressBook_->serialize());
+		String* body = this->addressBook_->serialize();
+		Message m = Message(MsgKind::DIRECTORY, DataType::NODE_INFO_ARRAY, body);
 		for (size_t i = 1; i < this->addressBook_->size(); ++i) {
 			sendMessage(this->addressBook_->get(i)->getFd(), &m);
 			printf("%d: Broadcasted address book to %lu\n", this->myInfo_->getPort(), i);
 		}
 		printf("%d: Broadcasted address book\n", this->myInfo_->getPort());
+		delete body;
 	}
 
 	virtual void setupClient(int listener) {

@@ -39,9 +39,13 @@ public:
 		StrBuff sb = StrBuff();
 		Serializer s = Serializer();
 		s.serializeSizeT(this->size());
-		sb.c(*s.get());
+		String* temp = s.get();
+		sb.c(*temp);
+		delete temp;
 		for (size_t i = 0; i < this->size(); i++) {
-			sb.c(*this->get(i)->serialize(type));
+			temp = this->get(i)->serialize(type);
+			sb.c(*temp);
+			delete temp;
 		}
 		return sb.get();
 	}
