@@ -18,7 +18,7 @@ public:
 		this->vals_ = new DFDataArray(nCols);
 		// Initialize array with values so that it can be set
 		for (size_t i = 0; i < nCols; i++) {
-			this->vals_->pushBack(new DFData());
+			this->vals_->pushBack(new DFData(0));
 		}
 	}
 
@@ -34,8 +34,7 @@ public:
 	 */
 	void set(size_t col, bool val) {
 		assert(this->schema_->colType(col) == 'B');
-		DFData* v = new DFData();
-		v->payload_.b = val;
+		DFData* v = new DFData(val);
 		this->vals_->set(col, v);
 	}
 
@@ -46,8 +45,7 @@ public:
 	 */
 	void set(size_t col, int val) {
 		assert(this->schema_->colType(col) == 'I');
-		DFData* v = new DFData();
-		v->payload_.i = val;
+		DFData* v = new DFData(val);
 		this->vals_->set(col, v);
 	}
 
@@ -58,8 +56,7 @@ public:
 	 */
 	void set(size_t col, double val) {
 		assert(this->schema_->colType(col) == 'D');
-		DFData* v = new DFData();
-		v->payload_.d = val;
+		DFData* v = new DFData(val);
 		this->vals_->set(col, v);
 	}
 
@@ -70,8 +67,7 @@ public:
 	 */
 	void set(size_t col, String* val) {
 		assert(this->schema_->colType(col) == 'S');
-		DFData* v = new DFData();
-		v->payload_.s = new String(*val);
+		DFData* v = new DFData(new String(*val));
 		this->vals_->set(col, v);
 	}
 

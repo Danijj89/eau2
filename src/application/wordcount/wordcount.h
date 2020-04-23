@@ -10,7 +10,6 @@
 class WordCount: public Application {
 public:
 	Key in;
-	std::unordered_map<String, int, StringHashFunction> all = std::unordered_map<String, int, StringHashFunction>();
 	char* filePath;
 
 	WordCount(NodeConfiguration* conf) : Application(conf), in("data"), filePath(conf->getFilePath()) { }

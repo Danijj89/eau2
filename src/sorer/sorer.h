@@ -412,19 +412,19 @@ public:
 			for (size_t j = 0; j < numRows; ++j) {
 				int start = this->columnar_[i]->getStart(j);
 				int end = this->columnar_[i]->getEnd(j);
-				DFData* v = new DFData();
+				DFData* v;
 				switch (this->schema_->get(i)) {
 					case Types::BOOL:
-						v->payload_.b = this->parseBool(start, end);
+						v = new DFData(this->parseBool(start, end));
 						break;
 					case Types::INT:
-						v->payload_.i = this->parseInt(start, end);
+						v = new DFData(this->parseInt(start, end));
 						break;
 					case Types::DOUBLE:
-						v->payload_.d = this->parseDouble(start, end);
+						v = new DFData(this->parseDouble(start, end));
 						break;
 					case Types::STRING:
-						v->payload_.s = this->parseString(start, end);
+						v = new DFData(this->parseString(start, end));
 						break;
 					default:
 						assert(false);
