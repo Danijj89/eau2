@@ -20,18 +20,19 @@ public:
 	}
 
 	Serializer* serializeInt(int val) {
-		char* buff = new char[4];
+		char* buff = new char[5];
 		buff[3] = (char) (val >> 24);
 		buff[2] = (char) (val >> 16);
 		buff[1] = (char) (val >> 8);
 		buff[0] = (char) val;
-		String s(buff, 4);
+		buff[4] = '\0';
+		String s(true, buff, 4);
 		this->sb.c(s);
 		return this;
 	}
 
 	Serializer* serializeSizeT(size_t val) {
-		char buff[8];
+		char* buff = new char[9];
 		buff[7] = (char) (val >> 56);
 		buff[6] = (char) (val >> 48);
 		buff[5] = (char) (val >> 40);
@@ -40,7 +41,8 @@ public:
 		buff[2] = (char) (val >> 16);
 		buff[1] = (char) (val >> 8);
 		buff[0] = (char) val;
-		String s(buff, 8);
+		buff[8] = '\0';
+		String s(true, buff, 8);
 		this->sb.c(s);
 		return this;
 	}

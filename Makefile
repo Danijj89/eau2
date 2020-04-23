@@ -28,13 +28,13 @@ docker_run: docker_build
 	$(DOCKER) "cd /test; ./main"
 
 docker_server: docker_build
-	$(DOCKER) "$(SERVER) $(NETWORK_CONFIGURATIONS) $(FILE)"
+	$(DOCKER) "cd /test; ./main $(SERVER) $(NETWORK_CONFIGURATIONS) $(FILE)"
 
 docker_client: docker_build
-	$(DOCKER) "$(CLIENT) $(NETWORK_CONFIGURATIONS) $(FILE)"
+	$(DOCKER) "cd /test; ./main $(CLIENT) $(NETWORK_CONFIGURATIONS) $(FILE)"
 
 docker_valgrind: docker_build
-	$(DOCKER) "cd /test; valgrind --leak-check=full ./main"
+	$(DOCKER) "cd /test; valgrind --leak-check=full ./main $(SERVER) -nodes 1 -socket_backlog 5 -chunk_items 1000 $(FILE)"
 
 test_setup:
 	$(DOCKER) "cd /test/tests; cmake ."
