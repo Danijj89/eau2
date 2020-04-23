@@ -17,25 +17,32 @@ TEST(SerializerTests, serializerConstructorTest) {ASSERT_EXIT_ZERO(serializerCon
 
 
 void serializerSerializationTest() {
-	Serializer ser = Serializer();
-
+	Serializer ser1 = Serializer();
 	bool demoBool = true;
-	ser.serializeBool(demoBool);
+	ser1.serializeBool(demoBool);
 
+	Serializer ser2 = Serializer();
 	int demoInt = 12345;
-	ser.serializeInt(demoInt);
+	ser2.serializeInt(demoInt);
 
+	Serializer ser3 = Serializer();
 	size_t demoSizeT = 123456789;
-	ser.serializeSizeT(demoSizeT);
+	ser3.serializeSizeT(demoSizeT);
 
+	Serializer ser4 = Serializer();
 	double demoDouble = 3.14159265358979323846264338327950288419716939937510;
-	ser.serializeDouble(demoDouble);
+	ser4.serializeDouble(demoDouble);
 
+	Serializer ser5 = Serializer();
 	String* demoString = new String("I'm part of the demo.");
-	ser.serializeString(demoString);
+	ser5.serializeString(demoString);
 	delete demoString;
 
-	delete ser.get();
+	delete ser1.get();
+	delete ser2.get();
+	delete ser3.get();
+	delete ser4.get();
+	delete ser5.get();
 
 	exit(0);
 }
