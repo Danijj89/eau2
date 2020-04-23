@@ -36,6 +36,13 @@ public:
 	}
 
 	Schema(const char* types) {
+		if (types == nullptr) {
+			assert(false);
+		}
+		int len = strlen(types);
+		for (int i = 0; i < len; ++i) {
+			assert(this->isValidType_(types[i]));
+		}
 		this->types_ = new String(types);
 	}
 
@@ -70,9 +77,10 @@ public:
 		assert(this->isValidType_(typ));
 		size_t len = this->types_->size();
 		char* prev = this->types_->c_str();
-		char* next = new char[len + 1];
+		char* next = new char[len + 2];
 		memcpy(next, prev, len);
-		next[len] = '\0';
+		next[len] = typ;
+		next[len + 1] = '\0';
 		delete this->types_;
 		this->types_ = new String(next);
 	}

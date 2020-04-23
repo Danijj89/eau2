@@ -1,4 +1,4 @@
-
+#include <stdio.h>
 
 #include "src/network/node_configuration.h"
 #include "src/util/arg_parser.h"
@@ -9,5 +9,6 @@ int main(int argc, char** argv) {
 	WordCount app = WordCount(conf);
 	app.run();
 	app.waitShutDown();
+	printf("Run terminated\n");
 	return 0;
 }

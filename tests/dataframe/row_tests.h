@@ -46,7 +46,7 @@ TEST(RowTests, rowSetAndGet) {ASSERT_EXIT_ZERO(rowSetAndGet)}
 
 void rowFunctionalTest() {
 	// Set Up
-	Schema* schema = new Schema("BIFS");
+	Schema* schema = new Schema("BIDS");
 	Row* r = new Row(schema);
 
 	CS4500_ASSERT_TRUE(r->width() == 4);
@@ -68,8 +68,8 @@ void rowFunctionalTest() {
 	int i1 = r->getInt(1);
 	CS4500_ASSERT_TRUE(i0 == i1);
 
-	CS4500_ASSERT_TRUE(schema->colType(2) == 'F');
-	CS4500_ASSERT_TRUE(r->colType(2) == 'F');
+	CS4500_ASSERT_TRUE(schema->colType(2) == 'D');
+	CS4500_ASSERT_TRUE(r->colType(2) == 'D');
 	double d0 = 3.14;
 	r->set(2, d0);
 	double d1 = r->getDouble(2);

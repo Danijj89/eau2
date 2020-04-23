@@ -25,29 +25,29 @@
 #include "network/node_tests.h" // done
 #include "network/pollfds_tests.h" // low priority
 
-#include "kvstore/key_array_tests.h" // initial blank test
-#include "kvstore/key_tests.h" // initial blank test
-#include "kvstore/kvstore_tests.h" // initial blank test
-#include "kvstore/pair_tests.h" // initial blank test
-#include "kvstore/value_tests.h" // initial blank test
+#include "kvstore/key_array_tests.h" // done
+#include "kvstore/key_tests.h" // done
+#include "kvstore/kvstore_tests.h" // done
+#include "kvstore/pair_tests.h" // done
+#include "kvstore/value_tests.h" // done
 
-#include "dataframe/dataframe_tests.h" //initial blank test
-#include "dataframe/df_data_array_tests.h" //initial blank test
-#include "dataframe/df_data_tests.h" //initial blank test
-#include "dataframe/distributed_columns_tests.h" //initial blank test
-#include "dataframe/fielder_tests.h" //initial blank test
-#include "dataframe/row_tests.h" //initial blank test
-#include "dataframe/rower_tests.h" //initial blank test
-#include "dataframe/schema_tests.h" //initial blank test
+#include "dataframe/dataframe_tests.h" // low priority
+#include "dataframe/df_data_array_tests.h" // low priority
+#include "dataframe/df_data_tests.h" // low priority
+#include "dataframe/distributed_columns_tests.h" // low priority
+#include "dataframe/fielder_tests.h" // low priority
+#include "dataframe/row_tests.h" // done
+#include "dataframe/rower_tests.h" // low priority
+#include "dataframe/schema_tests.h" // done
 
-#include "application/application_tests.h" //initial blank test
-#include "application/reader_tests.h" //initial blank test
-#include "application/writer_tests.h" //initial blank test
+#include "application/application_tests.h" // low priority
+#include "application/reader_tests.h" // low priority
+#include "application/writer_tests.h" // low priority
 
-#include "application/wordcount/adder_tests.h" //initial blank test
-#include "application/wordcount/filereader_tests.h" //initial blank test
-#include "application/wordcount/summer_tests.h" //initial blank test
-#include "application/wordcount/wordcount_tests.h" //initial blank test
+#include "application/wordcount/adder_tests.h" // low priority
+#include "application/wordcount/filereader_tests.h" // low priority
+#include "application/wordcount/summer_tests.h" // low priority
+#include "application/wordcount/wordcount_tests.h" // low priority
 
 
 int main(int argc, char **argv) {

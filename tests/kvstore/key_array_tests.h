@@ -96,8 +96,6 @@ void keyArraySetter() {
 
 	CS4500_ASSERT_TRUE(array.get(5)->equals(&k0));
 
-	delete k1;
-
 	exit(0);
 }
 

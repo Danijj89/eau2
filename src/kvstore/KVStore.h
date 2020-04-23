@@ -193,6 +193,7 @@ public:
 				}
 			}
 		}
+		printf("%lu: stopped handling messages\n", this->id_);
 	}
 
 	void handleGetMessage(int fd, Message* m) {

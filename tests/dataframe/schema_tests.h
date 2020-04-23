@@ -1,6 +1,20 @@
 #include "../../src/dataframe/schema.h"
 
 
+void schemaConstructorTest() {
+	Schema scm1 = Schema();
+	Schema* scm2 = new Schema();
+	Schema scm3 = Schema("BIDS");
+	Schema* scm4 = new Schema(scm3);
+
+	delete scm2;
+	delete scm4;
+	exit(0);
+}
+
+TEST(SchemaTests, schemaConstructorTest) {ASSERT_EXIT_ZERO(schemaConstructorTest)}
+
+
 void schemaIsValidTypes() {
 	Schema s = Schema();
 	ASSERT_TRUE(s.isValidType_('B'));
@@ -42,7 +56,7 @@ void failingConstructorWrongTypes() {
 
 TEST(SchemaTests, failingConstructorWrongTypes
 ) {
-CS4500_ASSERT_EXIT_ONE(failingConstructorWrongTypes);
+CS4500_ASSERT_SIGNAL_SIX(failingConstructorWrongTypes);
 }
 
 void failingConstructorNullptr() {
@@ -51,14 +65,14 @@ void failingConstructorNullptr() {
 
 TEST(SchemaTests, failingConstructorNullptr
 ) {
-CS4500_ASSERT_EXIT_ONE(failingConstructorNullptr);
+CS4500_ASSERT_SIGNAL_SIX(failingConstructorNullptr);
 }
 
 void schemaCopyConstructor() {
 
-	Schema* scm = new Schema("BIFS");
+	Schema* scm = new Schema("BIDS");
 	scm->addColumn('I');
-	Schema* scm_copy = new Schema(*scm);
+	Schema* scm_copy = new Schema(scm);
 
 	CS4500_ASSERT_TRUE(scm->colType(0) == scm_copy->colType(0));
 	CS4500_ASSERT_TRUE(scm->colType(1) == scm_copy->colType(1));
@@ -84,11 +98,11 @@ void colTypeIndexOutOfBound() {
 
 TEST(SchemaTests, colTypeIndexOutOfBound
 ) {
-CS4500_ASSERT_EXIT_ONE(colTypeIndexOutOfBound);
+CS4500_ASSERT_SIGNAL_SIX(colTypeIndexOutOfBound);
 }
 
 void schemaFunctionalTest() {
-    Schema *s = new Schema("ISFB");
+    Schema *s = new Schema("ISDB");
 
     CS4500_ASSERT_TRUE(s->colType(0) == 'I');
     CS4500_ASSERT_TRUE(s->colType(3) == 'B');
